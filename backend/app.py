@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from database import db 
 from database.models import DatosExcel
 from config import Config
@@ -22,24 +23,23 @@ ALLOWED_EXTENSIONS = {"xls", "xlsx"}
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-DATABASE_URL = os.getenv("RAILWAY_DATABASE_URL")
+
+DATABASE_URL = os.getenv("NEON_DATABASE_URL")
 if not DATABASE_URL:
-    raise ValueError("Falta la variable de entorno RAILWAY_DATABASE_URL")
+    raise ValueError("Falta la variable de entorno NEON_DATABASE_URL")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = f"{DATABASE_URL}?sslmode=require"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-with app.app_context():
-    db.init_app(app)
-    db.create_all()
+db.init_app(app)
+migrate = Migrate(app, db)
 
 app.register_blueprint(api_bp, url_prefix="/api")
 
 class Usuario(db.Model):
-    __tablename__ = 'usuario'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
+  
 
 @app.after_request
 def after_request(response):
@@ -51,6 +51,10 @@ def after_request(response):
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route("/prueba")
+def prueba():
+    return {"mensaje": "Conexión exitosa"}
 
 @app.route("/subir", methods=["POST"])
 def subir_archivo():
