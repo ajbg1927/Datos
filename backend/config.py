@@ -4,13 +4,19 @@ from sqlalchemy import create_engine
 
 load_dotenv()
 
-db_url = os.getenv("DATABASE_URL")
+db_url = os.getenv("DB_CONNECTION_STRING")
 
-if db_url and "sslmode" not in db_url:
-    if "?" in db_url:
-        db_url += "&sslmode=require"
-    else:
-        db_url += "?sslmode=require"
+
+if db_url:
+    if not db_url.startswith("postgresql+psycopg2://"):
+        db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
+
+    if "sslmode" not in db_url:
+        if "?" in db_url:
+            db_url += "&sslmode=require"
+        else:
+            db_url += "?sslmode=require"
+
 
 SQLALCHEMY_DATABASE_URI = db_url
 
