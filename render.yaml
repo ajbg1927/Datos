@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: backend-flask
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app"
+    envVars:
+      - key: NEON_DATABASE_URL
+        sync: false
