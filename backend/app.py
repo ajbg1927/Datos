@@ -56,6 +56,10 @@ def allowed_file(filename):
 def prueba():
     return {"mensaje": "Conexión exitosa"}
 
+@app.route("/")
+def home():
+    return "Flask en Render funcionando"
+
 @app.route("/subir", methods=["POST"])
 def subir_archivo():
     if "file" not in request.files:
