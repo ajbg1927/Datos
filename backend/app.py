@@ -54,23 +54,6 @@ def after_request(response):
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
- @app.route('/traducir', methods=['POST'])
-  def traducir():
-      data = request.json
-      texto = data.get('texto')
-      idioma_destino = data.get('idioma_destino')
-
-      url = f"https://api-edge.cognitive.microsofttranslator.com/translate?api-version=3.0&to={idioma_destino}"
-      headers = {
-          'Ocp-Apim-Subscription-Key': 'TU_CLAVE_DE_SUSCRIPCIÓN',
-          'Content-Type': 'application/json'
-      }
-      body = [{'Text': texto}]
-
-      response = requests.post(url, headers=headers, json=body)
-      return jsonify(response.json())
-
-
 @app.route("/prueba")
 def prueba():
     return {"mensaje": "Conexión exitosa"}
