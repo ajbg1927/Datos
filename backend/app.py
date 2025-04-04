@@ -39,6 +39,7 @@ app.register_blueprint(api_bp, url_prefix="/api")
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=True)
   
 
 @app.after_request
