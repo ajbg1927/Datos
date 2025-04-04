@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:5000";
+const API_URL = "https://backend-flask-0rnq.onrender.com";
 
 export const subirArchivo = async (archivo) => {
     const formData = new FormData();
@@ -8,7 +8,7 @@ export const subirArchivo = async (archivo) => {
     console.log("FormData enviado:", formData);
 
     try {
-        const response = await fetch("http://127.0.0.1:5000/subir", {
+        const response = await fetch(`${API_URL}/subir`, {
             method: "POST",  
             body: formData,  
         });
@@ -25,6 +25,7 @@ export const subirArchivo = async (archivo) => {
         throw error;
     }
 };
+
 export const getHojas = async (nombreArchivo) => {
     const response = await fetch(`${API_URL}/hojas/${nombreArchivo}`);
     return response.json();
