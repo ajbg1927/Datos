@@ -12,7 +12,7 @@ import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, Legend, Cartesia
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
-const API_URL = "http://127.0.0.1:5000";
+const API_URL = "https://backend-flask-0rnq.onrender.com";
 
 const App = () => {
   const [archivos, setArchivos] = useState([]);
