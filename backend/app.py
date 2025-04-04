@@ -28,7 +28,7 @@ DATABASE_URL = os.getenv("NEON_DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("Falta la variable de entorno NEON_DATABASE_URL")
 
-app.config["SQLALCHEMY_DATABASE_URI"] = f"{DATABASE_URL}?sslmode=require"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DB_CONNECTION_STRING")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)

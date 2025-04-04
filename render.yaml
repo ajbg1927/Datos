@@ -1,12 +1,12 @@
 services:
   - type: web
-    name: backend
+    name: backend-flask
     env: python
     buildCommand: |
       cd backend
       pip install -r requirements.txt
     startCommand: |
-      flask db upgrade && gunicorn app:app
+      cd backend && flask db upgrade && gunicorn app:app
     envVars:
       - key: FLASK_APP
         value: app.py
