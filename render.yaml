@@ -1,16 +1,16 @@
 services:
   - type: web
-    name: backend-flask
+    name: backend
     env: python
     buildCommand: |
       cd backend
       pip install -r requirements.txt
-      flask db upgrade
-    startCommand: gunicorn app:app
+    startCommand: |
+      flask db upgrade && gunicorn app:app
     envVars:
       - key: FLASK_APP
         value: app.py
+      - key: FLASK_RUN_HOST
+        value: 0.0.0.0
       - key: FLASK_ENV
         value: production
-      - key: NEON_DATABASE_URL
-        sync: false  
