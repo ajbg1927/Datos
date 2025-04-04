@@ -1,21 +1,17 @@
-const API_URL = "https://backend-flask-0rnq.onrender.com";
+const API_URL = "https://backend-flask-0rnq.onrender.com"; 
 
 export const subirArchivo = async (archivo) => {
     const formData = new FormData();
     formData.append("archivo", archivo);
 
-    console.log("Archivo enviado:", archivo);
-    console.log("FormData enviado:", formData);
-
     try {
         const response = await fetch(`${API_URL}/subir`, {
-            method: "POST",  
-            body: formData,  
+            method: "POST",
+            body: formData,
         });
 
         if (!response.ok) {
             const errorData = await response.json();
-            console.error("Error en subida:", errorData);
             throw new Error(errorData.error || "Error al subir archivo");
         }
 
