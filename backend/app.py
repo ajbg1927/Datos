@@ -18,10 +18,11 @@ load_dotenv()
 app = Flask(__name__)
 app.config.from_object(Config)
 
-origins=[
+origins = [
     "http://localhost:3000",
     "https://datosexcel.vercel.app"
 ], supports_credentials=True
+
 CORS(app, resources={r"/*": {"origins": origins}})
 
 
