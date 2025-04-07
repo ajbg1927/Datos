@@ -410,6 +410,7 @@ return (
         autoHeight
         pageSize={10}
         rowsPerPageOptions={[10, 20, 50]}
+        loading={cargando}
       />
     )}
 
