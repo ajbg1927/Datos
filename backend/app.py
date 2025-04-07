@@ -21,7 +21,7 @@ app.config.from_object(Config)
 origins = [
     "http://localhost:3000",
     "https://datosexcel.vercel.app"
-], supports_credentials=True
+]
 
 CORS(app, resources={r"/*": {"origins": origins}})
 
