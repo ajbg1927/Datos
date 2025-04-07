@@ -13,7 +13,7 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
-const API_URL = "http://127.0.0.1:5000";
+const API_URL = "https://backend-flask-0rnq.onrender.com";
 
 function TablaDatos() {
   const [datos, setDatos] = useState([]);
