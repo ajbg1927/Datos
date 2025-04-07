@@ -25,7 +25,6 @@ origins = [
 
 CORS(app, resources={r"/*": {"origins": origins}})
 
-
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("Falta la variable de entorno DATABASE_URL")
