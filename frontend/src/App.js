@@ -92,7 +92,7 @@ const App = () => {
     }
   };
 
-  const cargarDatos = async () => {
+const cargarDatos = async () => {
   if (!archivoSeleccionado || hojasSeleccionadas.length === 0) {
     alert("Selecciona un archivo y al menos una hoja antes de cargar los datos.");
     return;
@@ -103,14 +103,14 @@ const App = () => {
     const res = await axios.post(`${API_URL}/datos/${encodeURIComponent(archivoSeleccionado)}`, {
       hojas: hojasSeleccionadas
     });
-    setDatos(res.data || []);
+    setDatos(Array.isArray(res.data) ? res.data : []);
   } catch (error) {
     console.error("Error obteniendo datos:", error);
     alert("Error al obtener datos.");
     setDatos([]);
   }
   setCargando(false);
-};
+};  
 
   const toggleHojaSeleccionada = (hoja) => {
     setHojasSeleccionadas(prev =>
@@ -182,37 +182,38 @@ const App = () => {
     doc.save("Informe_Datos_Filtrados.pdf");
   };
 
-  const datosFiltrados = useMemo(() => {
-    return datos.filter(row => {
-      let coincide = true;
-      if (filtroGlobal) {
-        coincide = Object.values(row).some(val => val?.toString().toLowerCase().includes(filtroGlobal.toLowerCase()));
-      }
-      if (fechaInicio && row["Fecha"]) {
-        const fechaRow = new Date(row["Fecha"]);
-        coincide = coincide && fechaRow >= fechaInicio;
-      }
-      if (fechaFin && row["Fecha"]) {
-        const fechaRow = new Date(row["Fecha"]);
-        coincide = coincide && fechaRow <= fechaFin;
-      }
-      if (dependencia) {
-        coincide = coincide && (row.Dependencia?.toLowerCase() === dependencia.toLowerCase());
-      }
-      if (pagosMin || pagosMax) {
-        const pagos = parseFloat(row["Pagos"] || 0);
-        if (pagosMin) coincide = coincide && pagos >= parseFloat(pagosMin);
-        if (pagosMax) coincide = coincide && pagos <= parseFloat(pagosMax);
-      }
-     
+const datosFiltrados = useMemo(() => {
+  const datosArray = Array.isArray(datos) ? datos : [];
+
+  return datosArray.filter(row => {
+    let coincide = true;
+    if (filtroGlobal) {
+      coincide = Object.values(row).some(val => val?.toString().toLowerCase().includes(filtroGlobal.toLowerCase()));
+    }
+    if (fechaInicio && row["Fecha"]) {
+      const fechaRow = new Date(row["Fecha"]);
+      coincide = coincide && fechaRow >= fechaInicio;
+    }
+    if (fechaFin && row["Fecha"]) {
+      const fechaRow = new Date(row["Fecha"]);
+      coincide = coincide && fechaRow <= fechaFin;
+    }
+    if (dependencia) {
+      coincide = coincide && (row.Dependencia?.toLowerCase() === dependencia.toLowerCase());
+    }
+    if (pagosMin || pagosMax) {
+      const pagos = parseFloat(row["Pagos"] || 0);
+      if (pagosMin) coincide = coincide && pagos >= parseFloat(pagosMin);
+      if (pagosMax) coincide = coincide && pagos <= parseFloat(pagosMax);
+    }
     if (columnaSeleccionada && valorEspecifico) {
       const valorColumna = row[columnaSeleccionada]?.toString().toLowerCase() || "";
       coincide = coincide && valorColumna.includes(valorEspecifico.toLowerCase());
     }
-
     return coincide;
   });
-    }, [datos, filtroGlobal, fechaInicio, fechaFin, dependencia, pagosMin, pagosMax]);
+}, [datos, filtroGlobal, fechaInicio, fechaFin, dependencia, pagosMin, pagosMax, columnaSeleccionada, valorEspecifico]);
+
 
   const datosParaGraficos = Object.values(
     datosFiltrados.reduce((acc, row) => {
