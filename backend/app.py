@@ -2,46 +2,55 @@ from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from database import db 
+from database import db
 from database.models import DatosExcel
 from config import Config
 from werkzeug.utils import secure_filename
-import os
-from fpdf import FPDF 
-import pandas as pd
 from routes import api_bp
 from dotenv import load_dotenv
+from fpdf import FPDF
+import pandas as pd
+import os
 
+# Cargar variables de entorno
 load_dotenv()
 
 app = Flask(__name__)
 app.config.from_object(Config)
-CORS(app, origins=["http://localhost:3000", "https://datosexcel.vercel.app"], supports_credentials=True)
 
-UPLOAD_FOLDER = "uploads"
-ALLOWED_EXTENSIONS = {"xls", "xlsx"}
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Configurar CORS
+CORS(app, origins=[
+    "http://localhost:3000",
+    "https://datosexcel.vercel.app"
+], supports_credentials=True)
 
-
-DATABASE_URL = os.getenv("NEON_DATABASE_URL")
+# Configuración de base de datos
+DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
-    raise ValueError("Falta la variable de entorno NEON_DATABASE_URL")
+    raise ValueError("Falta la variable de entorno DATABASE_URL")
 
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DB_CONNECTION_STRING")
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
 migrate = Migrate(app, db)
 
+# Registro de blueprint
 app.register_blueprint(api_bp, url_prefix="/api")
 
+# Carpeta de subida
+UPLOAD_FOLDER = "uploads"
+ALLOWED_EXTENSIONS = {"xls", "xlsx"}
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Modelo de ejemplo
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=True)
-  
 
+# CORS extra (para cookies/sesiones si aplica)
 @app.after_request
 def after_request(response):
     response.headers["Access-Control-Allow-Origin"] = "http://localhost:3000"
@@ -60,7 +69,6 @@ def home():
 @app.route("/prueba")
 def prueba():
     return {"mensaje": "Conexión exitosa"}
-
 
 @app.route("/subir", methods=["POST"])
 def subir_archivo():
@@ -136,7 +144,6 @@ def obtener_datos(filename):
     try:
         data = request.json
         hojas = data.get("hojas", [])
-        print(f"Hojas recibidas: {hojas}")
         xls = pd.ExcelFile(filepath)
         datos_totales = []
         id_counter = 1
@@ -157,13 +164,7 @@ def obtener_datos(filename):
 def get_datos():
     try:
         datos = DatosExcel.query.all()
-        resultado = []
-        for d in datos:
-            resultado.append({
-                "id": d.id,
-                "nombre": d.nombre,
-                "dato": d.dato
-            })
+        resultado = [{"id": d.id, "nombre": d.nombre, "dato": d.dato} for d in datos]
         return jsonify(resultado)
     except Exception as e:
         return jsonify({"error": f"Error al obtener datos: {str(e)}"}), 500
