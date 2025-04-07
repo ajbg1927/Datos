@@ -15,7 +15,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 
 const API_URL = "https://backend-flask-0rnq.onrender.com";
 
-function TablaDatos() {
+function TablaDatos({ fileId, sheetName }) {
   const [datos, setDatos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pageSize, setPageSize] = useState(10);
@@ -31,17 +31,17 @@ function TablaDatos() {
   const [filters, setFilters] = useState({});
   const [reportLinks, setReportLinks] = useState(null);
 
-  useEffect(() => {
-    const cargarDatos = async () => {
+useEffect(() => {
+  const cargarDatos = async () => {
+      if (!fileId || !sheetName) return;
       setLoading(true);
       try {
-        const res = await axios.get(`${API_URL}/api/datos`);
+        const res = await axios.get(`${API_URL}/api/datos/${fileId}/${sheetName}`);
         const datosConId = res.data.map((row, index) => ({
           id: row.id && row.id.toString().trim() !== "" ? row.id : `row-${index}`,
           ...row
         }));
         setDatos(datosConId);
-        setFilasFiltradas(datosConId);
 
         if (datosConId.length > 0) {
           const columnasGeneradas = Object.keys(datosConId[0])
@@ -62,19 +62,21 @@ function TablaDatos() {
       setLoading(false);
     };
     cargarDatos();
-  }, []);
+  }, [fileId, sheetName]);
 
-  const filasFiltradas = useMemo(() => {
+const filasFiltradas = useMemo(() => {
     return datos.filter((row) => {
-      return Object.keys(filters).every((key) => {
+      const filtroPorColumna = Object.keys(filters).every((key) => {
         if (!filters[key]) return true;
         return String(row[key]).toLowerCase().includes(filters[key].toLowerCase());
       });
-    }).filter(row =>
-      Object.values(row).some(value =>
+
+      const filtroGlobalMatch = Object.values(row).some(value =>
         value && value.toString().toLowerCase().includes(filtroGlobal.toLowerCase())
-      )
-    );
+      );
+
+      return filtroPorColumna && filtroGlobalMatch;
+    });
   }, [datos, filters, filtroGlobal]);
 
   const handleFilterChange = (field, value) => {
@@ -140,6 +142,24 @@ function TablaDatos() {
   }, [filasFiltradas, columns]);
 
 
+      const handleExportarSeleccionadas = () => {
+    const dataExportada = filasFiltradas.map(row =>
+      selectedColumns.reduce((obj, key) => {
+        obj[key] = row[key];
+        return obj;
+      }, {})
+    );
+
+    const ws = XLSX.utils.json_to_sheet(dataExportada);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Seleccionadas");
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(data, "columnas_seleccionadas.xlsx");
+
+    setOpenModal(false);
+  };
+
   return (
     <div style={{ height: 600, width: "100%" }}>
       <Typography variant="h6">Filtro Global 🔍:</Typography>
@@ -153,7 +173,7 @@ function TablaDatos() {
         style={{ marginBottom: "10px" }}
       />
 
-      <Box display="flex" gap={2} mb={2}>
+      <Box display="flex" gap={2} flexWrap="wrap" mb={2}>
         {columns.map((col) => (
           <TextField
             key={col.field}
@@ -166,16 +186,16 @@ function TablaDatos() {
       </Box>
 
       <DataGrid
-      rows={filasFiltradas.length > 0 ? filasFiltradas : datos} 
-      columns={columns.filter(col => selectedColumns.includes(col.field))}
-      pageSize={pageSize}
-      onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-      rowsPerPageOptions={[5, 10, 20, 50, 100]}
-      pagination
-      loading={loading}
-      getRowId={(row) => row.id || `fallback-${Math.random()}`}
-      sortingMode="client"
-      autoHeight
+        rows={filasFiltradas}
+        columns={columns.filter(col => selectedColumns.includes(col.field))}
+        pageSize={pageSize}
+        onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+        rowsPerPageOptions={[5, 10, 20, 50, 100]}
+        pagination
+        loading={loading}
+        getRowId={(row) => row.id || `fallback-${Math.random()}`}
+        sortingMode="client"
+        autoHeight
       />
 
       <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
