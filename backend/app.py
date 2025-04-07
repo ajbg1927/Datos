@@ -12,19 +12,18 @@ from fpdf import FPDF
 import pandas as pd
 import os
 
-# Cargar variables de entorno
+
 load_dotenv()
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
-# Configurar CORS
 CORS(app, origins=[
     "http://localhost:3000",
     "https://datosexcel.vercel.app"
 ], supports_credentials=True)
 
-# Configuración de base de datos
+
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("Falta la variable de entorno DATABASE_URL")
@@ -35,22 +34,20 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 migrate = Migrate(app, db)
 
-# Registro de blueprint
 app.register_blueprint(api_bp, url_prefix="/api")
 
-# Carpeta de subida
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {"xls", "xlsx"}
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Modelo de ejemplo
+
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=True)
 
-# CORS extra (para cookies/sesiones si aplica)
+
 @app.after_request
 def after_request(response):
     response.headers["Access-Control-Allow-Origin"] = "http://localhost:3000"
