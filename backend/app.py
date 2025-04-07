@@ -16,7 +16,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config.from_object(Config)
-CORS(app, origins=["https://datosfrontend.vercel.app"])
+CORS(app, origins=["http://localhost:3000", "https://datosexcel.vercel.app"])
 
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {"xls", "xlsx"}
