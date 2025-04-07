@@ -16,7 +16,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config.from_object(Config)
-CORS(app, origins=["http://localhost:3000", "https://datosexcel.vercel.app"])
+CORS(app, origins=["http://localhost:3000", "https://datosexcel.vercel.app"], supports_credentials=True)
 
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {"xls", "xlsx"}
@@ -53,13 +53,14 @@ def after_request(response):
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
+@app.route("/")
+def home():
+    return "Flask en Render funcionando"
+
 @app.route("/prueba")
 def prueba():
     return {"mensaje": "Conexión exitosa"}
 
-@app.route("/")
-def home():
-    return "Flask en Render funcionando"
 
 @app.route("/subir", methods=["POST"])
 def subir_archivo():
