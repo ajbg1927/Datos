@@ -38,10 +38,8 @@ def procesar_excel(filepath):
                 nombre_hoja = limpiar_nombre_hoja(hoja)
                 df = pd.read_excel(excel, sheet_name=hoja)
 
-                # Eliminar filas completamente vacías
                 df.dropna(how='all', inplace=True)
 
-                # Limpiar y estandarizar nombres de columnas
                 df.columns = [limpiar_nombre_columna(str(col)) for col in df.columns]
                 print(f"Procesando hoja: {nombre_hoja}, Columnas: {df.columns}")
 

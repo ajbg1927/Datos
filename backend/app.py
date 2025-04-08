@@ -12,7 +12,7 @@ from fpdf import FPDF
 import pandas as pd
 import os
 
-from import_excel import procesar_excel
+from import_excel import import_excel
 
 load_dotenv()
 
