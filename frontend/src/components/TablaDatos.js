@@ -14,6 +14,8 @@ import Papa from "papaparse";
 import "jspdf-autotable";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
+const API_URL = process.env.REACT_APP_BACKEND_URL;
+
 function TablaDatos({ fileId, sheetName }) {
   const [datos, setDatos] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -30,32 +32,29 @@ function TablaDatos({ fileId, sheetName }) {
   const [filters, setFilters] = useState({});
   const [reportLinks, setReportLinks] = useState(null);
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
-
-useEffect(() => {
-  const cargarDatos = async () => {
+  useEffect(() => {
+    const cargarDatos = async () => {
       if (!fileId || !sheetName) return;
       setLoading(true);
       try {
-        const res = await axios.get(`${API_URL}/api/datos/${fileId}/${sheetName}`);
+        const res = await axios.get(`${API_URL}/api/datos/${encodeURIComponent(fileId)}/${encodeURIComponent(sheetName)}`);
         const datosConId = res.data.map((row, index) => ({
           id: row.id && row.id.toString().trim() !== "" ? row.id : `row-${index}`,
-          ...row
+          ...row,
         }));
         setDatos(datosConId);
-
         if (datosConId.length > 0) {
           const columnasGeneradas = Object.keys(datosConId[0])
-            .filter(col => col.trim() !== "" && !col.startsWith("Unnamed"))
+            .filter((col) => col.trim() !== "" && !col.startsWith("Unnamed"))
             .map((col) => ({
               field: col,
               headerName: col.toUpperCase(),
               width: 200,
               flex: 1,
-              sortable: true
+              sortable: true,
             }));
           setColumns(columnasGeneradas);
-          setSelectedColumns(columnasGeneradas.map(col => col.field));
+          setSelectedColumns(columnasGeneradas.map((col) => col.field));
         }
       } catch (error) {
         console.error("Error obteniendo datos:", error);
@@ -65,17 +64,17 @@ useEffect(() => {
     cargarDatos();
   }, [fileId, sheetName]);
 
-const filasFiltradas = useMemo(() => {
+  const filasFiltradas = useMemo(() => {
     return datos.filter((row) => {
+
       const filtroPorColumna = Object.keys(filters).every((key) => {
         if (!filters[key]) return true;
         return String(row[key]).toLowerCase().includes(filters[key].toLowerCase());
       });
 
-      const filtroGlobalMatch = Object.values(row).some(value =>
+      const filtroGlobalMatch = Object.values(row).some((value) =>
         value && value.toString().toLowerCase().includes(filtroGlobal.toLowerCase())
       );
-
       return filtroPorColumna && filtroGlobalMatch;
     });
   }, [datos, filters, filtroGlobal]);
@@ -114,23 +113,6 @@ const filasFiltradas = useMemo(() => {
         return coincideGlobal && coincideColumna;
     });
 
-    const exportarExcel = useCallback(() => {
-    const ws = XLSX.utils.json_to_sheet(filasFiltradas);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Datos Filtrados");
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "datos_filtrados.xlsx");
-  }, [filasFiltradas]);
-
-
-    const exportarCSV = useCallback(() => {
-    const parser = new Parser({ fields: Object.keys(filasFiltradas[0] || {}) });
-    const csv = parser.parse(filasFiltradas);
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    saveAs(blob, "datos_filtrados.csv");
-  }, [filasFiltradas]);
-
     const generarInforme = useCallback(() => {
     const doc = new jsPDF();
     doc.text("Informe de Datos Filtrados", 10, 10);
@@ -142,8 +124,35 @@ const filasFiltradas = useMemo(() => {
     doc.save("informe_datos.pdf");
   }, [filasFiltradas, columns]);
 
+    const exportarExcel = useCallback(() => {
+    const ws = XLSX.utils.json_to_sheet(filasFiltradas);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Datos Filtrados");
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(blob, "datos_filtrados.xlsx");
+  }, [filasFiltradas]);
 
-      const handleExportarSeleccionadas = () => {
+  const exportarCSV = useCallback(() => {
+    const parser = new Parser({ fields: Object.keys(filasFiltradas[0] || {}) });
+    const csv = parser.parse(filasFiltradas);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    saveAs(blob, "datos_filtrados.csv");
+  }, [filasFiltradas]);
+
+  const exportarPDF = useCallback(() => {
+    const doc = new jsPDF();
+    doc.text("Informe de Datos Filtrados", 10, 10);
+    doc.autoTable({
+      head: [columns.map((col) => col.headerName)],
+      body: filasFiltradas.map((row) => columns.map((col) => row[col.field] || "")),
+      startY: 20,
+    });
+    doc.save("informe_datos.pdf");
+  }, [filasFiltradas, columns]);
+
+
+    const handleExportarSeleccionadas = () => {
     const dataExportada = filasFiltradas.map(row =>
       selectedColumns.reduce((obj, key) => {
         obj[key] = row[key];
@@ -160,6 +169,7 @@ const filasFiltradas = useMemo(() => {
 
     setOpenModal(false);
   };
+
 
   return (
     <div style={{ height: 600, width: "100%" }}>
@@ -187,11 +197,11 @@ const filasFiltradas = useMemo(() => {
       </Box>
 
       <DataGrid
-        rows={filasFiltradas}
-        columns={columns.filter(col => selectedColumns.includes(col.field))}
+        rows={filasFiltradas.map((row, id) => ({ id, ...row }))}
+        columns={columns.filter((col) => selectedColumns.includes(col.field))}
         pageSize={pageSize}
         onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-        rowsPerPageOptions={[5, 10, 20, 50, 100]}
+        rowsPerPageOptions={[10, 20, 50]}
         pagination
         loading={loading}
         getRowId={(row) => row.id || `fallback-${Math.random()}`}
@@ -220,8 +230,8 @@ const filasFiltradas = useMemo(() => {
           value={valorBusqueda}
           onChange={(e) => setValorBusqueda(e.target.value)}
           disabled={!columnaBusqueda}
-        />
-      </div>
+          />
+          </div>
 
       <Button variant="contained" color="primary" onClick={exportarExcel} style={{ marginRight: "10px" }}>
         Exportar a Excel
@@ -240,7 +250,7 @@ const filasFiltradas = useMemo(() => {
         Seleccionar Columnas para Exportar
       </Button>
 
-      <Dialog open={openModal} onClose={() => setOpenModal(false)}>
+        <Dialog open={openModal} onClose={() => setOpenModal(false)}>
         <DialogTitle>Seleccionar Columnas para Exportar</DialogTitle>
         <DialogContent>
           {columns.map((col) => (
@@ -258,53 +268,13 @@ const filasFiltradas = useMemo(() => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenModal(false)}>Cerrar</Button>
-        </DialogActions>
-      </Dialog>
-    </div>
-
-     {reportLinks && (
-        <div style={{ marginTop: "20px" }}>
-          <h3>Informe Generado 📑</h3>
-          {reportLinks.excel_url && (
-            <p>
-              📊 <a href={`${API_URL}${reportLinks.excel_url}`} download>Descargar Excel</a>
-            </p>
-          )}
-          {reportLinks.pdf_url && (
-            <p>
-              📄 <a href={`${API_URL}${reportLinks.pdf_url}`} download>Descargar PDF</a>
-            </p>
-          )}
-        </div>
-      )}
-
-      <Dialog open={openModal} onClose={() => setOpenModal(false)}>
-        <DialogTitle>Seleccionar Columnas para Exportar</DialogTitle>
-        <DialogContent>
-          {columns.map((col) => (
-            <FormControlLabel
-              key={col.field}
-              control={
-                <Checkbox
-                  checked={selectedColumns.includes(col.field)}
-                  onChange={() => handleColumnToggle(col.field)}
-                />
-              }
-              label={col.headerName}
-            />
-          ))}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenModal(false)} color="secondary">
-            Cancelar
-          </Button>
           <Button onClick={handleExportarSeleccionadas} color="primary">
             Exportar
           </Button>
         </DialogActions>
       </Dialog>
 
-         <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={300}>
         <LineChart data={filasFiltradas}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey={columns.length > 0 ? columns[0].field : ""} />
