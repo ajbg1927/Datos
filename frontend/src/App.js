@@ -271,19 +271,11 @@ return (
       Gestión de Datos Excel 📊
     </Typography>
 
-    <input type="file" onChange={(e) => subirArchivo(e.target.files[0])}      style={{ marginBottom: 25 }} />
-
-    <div
-      onDrop={manejarDrop}
-      onDragOver={(e) => e.preventDefault()}
-      style={{ border: "2px dashed gray", padding: 20, textAlign: "center", marginBottom: 20 }}
-    >
       <p>Arrastra y suelta un archivo aquí</p>
       <input type="file" onChange={manejarArchivo} style={{ display: "none" }} />
       {cargando && <CircularProgress />}
     </div>
 
-    {/* CARGA Y SELECCIÓN DE ARCHIVOS */}
     <Box mb={2}>
       <input type="file" accept=".xlsx,.xls" onChange={manejarArchivo} />
       <Select
@@ -304,7 +296,6 @@ return (
       </Select>
     </Box>
 
-    {/* SELECCIÓN DE HOJAS */}
     {hojas.length > 0 && (
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -332,7 +323,6 @@ return (
       </Accordion>
     )}
 
-    {/* FILTROS */}
     <Box mt={3}>
       <Grid container spacing={2}>
         <Grid item xs={12} md={4}>
@@ -408,7 +398,6 @@ return (
       </Grid>
     </Box>
 
-    {/* EXPORTACIONES */}
     <Box mt={3}>
       <Typography variant="h6">Selecciona columnas para exportar:</Typography>
       <FormGroup row>
@@ -448,7 +437,6 @@ return (
       </Box>
     </Box>
 
-    {/* TABLA DINÁMICA CON PAGINACIÓN */}
     <Box mt={4} style={{ height: 500, width: "100%" }}>
       <DataGrid
         rows={datosFiltrados.map((row, index) => ({ id: index, ...row }))}
@@ -463,7 +451,6 @@ return (
       />
     </Box>
 
-    {/* GRÁFICOS */}
     {datosParaGraficos.length > 0 && (
       <Box mt={5}>
         <Typography variant="h6" gutterBottom>
