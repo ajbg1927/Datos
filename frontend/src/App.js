@@ -271,6 +271,13 @@ return (
       Gestión de Datos Excel 📊
     </Typography>
 
+    <input type="file" onChange={(e) => subirArchivo(e.target.files[0])}      style={{ marginBottom: 25 }} />
+
+    <div
+      onDrop={manejarDrop}
+      onDragOver={(e) => e.preventDefault()}
+      style={{ border: "2px dashed gray", padding: 20, textAlign: "center", marginBottom: 20 }}
+    >
       <p>Arrastra y suelta un archivo aquí</p>
       <input type="file" onChange={manejarArchivo} style={{ display: "none" }} />
       {cargando && <CircularProgress />}
