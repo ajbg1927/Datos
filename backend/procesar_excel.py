@@ -20,31 +20,34 @@ def limpiar_nombre_hoja(nombre):
 def limpiar_nombre_columna(columna):
     return columna.strip().replace(" ", "_").replace(":", "").replace("-", "_").lower()
 
-def procesar_excel(nombre_archivo):
-    print(f"Procesando archivo: {nombre_archivo}")  
-    ruta_archivo = os.path.join(UPLOAD_FOLDER, nombre_archivo)
-
-    if not os.path.exists(ruta_archivo):
-        print(f"Error: El archivo '{nombre_archivo}' no se encontró.")
+def procesar_excel(filepath):
+    if not os.path.exists(filepath):
+        print(f"Error: El archivo '{filepath}' no se encontró.")
         return
 
+    nombre_archivo = os.path.basename(filepath)
+    print(f"Procesando archivo: {nombre_archivo}")
+
     try:
-        with app.app_context(): 
-            excel = pd.ExcelFile(ruta_archivo)
+        with app.app_context():
+            excel = pd.ExcelFile(filepath)
             hojas = excel.sheet_names
-            print(f"Hojas en el archivo: {hojas}")  
+            print(f"Hojas en el archivo: {hojas}")
 
             for hoja in hojas:
                 nombre_hoja = limpiar_nombre_hoja(hoja)
                 df = pd.read_excel(excel, sheet_name=hoja)
 
-                df.columns = [limpiar_nombre_columna(col) for col in df.columns]
-                print(f"Procesando hoja: {nombre_hoja}, Columnas: {df.columns}")  
+                # Eliminar filas completamente vacías
+                df.dropna(how='all', inplace=True)
+
+                # Limpiar y estandarizar nombres de columnas
+                df.columns = [limpiar_nombre_columna(str(col)) for col in df.columns]
+                print(f"Procesando hoja: {nombre_hoja}, Columnas: {df.columns}")
 
                 for index, row in df.iterrows():
                     for columna, valor in row.items():
-                        if pd.notna(valor) and valor not in ["", "nan"]:
-                            print(f"Insertando: {nombre_hoja}, {columna}: {valor}")                         
+                        if pd.notna(valor) and str(valor).strip().lower() not in ["", "nan"]:
                             nuevo_dato = Data(
                                 sheet_id=nombre_hoja,
                                 columna=columna,
@@ -53,7 +56,7 @@ def procesar_excel(nombre_archivo):
                             db.session.add(nuevo_dato)
 
                 db.session.commit()
-                print(f"Archivo '{nombre_archivo}' procesado correctamente.")  
+                print(f"Hoja '{hoja}' del archivo '{nombre_archivo}' procesada correctamente.")
 
     except Exception as e:
         print(f"Error al procesar '{nombre_archivo}': {str(e)}")
