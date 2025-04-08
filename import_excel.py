@@ -1,71 +1,65 @@
+import os
 import pandas as pd
 import mysql.connector
 
+# Si estás en Render, estos valores deben venir de variables de entorno
 db_config = {
-	"host": "localhost",
-	"user": "root",
-	"password": "",
-	"database": "excel_data"
+    "host": os.environ.get("DB_HOST", "localhost"),
+    "user": os.environ.get("DB_USER", "root"),
+    "password": os.environ.get("DB_PASSWORD", ""),
+    "database": os.environ.get("DB_NAME", "excel_data")
 }
 
 def conectar_mysql():
-	"""Establece la conexión a mysql."""
-	return mysql.connector.connect(**db_config)
+    return mysql.connector.connect(**db_config)
 
 def guardar_archivo(nombre_archivo):
-	"""Guarda la referencia del archivo en la base de datos."""
-	conn = conectar_mysql()
-	cursor = conn.cursor()
-	cursor.execute("INSERT INTO files (nombre) VALUES (%s)", (nombre_archivo, ))
-	conn.commit()
-	file_id = cursor.lastrowid
-	cursor.close()
-	conn.close()
-	return file_id
+    conn = conectar_mysql()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO files (nombre) VALUES (%s)", (nombre_archivo,))
+    conn.commit()
+    file_id = cursor.lastrowid
+    cursor.close()
+    conn.close()
+    return file_id
 
 def guardar_hoja(file_id, nombre_hoja):
-	"""Guarda la referencia de la hoja en la base de datos."""
-	conn = conectar_mysql()
-	cursor = conn.cursor()
-	cursor.execute("INSERT INTO sheets (file_id, nombre) VALUES (%s, %s)", (file_id, nombre_hoja))
-	conn.commit()
-	sheet_id = cursor.lastrowid
-	cursor.close()
-	conn.close()
-	return sheet_id
+    conn = conectar_mysql()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO sheets (file_id, nombre) VALUES (%s, %s)", (file_id, nombre_hoja))
+    conn.commit()
+    sheet_id = cursor.lastrowid
+    cursor.close()
+    conn.close()
+    return sheet_id
 
 def guardar_datos(sheet_id, df):
-	"""Guarda los datos de la hoja en la base de datos."""
-	conn = conectar_mysql()
-	cursor = conn.cursor()
+    conn = conectar_mysql()
+    cursor = conn.cursor()
 
-	for _, row in df.iterrows():
-		for columna, valor in row.items():
-			if pd.notna(valor):
-				cursor.execute("INSERT INTO data (sheet_id, columna, valor) VALUES (%s, %s, %s)",
-				(sheet_id, columna, str(valor)))
+    for _, row in df.iterrows():
+        for columna, valor in row.items():
+            if pd.notna(valor) and str(valor).strip() != "":
+                cursor.execute("INSERT INTO data (sheet_id, columna, valor) VALUES (%s, %s, %s)",
+                               (sheet_id, columna, str(valor)))
 
-	conn.commit()
-	cursor.close()
-	conn.close()
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 def procesar_excel(ruta_archivo):
-	"""Procesa el archivo excel e inserta los datos en mysql."""
-	print("Procesando archivo: {ruta_archivo}")
+    if not os.path.exists(ruta_archivo):
+        print(f"Archivo no encontrado: {ruta_archivo}")
+        return
 
+    nombre_archivo = os.path.basename(ruta_archivo)
+    file_id = guardar_archivo(nombre_archivo)
+    xls = pd.ExcelFile(ruta_archivo)
 
-	file_id = guardar_archivo(ruta_archivo.split("/")[-1])
-	xls = pd.ExcelFile(ruta_archivo)
+    for sheet_name in xls.sheet_names:
+        sheet_id = guardar_hoja(file_id, sheet_name)
+        df = pd.read_excel(ruta_archivo, sheet_name=sheet_name, dtype=str)
+        df = df.replace("nan", "").dropna(how="all")
+        guardar_datos(sheet_id, df)
 
-	for sheet_name in xls.sheet_names:
-		print("Procesando hoja: {sheet_name}")
-
-		sheet_id = guardar_hoja(file_id, sheet_name)
-		df = pd.read_excel(ruta_archivo, sheet_name=sheet_name, dtype=str)
-		df = df.replace("nan", "").dropna(how="all")
-		guardar_datos(sheet_id, df)
-		
-	print("Carga finalizada.")
-
-procesar_excel("Ejecución Vs Compromisos 2024.xlsx")
-procesar_excel("Plan Accion Sec Planeacion 2025 RevPROSP (1).xlsx")
+    print("Carga finalizada.")

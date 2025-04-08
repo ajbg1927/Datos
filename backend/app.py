@@ -12,6 +12,8 @@ from fpdf import FPDF
 import pandas as pd
 import os
 
+from import_excel import procesar_excel
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -26,7 +28,7 @@ CORS(app, resources={r"/*": {"origins": origins}})
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("Falta la variable de entorno DATABASE_URL")
-    
+
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -80,9 +82,15 @@ def cargar_archivo():
     file = request.files["file"]
     if file.filename == "" or not allowed_file(file.filename):
         return jsonify({"error": "Formato de archivo no permitido"}), 400
-    filepath = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
+    filename = secure_filename(file.filename)
+    filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     file.save(filepath)
-    return jsonify({"mensaje": "Archivo subido exitosamente", "archivo": file.filename})
+
+    try:
+        procesar_excel(filepath)
+        return jsonify({"mensaje": "Archivo procesado e importado exitosamente", "archivo": filename})
+    except Exception as e:
+        return jsonify({"error": f"Error al procesar e importar el archivo: {str(e)}"}), 500
 
 @app.route("/archivos/datos", methods=["POST"])
 def obtener_datos_archivo():
