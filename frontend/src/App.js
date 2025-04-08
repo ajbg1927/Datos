@@ -158,7 +158,6 @@ const cargarDatos = async () => {
     enlace.click();
   };
 
-
     const columnas = datos.length > 0
     ? Object.keys(datos[0]).map((key) => ({ field: key, headerName: key, flex: 1, sortable: true }))
     : [];
@@ -265,16 +264,21 @@ const datosFiltrados = useMemo(() => {
     setSelectedSheets(typeof event.target.value === "string" ?[event.target.value] : event.target.value);
   };
 
-return (
-  <div style={{ padding: 40 }}>
-    <Typography variant="h4" gutterBottom>
-      Gestión de Datos Excel 📊
-    </Typography>
+  return (
+    <div style={{ padding: 40 }}>
+      <Typography variant="h4" gutterBottom>
+        Gestión de Datos Excel 📊
+      </Typography>
 
-      <p>Arrastra y suelta un archivo aquí</p>
-      <input type="file" onChange={manejarArchivo} style={{ display: "none" }} />
-      {cargando && <CircularProgress />}
-    </div>
+      <div
+        onDrop={manejarDrop}
+        onDragOver={(e) => e.preventDefault()}
+        style={{ border: "2px dashed gray", padding: 20, textAlign: "center", marginBottom: 20 }}
+      >
+        <p>Arrastra y suelta un archivo aquí o selecciona uno:</p>
+        <input type="file" accept=".xlsx,.xls" onChange={manejarArchivo} />
+        {cargando && <CircularProgress />}
+      </div>
 
     <Box mb={2}>
       <input type="file" accept=".xlsx,.xls" onChange={manejarArchivo} />
