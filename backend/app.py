@@ -12,7 +12,6 @@ from fpdf import FPDF
 import pandas as pd
 import os
 
-
 load_dotenv()
 
 app = Flask(__name__)
@@ -22,13 +21,11 @@ origins = [
     "http://localhost:3000",
     "https://datosexcel.vercel.app"
 ]
-
 CORS(app, resources={r"/*": {"origins": origins}})
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("Falta la variable de entorno DATABASE_URL")
-
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -42,12 +39,10 @@ ALLOWED_EXTENSIONS = {"xls", "xlsx"}
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=True)
-
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -165,9 +160,11 @@ def generate_report():
         data = request.json.get("data", [])
         if not data:
             return jsonify({"error": "No hay datos para generar el informe"}), 400
+
         df = pd.DataFrame(data)
         excel_path = os.path.join(UPLOAD_FOLDER, "reporte.xlsx")
         df.to_excel(excel_path, index=False)
+
         pdf_path = os.path.join(UPLOAD_FOLDER, "reporte.pdf")
         pdf = FPDF()
         pdf.set_auto_page_break(auto=True, margin=15)
@@ -179,6 +176,7 @@ def generate_report():
         pdf.cell(0, 10, f"Total de registros: {len(df)}", ln=True)
         pdf.cell(0, 10, f"Columnas disponibles: {', '.join(df.columns)}", ln=True)
         pdf.output(pdf_path)
+
         return jsonify({
             "mensaje": "Informe generado exitosamente",
             "excel_url": f"/download/reporte.xlsx",

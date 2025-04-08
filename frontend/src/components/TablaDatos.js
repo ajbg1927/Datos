@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { getDatosHoja } from "../services/api";
 import axios from "axios";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarDensitySelector, GridToolbarExport } from "@mui/x-data-grid";
 import {
   Button, TextField, MenuItem, Select, FormControl, InputLabel, Dialog, DialogActions,
   DialogContent, DialogTitle, FormControlLabel, Checkbox, Typography, Box
@@ -10,10 +10,9 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { Parser } from "json2csv";
 import jsPDF from "jspdf";
+import Papa from "papaparse";
 import "jspdf-autotable";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-
-const API_URL = "https://backend-flask-0rnq.onrender.com";
 
 function TablaDatos({ fileId, sheetName }) {
   const [datos, setDatos] = useState([]);
@@ -30,6 +29,8 @@ function TablaDatos({ fileId, sheetName }) {
   const [filasFiltradas, setFilasFiltradas] = useState([]);
   const [filters, setFilters] = useState({});
   const [reportLinks, setReportLinks] = useState(null);
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 useEffect(() => {
   const cargarDatos = async () => {
