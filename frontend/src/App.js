@@ -266,14 +266,13 @@ const datosFiltrados = useMemo(() => {
     setSelectedSheets(typeof event.target.value === "string" ?[event.target.value] : event.target.value);
   };
 
-
 return (
   <div style={{ padding: 40 }}>
     <Typography variant="h4" gutterBottom>
       Gestión de Datos Excel 📊
     </Typography>
 
-    <input type="file" onChange={(e) => subirArchivo(e.target.files[0])} style={{ marginBottom: 25 }} />
+    <input type="file" onChange={(e) => subirArchivo(e.target.files[0])}      style={{ marginBottom: 25 }} />
 
     <div
       onDrop={manejarDrop}
@@ -285,177 +284,203 @@ return (
       {cargando && <CircularProgress />}
     </div>
 
-    <Box display="flex" gap={5} alignItems="center" flexWrap="wrap" marginBottom={3}>
+    {/* CARGA Y SELECCIÓN DE ARCHIVOS */}
+    <Box mb={2}>
+      <input type="file" accept=".xlsx,.xls" onChange={manejarArchivo} />
       <Select
         value={archivoSeleccionado}
         onChange={(e) => {
           setArchivoSeleccionado(e.target.value);
-          setHojasSeleccionadas([]);
           obtenerHojas(e.target.value);
         }}
         displayEmpty
-        style={{ width: 300, marginBottom: 20 }}
+        style={{ marginLeft: 10, minWidth: 200 }}
       >
-        <MenuItem value="">Seleccionar Archivo</MenuItem>
-        {archivos.map((archivo, index) => (
-          <MenuItem key={index} value={archivo}>{archivo}</MenuItem>
-        ))}
-      </Select>
-
-      <Select
-        multiple
-        value={hojasSeleccionadas}
-        onChange={(e) => {
-          const value = e.target.value;
-          setHojasSeleccionadas(Array.isArray(value) ? value : []);
-        }}
-        displayEmpty
-        style={{ width: 300, marginBottom: 20 }}
-        renderValue={(selected) => selected.length > 0 ? selected.join(", ") : "Seleccionar Hojas"}
-      >
-        {hojas.map((hoja, index) => (
-          <MenuItem key={index} value={hoja}>
-            <Checkbox checked={hojasSeleccionadas.includes(hoja)} />
-            {hoja}
+        <MenuItem value="" disabled>Selecciona un archivo</MenuItem>
+        {archivos.map((archivo, idx) => (
+          <MenuItem key={idx} value={archivo}>
+            {archivo}
           </MenuItem>
         ))}
       </Select>
-
-      <Button variant="contained" color="primary" onClick={cargarDatos} style={{ marginBottom: 20 }}>
-        Cargar Datos
-      </Button>
     </Box>
 
-    <Accordion>
-      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography>Filtros Avanzados 🔍</Typography>
-      </AccordionSummary>
-      <AccordionDetails>
-        <TextField
-          fullWidth
-          label="Buscar en todo el archivo"
-          variant="outlined"
-          size="small"
-          value={filtroGlobal}
-          onChange={(e) => setFiltroGlobal(e.target.value)}
-          style={{ marginBottom: 20 }}
-        />
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <DatePicker selected={fechaInicio} onChange={setFechaInicio} placeholderText="Fecha Inicio 📅" />
-          </Grid>
-          <Grid item xs={6}>
-            <DatePicker selected={fechaFin} onChange={setFechaFin} placeholderText="Fecha Fin 📅" />
-          </Grid>
-        </Grid>
-      </AccordionDetails>
-    </Accordion>
-
-    <Box display="flex" gap={2} flexWrap="wrap" marginTop={2} marginBottom={3}>
-      <TextField
-        label="Filtrar por dependencia 🏢"
-        variant="outlined"
-        size="small"
-        value={dependencia}
-        onChange={(e) => setDependencia(e.target.value)}
-      />
-
-      <TextField
-        label="Pago mínimo 💰"
-        variant="outlined"
-        size="small"
-        type="number"
-        value={pagosMin}
-        onChange={(e) => setPagosMin(e.target.value)}
-      />
-
-      <TextField
-        label="Pago máximo 💰"
-        variant="outlined"
-        size="small"
-        type="number"
-        value={pagosMax}
-        onChange={(e) => setPagosMax(e.target.value)}
-      />
-
-      <Select
-        multiple
-        value={columnasSeleccionadas}
-        onChange={(e) => setColumnasSeleccionadas(e.target.value)}
-        displayEmpty
-        style={{ width: 250, marginRight: 10 }}
-      >
-        <MenuItem value="">Seleccionar Columnas</MenuItem>
-        {Object.keys(datos[0] || {}).map((columna, index) => (
-          <MenuItem key={index} value={columna}>
-            <Checkbox checked={columnasSeleccionadas.includes(columna)} />
-            {columna}
-          </MenuItem>
-        ))}
-      </Select>
-
-      <TextField
-        label="Valor a buscar"
-        variant="outlined"
-        size="small"
-        value={valorBusqueda}
-        onChange={(e) => setValorBusqueda(e.target.value)}
-      />
-    </Box>
-
-    {cargando ? <CircularProgress /> : (
-      <DataGrid
-        rows={datosFiltrados.map((row, id) => ({ id, ...row }))}
-        columns={Object.keys(datos.length > 0 ? datos[0] : {}).map(key => ({ field: key, headerName: key, flex: 1 }))}
-        autoHeight
-        pageSize={10}
-        rowsPerPageOptions={[10, 20, 50]}
-        loading={cargando}
-      />
+    {/* SELECCIÓN DE HOJAS */}
+    {hojas.length > 0 && (
+      <Accordion defaultExpanded>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography>Seleccionar Hojas</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <FormGroup row>
+            {hojas.map((hoja, idx) => (
+              <FormControlLabel
+                key={idx}
+                control={
+                  <Checkbox
+                    checked={hojasSeleccionadas.includes(hoja)}
+                    onChange={() => toggleHojaSeleccionada(hoja)}
+                  />
+                }
+                label={hoja}
+              />
+            ))}
+          </FormGroup>
+          <Button variant="contained" onClick={cargarDatos}>
+            Cargar Datos
+          </Button>
+        </AccordionDetails>
+      </Accordion>
     )}
 
+    {/* FILTROS */}
+    <Box mt={3}>
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Filtro Global 🔍"
+            value={filtroGlobal}
+            onChange={(e) => setFiltroGlobal(e.target.value)}
+            fullWidth
+          />
+        </Grid>
 
-    <Button variant="contained" color="secondary" onClick={exportarExcel} style={{ marginRight: 10 }}>
-      Exportar a Excel
-    </Button>
-    <Button variant="contained" color="secondary" onClick={exportarCSV}>
-      Exportar a CSV
-    </Button> 
+        <Grid item xs={6} md={2}>
+          <DatePicker
+            selected={fechaInicio}
+            onChange={(date) => setFechaInicio(date)}
+            placeholderText="Fecha Inicio 📅"
+            className="form-control"
+          />
+        </Grid>
+        <Grid item xs={6} md={2}>
+          <DatePicker
+            selected={fechaFin}
+            onChange={(date) => setFechaFin(date)}
+            placeholderText="Fecha Fin 📅"
+            className="form-control"
+          />
+        </Grid>
 
-    {datosFiltrados.length > 0 && (
-      <>
-        <Typography variant="h6" style={{ marginTop: 30 }}>
-          Gráficos 📊
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Dependencia 🏢"
+            value={dependencia}
+            onChange={(e) => setDependencia(e.target.value)}
+            fullWidth
+          />
+        </Grid>
+
+        <Grid item xs={6} md={2}>
+          <TextField
+            label="Pagos Mín 💰"
+            value={pagosMin}
+            onChange={(e) => setPagosMin(e.target.value)}
+            type="number"
+            fullWidth
+          />
+        </Grid>
+        <Grid item xs={6} md={2}>
+          <TextField
+            label="Pagos Máx 💰"
+            value={pagosMax}
+            onChange={(e) => setPagosMax(e.target.value)}
+            type="number"
+            fullWidth
+          />
+        </Grid>
+
+        <Grid item xs={6} md={4}>
+          <TextField
+            label="Columna Específica"
+            value={columnaSeleccionada}
+            onChange={(e) => setColumnaSeleccionada(e.target.value)}
+            fullWidth
+          />
+        </Grid>
+        <Grid item xs={6} md={4}>
+          <TextField
+            label="Valor a Buscar"
+            value={valorEspecifico}
+            onChange={(e) => setValorEspecifico(e.target.value)}
+            fullWidth
+          />
+        </Grid>
+      </Grid>
+    </Box>
+
+    {/* EXPORTACIONES */}
+    <Box mt={3}>
+      <Typography variant="h6">Selecciona columnas para exportar:</Typography>
+      <FormGroup row>
+        {columnas.map((col) => (
+          <FormControlLabel
+            key={col.field}
+            control={
+              <Checkbox
+                checked={columnasSeleccionadas.includes(col.field)}
+                onChange={() =>
+                  setColumnasSeleccionadas((prev) =>
+                    prev.includes(col.field)
+                      ? prev.filter((c) => c !== col.field)
+                      : [...prev, col.field]
+                  )
+                }
+              />
+            }
+            label={col.headerName}
+          />
+        ))}
+      </FormGroup>
+
+      <Box mt={2}>
+        <Button variant="contained" onClick={exportarExcel} sx={{ mr: 1 }}>
+          Exportar a Excel
+        </Button>
+        <Button variant="contained" onClick={exportarCSV} sx={{ mr: 1 }}>
+          Exportar a CSV
+        </Button>
+        <Button variant="contained" onClick={exportarPDF} sx={{ mr: 1 }}>
+          Exportar a PDF
+        </Button>
+        <Button variant="outlined" onClick={generarInforme}>
+          Generar Informe TXT
+        </Button>
+      </Box>
+    </Box>
+
+    {/* TABLA DINÁMICA CON PAGINACIÓN */}
+    <Box mt={4} style={{ height: 500, width: "100%" }}>
+      <DataGrid
+        rows={datosFiltrados.map((row, index) => ({ id: index, ...row }))}
+        columns={columnas}
+        pageSize={rowsPerPage}
+        onPageSizeChange={(newPageSize) => setRowsPerPage(newPageSize)}
+        pagination
+        paginationModel={{ pageSize: rowsPerPage, page: page }}
+        onPaginationModelChange={({ page }) => setPage(page)}
+        rowsPerPageOptions={[5, 10, 20, 50, 100]}
+        disableRowSelectionOnClick
+      />
+    </Box>
+
+    {/* GRÁFICOS */}
+    {datosParaGraficos.length > 0 && (
+      <Box mt={5}>
+        <Typography variant="h6" gutterBottom>
+          Gráfico de Total de Pagos por Dependencia 📊
         </Typography>
-
-        <Box display="flex" justifyContent="space-around" flexWrap="wrap">
-          <ResponsiveContainer width="45%" height={300}>
-            <BarChart data={datosParaGraficos}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="Dependencia" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="TotalPagos" fill="#8884d8" name="Total de Pagos" />
-            </BarChart>
-          </ResponsiveContainer>
-
-          <ResponsiveContainer width="45%" height={300}>
-            <LineChart data={datosParaGraficos}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="Dependencia" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="TotalPagos" stroke="#82ca9d" name="Total de Pagos" />
-            </LineChart>
-          </ResponsiveContainer>
-        </Box>
-
-        <Button variant="contained" color="primary" onClick={exportarPDF} style={{ marginTop: 20 }}>
-        Generar Informe PDF
-      </Button>
-     </>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={datosParaGraficos}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="Dependencia" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="TotalPagos" fill="#8884d8" />
+          </BarChart>
+        </ResponsiveContainer>
+      </Box>
     )}
   </div>
 );
