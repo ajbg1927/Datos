@@ -328,16 +328,16 @@ const datosFiltrados = useMemo(() => {
       </Accordion>
     )}
 
-    <Box mt={3}>
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={4}>
-          <TextField
-            label="Filtro Global 🔍"
-            value={filtroGlobal}
-            onChange={(e) => setFiltroGlobal(e.target.value)}
-            fullWidth
-          />
-        </Grid>
+    <Typography variant="h6">Filtro Global 🔍</Typography>
+    <TextField
+      fullWidth
+      label="Buscar en todo el archivo"
+      variant="outlined"
+      size="small"
+      value={filtroGlobal}
+      onChange={(e) => setFiltroGlobal(e.target.value)}
+      style={{ marginBottom: 20 }}
+    />
 
         <Grid item xs={6} md={2}>
           <DatePicker

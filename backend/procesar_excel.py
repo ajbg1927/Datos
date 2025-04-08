@@ -20,32 +20,33 @@ def limpiar_nombre_hoja(nombre):
 def limpiar_nombre_columna(columna):
     return columna.strip().replace(" ", "_").replace(":", "").replace("-", "_").lower()
 
-def procesar_excel(filepath):
-    if not os.path.exists(filepath):
-        print(f"Error: El archivo '{filepath}' no se encontró.")
-        return
+def procesar_excel(nombre_archivo, hoja_nombre=None):
+    ruta_archivo = os.path.join(UPLOAD_FOLDER, nombre_archivo)
 
-    nombre_archivo = os.path.basename(filepath)
-    print(f"Procesando archivo: {nombre_archivo}")
+    if not os.path.exists(ruta_archivo):
+        print(f"Error: El archivo '{nombre_archivo}' no se encontró.")
+        return
 
     try:
         with app.app_context():
-            excel = pd.ExcelFile(filepath)
+            excel = pd.ExcelFile(ruta_archivo)
             hojas = excel.sheet_names
-            print(f"Hojas en el archivo: {hojas}")
 
-            for hoja in hojas:
+            if hoja_nombre and hoja_nombre in hojas:
+                hojas_a_procesar = [hoja_nombre]
+            else:
+                hojas_a_procesar = hojas
+
+            for hoja in hojas_a_procesar:
                 nombre_hoja = limpiar_nombre_hoja(hoja)
                 df = pd.read_excel(excel, sheet_name=hoja)
 
-                df.dropna(how='all', inplace=True)
-
-                df.columns = [limpiar_nombre_columna(str(col)) for col in df.columns]
+                df.columns = [limpiar_nombre_columna(col) for col in df.columns]
                 print(f"Procesando hoja: {nombre_hoja}, Columnas: {df.columns}")
 
                 for index, row in df.iterrows():
                     for columna, valor in row.items():
-                        if pd.notna(valor) and str(valor).strip().lower() not in ["", "nan"]:
+                        if pd.notna(valor) and valor not in ["", "nan"]:
                             nuevo_dato = Data(
                                 sheet_id=nombre_hoja,
                                 columna=columna,
@@ -54,7 +55,7 @@ def procesar_excel(filepath):
                             db.session.add(nuevo_dato)
 
                 db.session.commit()
-                print(f"Hoja '{hoja}' del archivo '{nombre_archivo}' procesada correctamente.")
+                print(f"Hoja '{nombre_hoja}' procesada correctamente.")
 
     except Exception as e:
         print(f"Error al procesar '{nombre_archivo}': {str(e)}")
