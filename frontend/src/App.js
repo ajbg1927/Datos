@@ -280,25 +280,26 @@ const datosFiltrados = useMemo(() => {
         {cargando && <CircularProgress />}
       </div>
 
-    <Box mb={2}>
-      <input type="file" accept=".xlsx,.xls" onChange={manejarArchivo} />
-      <Select
-        value={archivoSeleccionado}
-        onChange={(e) => {
-          setArchivoSeleccionado(e.target.value);
-          obtenerHojas(e.target.value);
-        }}
-        displayEmpty
-        style={{ marginLeft: 10, minWidth: 200 }}
-      >
-        <MenuItem value="" disabled>Selecciona un archivo</MenuItem>
-        {archivos.map((archivo, idx) => (
-          <MenuItem key={idx} value={archivo}>
-            {archivo}
+       <Box mb={2}>
+        <Select
+          value={archivoSeleccionado}
+          onChange={(e) => {
+            setArchivoSeleccionado(e.target.value);
+            obtenerHojas(e.target.value);
+          }}
+          displayEmpty
+          style={{ marginLeft: 10, minWidth: 200 }}
+        >
+          <MenuItem value="" disabled>
+            Selecciona un archivo
           </MenuItem>
-        ))}
-      </Select>
-    </Box>
+          {archivos.map((archivo, idx) => (
+            <MenuItem key={idx} value={archivo}>
+              {archivo}
+            </MenuItem>
+          ))}
+        </Select>
+      </Box>  
 
     {hojas.length > 0 && (
       <Accordion defaultExpanded>
