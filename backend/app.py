@@ -78,6 +78,8 @@ def cargar_archivo():
     if "file" not in request.files:
         return jsonify({"error": "No se envió ningún archivo"}), 400
     file = request.files["file"]
+    hoja_nombre = request.form.get("hoja_nombre", None)
+
     if file.filename == "" or not allowed_file(file.filename):
         return jsonify({"error": "Formato de archivo no permitido"}), 400
     filename = secure_filename(file.filename)
@@ -85,7 +87,7 @@ def cargar_archivo():
     file.save(filepath)
 
     try:
-        procesar_excel(filepath)
+        procesar_excel(filepath, hoja_nombre)
         return jsonify({"mensaje": "Archivo procesado e importado exitosamente", "archivo": filename})
     except Exception as e:
         return jsonify({"error": f"Error al procesar e importar el archivo: {str(e)}"}), 500

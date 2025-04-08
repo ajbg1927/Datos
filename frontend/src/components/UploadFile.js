@@ -42,6 +42,21 @@ const UploadFile = () => {
         }
     };
 
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        formData.append("hoja_nombre", selectedSheetName);
+
+        const response = await fetch("/archivos/cargar", {
+            method: "POST",
+            body: formData,
+        });
+
+        const data = await response.json();
+
+    };
+
     return (
         <div>
             <input type="file" onChange={handleFileChange} />
