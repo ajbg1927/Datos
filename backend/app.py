@@ -12,8 +12,6 @@ from fpdf import FPDF
 import pandas as pd
 import os
 
-from procesar_excel import import_excel
-
 load_dotenv()
 
 app = Flask(__name__)
