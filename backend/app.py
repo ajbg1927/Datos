@@ -15,7 +15,7 @@ import os
 load_dotenv()
 
 app = Flask(__name__)
-app.config.from_object(config.Config)
+app.config.from_object(config)
 
 CORS(app, resources={r"/*": {"origins": [
     "http://localhost:3000",
@@ -158,7 +158,7 @@ def obtener_datos_archivo():
     except Exception as e:
         return jsonify({"error": f"Error al procesar el archivo: {str(e)}"}), 500
 
-@app.route('/uploads', methods=['POST'])
+@app.route('/upload', methods=['POST'])
 def upload_file():
     file = request.files['file']
     if file:
