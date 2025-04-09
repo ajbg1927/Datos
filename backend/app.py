@@ -77,11 +77,13 @@ def listar_archivos():
 def cargar_archivo():
     if "file" not in request.files:
         return jsonify({"error": "No se envió ningún archivo"}), 400
+
     file = request.files["file"]
     hoja_nombre = request.form.get("hoja_nombre", None)
 
     if file.filename == "" or not allowed_file(file.filename):
         return jsonify({"error": "Formato de archivo no permitido"}), 400
+
     filename = secure_filename(file.filename)
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     file.save(filepath)
