@@ -8,7 +8,6 @@ from database.models import Datos
 import os
 import pandas as pd
 
-
 api_bp = Blueprint("api", __name__)
 api = Api(api_bp)
 
@@ -53,10 +52,33 @@ class Prueba(Resource):
     def get(self):
         return {"mensaje": "API funcionando correctamente"}
 
+
+@api_bp.route("/datos/<filename>", methods=["POST"])
+def procesar_hoja_excel(filename):
+    nombre_hoja = request.json.get("hoja")
+    if not nombre_hoja:
+        return jsonify({"error": "No se especificó la hoja"}), 400
+
+    filepath = os.path.join(UPLOAD_FOLDER, secure_filename(filename))
+
+    if not os.path.exists(filepath):
+        return jsonify({"error": "El archivo no existe en el servidor"}), 404
+
+    try:
+        df = pd.read_excel(filepath, sheet_name=nombre_hoja)
+        df = df.dropna(how="all")  # elimina filas completamente vacías
+
+        columnas = df.columns.tolist()
+        datos = df.fillna("").to_dict(orient="records")
+
+        return jsonify({"columnas": columnas, "datos": datos}), 200
+    except Exception as e:
+        return jsonify({"error": f"Error al procesar la hoja: {str(e)}"}), 500
+
+
 api.add_resource(SubirArchivo, "/subir")
 api.add_resource(ObtenerDatos, "/api/datos")
 api.add_resource(Prueba, "/prueba")
-
 
 @api_bp.route("/subir", methods=["POST"])
 def subir_archivo():
