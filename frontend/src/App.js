@@ -53,30 +53,61 @@ const App = () => {
   };
 
   const handleFileUpload = async () => {
-  if (!selectedFile) {
-    alert("Por favor selecciona un archivo Excel primero.");
-    return;
-  }
+    if (!selectedFile) {
+      alert("Por favor selecciona un archivo Excel primero.");
+      return;
+    }
 
-  const formData = new FormData();
-  formData.append('file', selectedFile);
-  formData.append('hojas', JSON.stringify(hojasSeleccionadas)); 
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('hojas', JSON.stringify(hojasSeleccionadas));
 
-  try {
-    const response = await axios.post(
-      'https://backend-flask-0rnq.onrender.com/datos',
-      formData,
-      {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      }
-    );
-    console.log("Datos recibidos del backend:", response.data);
-    setDatos(response.data); 
-  } catch (error) {
-    console.error("Error obteniendo datos:", error.response || error);
-    alert("Hubo un problema al procesar el archivo. Revisa la consola para más detalles.");
-  }
-};
+    try {
+      const response = await axios.post(
+        `${API_URL}/datos`,
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }
+      );
+      console.log("Datos recibidos del backend:", response.data);
+      setDatos(response.data);
+    } catch (error) {
+      console.error("Error obteniendo datos:", error.response || error);
+      alert("Hubo un problema al procesar el archivo. Revisa la consola para más detalles.");
+    }
+  };
+
+  const uploadData = async () => {
+    if (!selectedFile) {
+      alert("Por favor selecciona un archivo Excel primero.");
+      return;
+    }
+
+    if (hojasSeleccionadas.length === 0) {
+      alert("Por favor selecciona al menos una hoja.");
+      return;
+    }
+
+    setCargando(true);
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('hojas', JSON.stringify(hojasSeleccionadas));
+
+    try {
+      const response = await axios.post(
+        `${API_URL}/datos`, 
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
+      console.log("Datos procesados:", response.data); 
+      setDatos(response.data); 
+    } catch (error) {
+      console.error("Error obteniendo datos:", error.response || error);
+      alert("Hubo un problema al procesar el archivo.");
+    }
+    setCargando(false);
+  };
 
 const subirArchivo = async (file) => {
   if (!file || (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls"))) {

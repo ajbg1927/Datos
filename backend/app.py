@@ -59,12 +59,16 @@ def prueba():
 def subir_archivo():
     if "file" not in request.files:
         return jsonify({"error": "No se envió ningún archivo"}), 400
+    
     file = request.files["file"]
+    
     if file.filename == "" or not allowed_file(file.filename):
         return jsonify({"error": "Formato de archivo no permitido"}), 400
+    
     filename = secure_filename(file.filename)
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    file.save(filepath)
+    file.save(filepath)  
+    
     return jsonify({"mensaje": "Archivo subido exitosamente", "archivo": filename})
 
 @app.route("/datos", methods=["POST"])
@@ -114,23 +118,35 @@ def obtener_datos(filename):
     if not os.path.exists(filepath):
         return jsonify({"error": "Archivo no encontrado"}), 404
     try:
-        data = request.json
-        hojas = data.get("hojas", [])
+        data = request.json  
+    
+        hojas = data.get("hojas", [])  
+        
+        if not hojas:
+            return jsonify({"error": "No se especificaron hojas a procesar"}), 400
+
         xls = pd.ExcelFile(filepath)
         datos_totales = []
         id_counter = 1
+        
         for hoja in hojas:
             if hoja not in xls.sheet_names:
-                return jsonify({"error": f"La hoja '{hoja}' no existe"}), 400
+                return jsonify({"error": f"La hoja '{hoja}' no existe en el archivo"}), 400
+            
             df = pd.read_excel(xls, sheet_name=hoja, dtype=str)
-            df.dropna(how="all", inplace=True)
+            df.dropna(how="all", inplace=True) 
+
             df.insert(0, "id", range(id_counter, id_counter + len(df)))
             id_counter += len(df)
+
             df["Hoja"] = hoja
+            
             datos_totales.extend(df.fillna("").to_dict(orient="records"))
+
         return jsonify({"datos": datos_totales})
+
     except Exception as e:
-        return jsonify({"error": f"Error al leer los datos: {str(e)}"}), 500
+        return jsonify({"error": f"Error al procesar los datos: {str(e)}"}), 500
 
 @app.route("/archivos/datos", methods=["POST"])
 def obtener_datos_archivo():
