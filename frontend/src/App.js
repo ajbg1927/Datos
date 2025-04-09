@@ -11,7 +11,6 @@ import * as XLSX from "xlsx";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ResponsiveContainer } from "recharts";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-import TablaDatos from "./TablaDatos";
 
 const API_URL = "https://backend-flask-0rnq.onrender.com";
 
