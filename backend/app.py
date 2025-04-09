@@ -177,7 +177,7 @@ def obtener_datos(filename):
             if hoja not in xls.sheet_names:
                 return jsonify({"error": f"La hoja '{hoja}' no existe"}), 400
             df = pd.read_excel(xls, sheet_name=hoja, dtype=str)
-            df.dropna(how="all", inplace=True)
+            df.dropna(how="all", inplace=True)  # Elimina filas completamente vacías
             df.insert(0, "id", range(id_counter, id_counter + len(df)))
             id_counter += len(df)
             df["Hoja"] = hoja
