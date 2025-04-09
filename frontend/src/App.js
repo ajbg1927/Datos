@@ -60,47 +60,47 @@ const App = () => {
 
   const formData = new FormData();
   formData.append('file', selectedFile);
-
   formData.append('hojas', JSON.stringify(hojasSeleccionadas)); 
 
   try {
-  const response = await axios.post(
-    'https://backend-flask-0rnq.onrender.com/datos',
-    formData,
-    {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }
-  );
-  console.log("Datos recibidos del backend:", response.data);
-  setDatos(response.data); 
-} catch (error) {
-  console.error("Error obteniendo datos:", error.response || error);
-  alert("Hubo un problema al procesar el archivo. Revisa la consola para más detalles.");
-}
+    const response = await axios.post(
+      'https://backend-flask-0rnq.onrender.com/datos',
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }
+    );
+    console.log("Datos recibidos del backend:", response.data);
+    setDatos(response.data); 
+  } catch (error) {
+    console.error("Error obteniendo datos:", error.response || error);
+    alert("Hubo un problema al procesar el archivo. Revisa la consola para más detalles.");
+  }
+};
 
-  const subirArchivo = async (file) => {
-    if (!file || (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls"))) {
-      alert("Solo se permiten archivos Excel.");
-      return;
-    }
+const subirArchivo = async (file) => {
+  if (!file || (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls"))) {
+    alert("Solo se permiten archivos Excel.");
+    return;
+  }
 
-    setCargando(true);
-    const formData = new FormData();
-    formData.append("file", file);
+  setCargando(true);
+  const formData = new FormData();
+  formData.append("file", file);
 
-    try {
-      await axios.post(`${API_URL}/subir`, formData, {
-        headers: { "Content-Type": "multipart/form-data" }
-      });
-      alert("Archivo subido exitosamente");
-      setArchivoSubido(file.name);
-      setArchivos([...archivos, file.name]);
-    } catch (error) {
-      console.error("Error al subir archivo:", error);
-      alert("Error al subir el archivo.");
-    }
-    setCargando(false);
-  };
+  try {
+    await axios.post(`${API_URL}/subir`, formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+    alert("Archivo subido exitosamente");
+    setArchivoSubido(file.name);
+    setArchivos([...archivos, file.name]);
+  } catch (error) {
+    console.error("Error al subir archivo:", error);
+    alert("Error al subir el archivo.");
+  }
+  setCargando(false);
+};
 
   const manejarArchivo = (e) => {
     const file = e.target.files[0];
