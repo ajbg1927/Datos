@@ -59,26 +59,24 @@ const App = () => {
   }
 
   const formData = new FormData();
-  formData.append('file', selectedFile); 
+  formData.append('file', selectedFile);
+
+  formData.append('hojas', JSON.stringify(hojasSeleccionadas)); 
 
   try {
-    const response = await axios.post(
-      'https://backend-flask-0rnq.onrender.com/datos',
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    );
-
-    console.log("Datos recibidos del backend:", response.data);
-    setDatos(response.data); 
-  } catch (error) {
-    console.error("Error obteniendo datos:", error);
-    alert("Hubo un problema al procesar el archivo. Revisa la consola para más detalles.");
-  }
-};
+  const response = await axios.post(
+    'https://backend-flask-0rnq.onrender.com/datos',
+    formData,
+    {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }
+  );
+  console.log("Datos recibidos del backend:", response.data);
+  setDatos(response.data); 
+} catch (error) {
+  console.error("Error obteniendo datos:", error.response || error);
+  alert("Hubo un problema al procesar el archivo. Revisa la consola para más detalles.");
+}
 
   const subirArchivo = async (file) => {
     if (!file || (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls"))) {
@@ -127,24 +125,24 @@ const App = () => {
   };
 
   const cargarDatos = async () => {
-    if (!archivoSeleccionado || hojasSeleccionadas.length === 0) {
-      alert("Selecciona un archivo y al menos una hoja antes de cargar los datos.");
-      return;
-    }
+  if (!archivoSeleccionado || hojasSeleccionadas.length === 0) {
+    alert("Selecciona un archivo y al menos una hoja antes de cargar los datos.");
+    return;
+  }
 
-    setCargando(true);
-    try {
-      const res = await axios.post(`${API_URL}/datos/${encodeURIComponent(archivoSeleccionado)}`, {
-        hojas: hojasSeleccionadas
-      });
-      setDatos(Array.isArray(res.data) ? res.data : []);
-    } catch (error) {
-      console.error("Error obteniendo datos:", error);
-      alert("Error al obtener datos.");
-      setDatos([]);
-    }
-    setCargando(false);
-  };
+  setCargando(true);
+  try {
+    const res = await axios.post(`${API_URL}/datos/${encodeURIComponent(archivoSeleccionado)}`, {
+      hojas: hojasSeleccionadas, 
+    });
+    setDatos(Array.isArray(res.data) ? res.data : []); 
+  } catch (error) {
+    console.error("Error obteniendo datos:", error);
+    alert("Error al obtener datos.");
+    setDatos([]); 
+  }
+  setCargando(false);
+};
 
   const toggleHojaSeleccionada = (hoja) => {
     setHojasSeleccionadas(prev =>
