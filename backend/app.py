@@ -2,13 +2,13 @@ from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
+from fpdf import FPDF
 from database import db
 from database.models import DatosExcel
 from config import Config
-from werkzeug.utils import secure_filename
 from routes import api_bp
-from dotenv import load_dotenv
-from fpdf import FPDF
 import pandas as pd
 import os
 
@@ -17,16 +17,15 @@ load_dotenv()
 app = Flask(__name__)
 app.config.from_object(Config)
 
-origins = [
+CORS(app, resources={r"/*": {"origins": [
     "http://localhost:3000",
     "https://datosexcel.vercel.app"
-]
-CORS(app, resources={r"/*": {"origins": origins}})
+]}})
+
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("Falta la variable de entorno DATABASE_URL")
-
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -73,101 +72,6 @@ def listar_archivos():
     archivos = os.listdir(UPLOAD_FOLDER)
     return jsonify({"archivos": archivos})
 
-@app.route("/archivos/cargar", methods=["POST"])
-def cargar_archivo():
-    if "file" not in request.files:
-        return jsonify({"error": "No se envió ningún archivo"}), 400
-
-    file = request.files["file"]
-    hoja_nombre = request.form.get("hoja_nombre", None)
-
-    if file.filename == "" or not allowed_file(file.filename):
-        return jsonify({"error": "Formato de archivo no permitido"}), 400
-
-    filename = secure_filename(file.filename)
-    filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    file.save(filepath)
-
-    try:
-        procesar_excel(filepath, hoja_nombre)
-        return jsonify({"mensaje": "Archivo procesado e importado exitosamente", "archivo": filename})
-    except Exception as e:
-        return jsonify({"error": f"Error al procesar e importar el archivo: {str(e)}"}), 500
-
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    file = request.files['file']
-    if file:
-        filename = secure_filename(file.filename)
-        file_path = os.path.join('/tmp', filename)
-        file.save(file_path)
-        return jsonify({"filename": filename}), 200
-    return jsonify({"error": "Archivo no encontrado"}), 400
-
-@app.route('/datos', methods=['POST'])
-def cargar_datos():
-    if 'file' not in request.files:
-        return jsonify({"error": "No se envió ningún archivo"}), 400
-
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "Nombre de archivo vacío"}), 400
-
-    try:
-        excel_data = pd.read_excel(file, sheet_name=None, dtype=str)
-        datos_hojas = {}
-        row_id = 1
-
-        for nombre_hoja, df in excel_data.items():
-            df.dropna(how='all', inplace=True)
-            if df.empty:
-                continue
-
-            df.insert(0, "id", range(row_id, row_id + len(df)))
-            row_id += len(df)
-            df["Hoja"] = nombre_hoja
-
-            datos_hojas[nombre_hoja] = df.fillna('').to_dict(orient='records')
-
-        return jsonify(datos_hojas), 200
-
-    except Exception as e:
-        return jsonify({"error": f"Error procesando el archivo: {str(e)}"}), 500
-
-@app.route("/datos/<nombre_archivo>", methods=["POST"])
-def subir_datos(nombre_archivo):
-    archivo = request.files.get("file")
-    if not archivo:
-        return jsonify({"error": "No se recibió ningún archivo"}), 400
-
-
-@app.route("/archivos/datos", methods=["POST"])
-def obtener_datos_archivo():
-    data = request.json
-    filename = data.get("filename", "")
-    if not filename:
-        return jsonify({"error": "Archivo no encontrado"}), 400
-    try:
-        hojas = data.get("hojas", [])
-        filepath = os.path.join(UPLOAD_FOLDER, filename)
-        if not os.path.exists(filepath):
-            return jsonify({"error": "Archivo no encontrado"}), 400
-        xls = pd.ExcelFile(filepath)
-        datos_totales = []
-        row_id = 1
-        for hoja in hojas:
-            if hoja in xls.sheet_names:
-                df = pd.read_excel(xls, sheet_name=hoja, dtype=str)
-                df.fillna("", inplace=True)
-                df.insert(0, "id", range(row_id, row_id + len(df)))
-                row_id += len(df)
-                df["Hoja"] = hoja
-                datos_totales.extend(df.to_dict(orient="records"))
-        return jsonify({"datos": datos_totales})
-    except Exception as e:
-        print(f"Error al procesar el archivo: {str(e)}")
-        return jsonify({"error": f"Error al procesar el archivo: {str(e)}"}), 500
-
 @app.route("/hojas/<filename>", methods=["GET"])
 def obtener_hojas(filename):
     filepath = os.path.join(UPLOAD_FOLDER, filename)
@@ -203,6 +107,65 @@ def obtener_datos(filename):
     except Exception as e:
         return jsonify({"error": f"Error al leer los datos: {str(e)}"}), 500
 
+@app.route("/archivos/datos", methods=["POST"])
+def obtener_datos_archivo():
+    data = request.json
+    filename = data.get("filename", "")
+    hojas = data.get("hojas", [])
+    if not filename:
+        return jsonify({"error": "Archivo no encontrado"}), 400
+    try:
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        if not os.path.exists(filepath):
+            return jsonify({"error": "Archivo no encontrado"}), 400
+        xls = pd.ExcelFile(filepath)
+        datos_totales = []
+        row_id = 1
+        for hoja in hojas:
+            if hoja in xls.sheet_names:
+                df = pd.read_excel(xls, sheet_name=hoja, dtype=str)
+                df.fillna("", inplace=True)
+                df.insert(0, "id", range(row_id, row_id + len(df)))
+                row_id += len(df)
+                df["Hoja"] = hoja
+                datos_totales.extend(df.to_dict(orient="records"))
+        return jsonify({"datos": datos_totales})
+    except Exception as e:
+        return jsonify({"error": f"Error al procesar el archivo: {str(e)}"}), 500
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    file = request.files['file']
+    if file:
+        filename = secure_filename(file.filename)
+        file_path = os.path.join('/tmp', filename)
+        file.save(file_path)
+        return jsonify({"filename": filename}), 200
+    return jsonify({"error": "Archivo no encontrado"}), 400
+
+@app.route('/datos', methods=['POST'])
+def cargar_datos():
+    if 'file' not in request.files:
+        return jsonify({"error": "No se envió ningún archivo"}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "Nombre de archivo vacío"}), 400
+    try:
+        excel_data = pd.read_excel(file, sheet_name=None, dtype=str)
+        datos_hojas = {}
+        row_id = 1
+        for nombre_hoja, df in excel_data.items():
+            df.dropna(how='all', inplace=True)
+            if df.empty:
+                continue
+            df.insert(0, "id", range(row_id, row_id + len(df)))
+            row_id += len(df)
+            df["Hoja"] = nombre_hoja
+            datos_hojas[nombre_hoja] = df.fillna('').to_dict(orient='records')
+        return jsonify(datos_hojas), 200
+    except Exception as e:
+        return jsonify({"error": f"Error procesando el archivo: {str(e)}"}), 500
+
 @app.route('/api/datos', methods=['GET'])
 def get_datos():
     try:
@@ -218,11 +181,9 @@ def generate_report():
         data = request.json.get("data", [])
         if not data:
             return jsonify({"error": "No hay datos para generar el informe"}), 400
-
         df = pd.DataFrame(data)
         excel_path = os.path.join(UPLOAD_FOLDER, "reporte.xlsx")
         df.to_excel(excel_path, index=False)
-
         pdf_path = os.path.join(UPLOAD_FOLDER, "reporte.pdf")
         pdf = FPDF()
         pdf.set_auto_page_break(auto=True, margin=15)
@@ -234,7 +195,6 @@ def generate_report():
         pdf.cell(0, 10, f"Total de registros: {len(df)}", ln=True)
         pdf.cell(0, 10, f"Columnas disponibles: {', '.join(df.columns)}", ln=True)
         pdf.output(pdf_path)
-
         return jsonify({
             "mensaje": "Informe generado exitosamente",
             "excel_url": f"/download/reporte.xlsx",

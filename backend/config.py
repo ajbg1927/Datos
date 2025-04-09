@@ -25,3 +25,5 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
+
+
