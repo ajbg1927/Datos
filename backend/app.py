@@ -92,6 +92,27 @@ def cargar_archivo():
     except Exception as e:
         return jsonify({"error": f"Error al procesar e importar el archivo: {str(e)}"}), 500
 
+@app.route('/datos', methods=['POST'])
+def cargar_datos():
+    if 'file' not in request.files:
+        return jsonify({"error": "No se envió ningún archivo"}), 400
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({"error": "Nombre de archivo vacío"}), 400
+
+    try:
+        excel_data = pd.read_excel(file, sheet_name=None)
+        datos_hojas = {}
+        for nombre_hoja, df in excel_data.items():
+            datos_hojas[nombre_hoja] = df.fillna('').to_dict(orient='records')
+
+        return jsonify(datos_hojas), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Error procesando el archivo: {str(e)}"}), 500
+
 @app.route("/archivos/datos", methods=["POST"])
 def obtener_datos_archivo():
     data = request.json

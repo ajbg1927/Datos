@@ -33,6 +33,7 @@ const App = () => {
   const [columnasSeleccionadas, setColumnasSeleccionadas] = useState([]);
   const [valorBusqueda, setValorBusqueda] = useState("");
   const [selectedSheets, setSelectedSheets] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -44,6 +45,36 @@ const App = () => {
       })
       .catch(error => console.error("Error obteniendo archivos:", error));
   }, [archivoSubido]);
+
+ const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      alert("Por favor selecciona un archivo.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    try {
+      const response = await axios.post(
+        `${API_URL}/datos`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      setDatos(response.data); 
+      console.log("Datos cargados:", response.data);
+    } catch (error) {
+      console.error("Error obteniendo datos:", error);
+    }
+  };
 
   const subirArchivo = async (file) => {
     if (!file || (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls"))) {
