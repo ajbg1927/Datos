@@ -47,40 +47,40 @@ const App = () => {
       .catch(error => console.error("Error obteniendo archivos:", error));
   }, [archivoSubido]);
 
-  const handleFileChange = (e) => {
+ const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
   };
 
-  const handleUpload = async () => {
-    if (!selectedFile) return alert("Por favor, selecciona un archivo.");
+  const handleFileUpload = async (event) => {
+  const file = event.target.files[0];
+  setSelectedFile(file);
+};
 
-    const formData = new FormData();
-    formData.append("file", selectedFile);
+const onClick = async () => {
+  if (!selectedFile) {
+    alert("Por favor selecciona un archivo Excel.");
+    return;
+  }
 
-    try {
-      const response = await axios.post(
-        `${API_URL}/datos/${selectedFile.name}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+  const formData = new FormData();
+  formData.append("file", selectedFile); 
 
-      const data = response.data;
-      console.log("Datos recibidos:", data);
-      setDatos(data.datos);
-      setNombreHoja(data.hoja);
-    } catch (error) {
-      console.error("Error obteniendo datos:", error);
-      alert("Error al procesar el archivo. Revisa la consola para más detalles.");
-    }
-  };
-
-   const columnas = datos.length > 0
-    ? Object.keys(datos[0]).map((key) => ({ field: key, headerName: key, flex: 1, sortable: true }))
-    : [];
+  try {
+    const response = await axios.post(
+      "https://backend-flask-0rnq.onrender.com/datos/${nombreArchivo}", 
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    console.log("Datos obtenidos:", response.data);
+    setDatos(response.data);
+  } catch (error) {
+    console.error("Error obteniendo datos:", error);
+  }
+};
 
   const subirArchivo = async (file) => {
     if (!file || (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls"))) {
