@@ -134,6 +134,13 @@ def cargar_datos():
     except Exception as e:
         return jsonify({"error": f"Error procesando el archivo: {str(e)}"}), 500
 
+@app.route("/datos/<nombre_archivo>", methods=["POST"])
+def subir_datos(nombre_archivo):
+    archivo = request.files.get("file")
+    if not archivo:
+        return jsonify({"error": "No se recibió ningún archivo"}), 400
+
+
 @app.route("/archivos/datos", methods=["POST"])
 def obtener_datos_archivo():
     data = request.json
