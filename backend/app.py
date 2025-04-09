@@ -94,6 +94,16 @@ def cargar_archivo():
     except Exception as e:
         return jsonify({"error": f"Error al procesar e importar el archivo: {str(e)}"}), 500
 
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    file = request.files['file']
+    if file:
+        filename = secure_filename(file.filename)
+        file_path = os.path.join('/tmp', filename)
+        file.save(file_path)
+        return jsonify({"filename": filename}), 200
+    return jsonify({"error": "Archivo no encontrado"}), 400
+
 @app.route('/datos', methods=['POST'])
 def cargar_datos():
     if 'file' not in request.files:
@@ -106,16 +116,16 @@ def cargar_datos():
     try:
         excel_data = pd.read_excel(file, sheet_name=None, dtype=str)
         datos_hojas = {}
-        row_id = 1  
+        row_id = 1
 
         for nombre_hoja, df in excel_data.items():
-            df.dropna(how='all', inplace=True)  
+            df.dropna(how='all', inplace=True)
             if df.empty:
-                continue  
+                continue
 
-            df.insert(0, "id", range(row_id, row_id + len(df)))  
+            df.insert(0, "id", range(row_id, row_id + len(df)))
             row_id += len(df)
-            df["Hoja"] = nombre_hoja  
+            df["Hoja"] = nombre_hoja
 
             datos_hojas[nombre_hoja] = df.fillna('').to_dict(orient='records')
 
@@ -177,7 +187,7 @@ def obtener_datos(filename):
             if hoja not in xls.sheet_names:
                 return jsonify({"error": f"La hoja '{hoja}' no existe"}), 400
             df = pd.read_excel(xls, sheet_name=hoja, dtype=str)
-            df.dropna(how="all", inplace=True)  # Elimina filas completamente vacías
+            df.dropna(how="all", inplace=True)
             df.insert(0, "id", range(id_counter, id_counter + len(df)))
             id_counter += len(df)
             df["Hoja"] = hoja
