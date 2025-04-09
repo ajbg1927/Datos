@@ -37,7 +37,7 @@ const App = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
 
-  useEffect(() => {
+ useEffect(() => {
     axios.get(`${API_URL}/archivos`)
       .then(res => {
         setArchivos(Array.isArray(res.data.archivos) ? res.data.archivos : []);
@@ -46,10 +46,10 @@ const App = () => {
   }, [archivoSubido]);
 
   const subirArchivo = async (file) => {
-  if (!file || (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls"))) {
-    alert("Solo se permiten archivos Excel.");
-    return;
-  }
+    if (!file || (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls"))) {
+      alert("Solo se permiten archivos Excel.");
+      return;
+    }
 
     setCargando(true);
     const formData = new FormData();
@@ -82,7 +82,6 @@ const App = () => {
 
   const obtenerHojas = async (archivo) => {
     if (!archivo) return;
-
     try {
       const res = await axios.get(`${API_URL}/hojas/${encodeURIComponent(archivo)}`);
       setHojas(res.data.hojas || []);
@@ -92,25 +91,25 @@ const App = () => {
     }
   };
 
-const cargarDatos = async () => {
-  if (!archivoSeleccionado || hojasSeleccionadas.length === 0) {
-    alert("Selecciona un archivo y al menos una hoja antes de cargar los datos.");
-    return;
-  }
+  const cargarDatos = async () => {
+    if (!archivoSeleccionado || hojasSeleccionadas.length === 0) {
+      alert("Selecciona un archivo y al menos una hoja antes de cargar los datos.");
+      return;
+    }
 
-  setCargando(true);
-  try {
-    const res = await axios.post(`${API_URL}/datos/${encodeURIComponent(archivoSeleccionado)}`, {
-      hojas: hojasSeleccionadas
-    });
-    setDatos(Array.isArray(res.data) ? res.data : []);
-  } catch (error) {
-    console.error("Error obteniendo datos:", error);
-    alert("Error al obtener datos.");
-    setDatos([]);
-  }
-  setCargando(false);
-};  
+    setCargando(true);
+    try {
+      const res = await axios.post(`${API_URL}/datos/${encodeURIComponent(archivoSeleccionado)}`, {
+        hojas: hojasSeleccionadas
+      });
+      setDatos(Array.isArray(res.data) ? res.data : []);
+    } catch (error) {
+      console.error("Error obteniendo datos:", error);
+      alert("Error al obtener datos.");
+      setDatos([]);
+    }
+    setCargando(false);
+  };
 
   const toggleHojaSeleccionada = (hoja) => {
     setHojasSeleccionadas(prev =>
@@ -123,11 +122,9 @@ const cargarDatos = async () => {
       alert("Selecciona al menos una columna para exportar.");
       return;
     }
-
-    const datosExportados = datos.map(row =>
+    const datosExportados = datosFiltrados.map(row =>
       Object.fromEntries(Object.entries(row).filter(([key]) => columnasSeleccionadas.includes(key)))
     );
-
     const ws = XLSX.utils.json_to_sheet(datosExportados);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Datos Filtrados");
@@ -139,17 +136,13 @@ const cargarDatos = async () => {
       alert("Selecciona al menos una columna para exportar.");
       return;
     }
-
-  const datosExportados = datos.map(row =>
+    const datosExportados = datosFiltrados.map(row =>
       Object.fromEntries(Object.entries(row).filter(([key]) => columnasSeleccionadas.includes(key)))
     );
-
-
     const encabezados = columnasSeleccionadas.join(",");
-    const filas = datosFiltrados.map(row =>
+    const filas = datosExportados.map(row =>
       columnasSeleccionadas.map(col => `"${row[col] || ""}"`).join(",")
     );
-
     const contenidoCSV = [encabezados, ...filas].join("\n");
     const blob = new Blob([contenidoCSV], { type: "text/csv" });
     const enlace = document.createElement("a");
@@ -158,82 +151,73 @@ const cargarDatos = async () => {
     enlace.click();
   };
 
-    const columnas = datos.length > 0
+  const columnas = datos.length > 0
     ? Object.keys(datos[0]).map((key) => ({ field: key, headerName: key, flex: 1, sortable: true }))
     : [];
 
-   const exportarPDF = () => {
+  const exportarPDF = () => {
     if (datos.length === 0) {
       alert("No hay datos para exportar.");
       return;
     }
-
     const doc = new jsPDF();
     doc.text("Informe de Datos Filtrados", 10, 10);
-    
-    const datosExportados = datos.map(row => columnasSeleccionadas.map(col => row[col] || ""));
-
+    const datosExportados = datosFiltrados.map(row => columnasSeleccionadas.map(col => row[col] || ""));
     autoTable(doc, {
       head: [columnasSeleccionadas],
       body: datosExportados
     });
-
     doc.save("Informe_Datos_Filtrados.pdf");
   };
 
-const datosFiltrados = useMemo(() => {
-  const datosArray = Array.isArray(datos) ? datos : [];
-
-  return datosArray.filter(row => {
-    let coincide = true;
-    if (filtroGlobal) {
-      coincide = Object.values(row).some(val => val?.toString().toLowerCase().includes(filtroGlobal.toLowerCase()));
-    }
-    if (fechaInicio && row["Fecha"]) {
-      const fechaRow = new Date(row["Fecha"]);
-      coincide = coincide && fechaRow >= fechaInicio;
-    }
-    if (fechaFin && row["Fecha"]) {
-      const fechaRow = new Date(row["Fecha"]);
-      coincide = coincide && fechaRow <= fechaFin;
-    }
-    if (dependencia) {
-      coincide = coincide && (row.Dependencia?.toLowerCase() === dependencia.toLowerCase());
-    }
-    if (pagosMin || pagosMax) {
-      const pagos = parseFloat(row["Pagos"] || 0);
-      if (pagosMin) coincide = coincide && pagos >= parseFloat(pagosMin);
-      if (pagosMax) coincide = coincide && pagos <= parseFloat(pagosMax);
-    }
-    if (columnaSeleccionada && valorEspecifico) {
-      const valorColumna = row[columnaSeleccionada]?.toString().toLowerCase() || "";
-      coincide = coincide && valorColumna.includes(valorEspecifico.toLowerCase());
-    }
-    return coincide;
-  });
-}, [datos, filtroGlobal, fechaInicio, fechaFin, dependencia, pagosMin, pagosMax, columnaSeleccionada, valorEspecifico]);
-
+  const datosFiltrados = useMemo(() => {
+    const datosArray = Array.isArray(datos) ? datos : [];
+    return datosArray.filter(row => {
+      let coincide = true;
+      if (filtroGlobal) {
+        coincide = Object.values(row).some(val => val?.toString().toLowerCase().includes(filtroGlobal.toLowerCase()));
+      }
+      if (fechaInicio && row["Fecha"]) {
+        const fechaRow = new Date(row["Fecha"]);
+        coincide = coincide && fechaRow >= fechaInicio;
+      }
+      if (fechaFin && row["Fecha"]) {
+        const fechaRow = new Date(row["Fecha"]);
+        coincide = coincide && fechaRow <= fechaFin;
+      }
+      if (dependencia) {
+        coincide = coincide && (row.Dependencia?.toLowerCase() === dependencia.toLowerCase());
+      }
+      if (pagosMin || pagosMax) {
+        const pagos = parseFloat(row["Pagos"] || 0);
+        if (pagosMin) coincide = coincide && pagos >= parseFloat(pagosMin);
+        if (pagosMax) coincide = coincide && pagos <= parseFloat(pagosMax);
+      }
+      if (columnaSeleccionada && valorEspecifico) {
+        const valorColumna = row[columnaSeleccionada]?.toString().toLowerCase() || "";
+        coincide = coincide && valorColumna.includes(valorEspecifico.toLowerCase());
+      }
+      return coincide;
+    });
+  }, [datos, filtroGlobal, fechaInicio, fechaFin, dependencia, pagosMin, pagosMax, columnaSeleccionada, valorEspecifico]);
 
   const datosParaGraficos = Object.values(
     datosFiltrados.reduce((acc, row) => {
-    const dep = row.Dependencia || "Desconocido";
-    const pagos = parseFloat(row.Pagos) || 0;
+      const dep = row.Dependencia || "Desconocido";
+      const pagos = parseFloat(row.Pagos) || 0;
+      if (!acc[dep]) {
+        acc[dep] = { Dependencia: dep, TotalPagos: 0 };
+      }
+      acc[dep].TotalPagos += pagos;
+      return acc;
+    }, {})
+  );
 
-    if (!acc[dep]) {
-      acc[dep] = { Dependencia: dep, TotalPagos: 0 };
-    }
-    acc[dep].TotalPagos += pagos;
-
-    return acc;
-  }, {})
-);
-  
   const generarInforme = () => {
     if (datosFiltrados.length === 0) {
       alert("No hay datos filtrados para generar un informe.");
       return;
     }
-
     let contenido = "INFORME DE DATOS FILTRADOS\n\n";
     contenido += `Fecha de Generación: ${new Date().toLocaleString()}\n\n`;
     contenido += "**Filtros Aplicados:**\n";
@@ -243,7 +227,6 @@ const datosFiltrados = useMemo(() => {
     contenido += `- Dependencia: ${dependencia || "No aplicada"}\n`;
     contenido += `- Pagos Mínimos: ${pagosMin || "No aplicados"}\n`;
     contenido += `- Pagos Máximos: ${pagosMax || "No aplicados"}\n\n`;
-
     contenido += "**Datos Filtrados:**\n\n";
     datosFiltrados.forEach((fila, index) => {
       contenido += `Registro ${index + 1}:\n`;
@@ -252,16 +235,15 @@ const datosFiltrados = useMemo(() => {
       });
       contenido += "\n";
     });
-
     const blob = new Blob([contenido], { type: "text/plain" });
     const enlace = document.createElement("a");
     enlace.href = URL.createObjectURL(blob);
     enlace.download = "Informe_Datos_Filtrados.txt";
     enlace.click();
   };
-    
+
   const handleSheetChange = (event) => {
-    setSelectedSheets(typeof event.target.value === "string" ?[event.target.value] : event.target.value);
+    setSelectedSheets(typeof event.target.value === "string" ? [event.target.value] : event.target.value);
   };
 
   return (
