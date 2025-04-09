@@ -15,7 +15,7 @@ import os
 load_dotenv()
 
 app = Flask(__name__)
-app.config.from_object(Config)
+app.config.from_object(config.Config)
 
 CORS(app, resources={r"/*": {"origins": [
     "http://localhost:3000",
@@ -51,7 +51,7 @@ def allowed_file(filename):
 def home():
     return "Flask en Render funcionando"
 
-@app.route("/prueba")
+@app.route("/prueba", methods=["GET"])
 def prueba():
     return {"mensaje": "Conexión exitosa"}
 
@@ -66,6 +66,31 @@ def subir_archivo():
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     file.save(filepath)
     return jsonify({"mensaje": "Archivo subido exitosamente", "archivo": filename})
+
+@app.route("/datos", methods=["POST"])
+def procesar_excel():
+    if "file" not in request.files:
+        return jsonify({"error": "No se envió ningún archivo"}), 400
+    archivo = request.files["file"]
+    if archivo.filename == "":
+        return jsonify({"error": "Nombre de archivo vacío"}), 400
+
+    try:
+        excel_data = pd.read_excel(archivo, sheet_name=None, dtype=str)
+        datos_hojas = {}
+        row_id = 1
+        for nombre_hoja, df in excel_data.items():
+            df.dropna(how="all", inplace=True)  
+            if df.empty:
+                continue
+            df.insert(0, "id", range(row_id, row_id + len(df)))  
+            row_id += len(df)
+            df["Hoja"] = nombre_hoja
+            datos_hojas[nombre_hoja] = df.fillna("").to_dict(orient="records")
+
+        return jsonify(datos_hojas), 200
+    except Exception as e:
+        return jsonify({"error": f"Error procesando el archivo: {str(e)}"}), 500
 
 @app.route("/archivos", methods=["GET"])
 def listar_archivos():
@@ -133,7 +158,7 @@ def obtener_datos_archivo():
     except Exception as e:
         return jsonify({"error": f"Error al procesar el archivo: {str(e)}"}), 500
 
-@app.route('/upload', methods=['POST'])
+@app.route('/uploads', methods=['POST'])
 def upload_file():
     file = request.files['file']
     if file:
@@ -142,34 +167,6 @@ def upload_file():
         file.save(file_path)
         return jsonify({"filename": filename}), 200
     return jsonify({"error": "Archivo no encontrado"}), 400
-
-@app.route('/datos', methods=['POST'])
-def procesar_excel():
-    if 'file' not in request.files:
-        return jsonify({"error": "No se envió ningún archivo"}), 400
-
-    archivo = request.files['file']
-    if archivo.filename == '':
-        return jsonify({"error": "Nombre de archivo vacío"}), 400
-
-    try:
-        excel_data = pd.read_excel(archivo, sheet_name=None, dtype=str)
-        datos_hojas = {}
-        row_id = 1
-
-        for nombre_hoja, df in excel_data.items():
-            df.dropna(how='all', inplace=True)  
-            if df.empty:
-                continue
-            df.insert(0, "id", range(row_id, row_id + len(df)))
-            row_id += len(df)
-            df["Hoja"] = nombre_hoja
-            datos_hojas[nombre_hoja] = df.fillna('').to_dict(orient='records')
-
-        return jsonify(datos_hojas), 200
-
-    except Exception as e:
-        return jsonify({"error": f"Error procesando el archivo: {str(e)}"}), 500
 
 @app.route('/api/datos', methods=['GET'])
 def get_datos():
