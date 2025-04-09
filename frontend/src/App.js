@@ -106,13 +106,13 @@ const onClick = async () => {
   };
 
   const manejarArchivo = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.file[0];
     subirArchivo(file);
   };
 
   const manejarDrop = (e) => {
     e.preventDefault();
-    const file = e.dataTransfer.files[0];
+    const file = e.dataTransfer.file[0];
     subirArchivo(file);
   };
 
