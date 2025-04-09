@@ -36,6 +36,7 @@ const App = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [nombreHoja, setNombreHoja] = useState("");
 
 
  useEffect(() => {
@@ -46,40 +47,40 @@ const App = () => {
       .catch(error => console.error("Error obteniendo archivos:", error));
   }, [archivoSubido]);
 
- const handleFileChange = (e) => {
+  const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
   };
 
-  const handleFileUpload = async (event) => {
-  const file = event.target.files[0];
-  setSelectedFile(file);
-};
+  const handleUpload = async () => {
+    if (!selectedFile) return alert("Por favor, selecciona un archivo.");
 
-const onClick = async () => {
-  if (!selectedFile) {
-    alert("Por favor selecciona un archivo Excel.");
-    return;
-  }
+    const formData = new FormData();
+    formData.append("file", selectedFile);
 
-  const formData = new FormData();
-  formData.append("file", selectedFile); 
+    try {
+      const response = await axios.post(
+        `${API_URL}/datos/${selectedFile.name}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-  try {
-    const response = await axios.post(
-      "https://backend-flask-0rnq.onrender.com/datos/${nombreArchivo}", 
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-    console.log("Datos obtenidos:", response.data);
-    setDatos(response.data);
-  } catch (error) {
-    console.error("Error obteniendo datos:", error);
-  }
-};
+      const data = response.data;
+      console.log("Datos recibidos:", data);
+      setDatos(data.datos);
+      setNombreHoja(data.hoja);
+    } catch (error) {
+      console.error("Error obteniendo datos:", error);
+      alert("Error al procesar el archivo. Revisa la consola para más detalles.");
+    }
+  };
+
+   const columnas = datos.length > 0
+    ? Object.keys(datos[0]).map((key) => ({ field: key, headerName: key, flex: 1, sortable: true }))
+    : [];
 
   const subirArchivo = async (file) => {
     if (!file || (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls"))) {
