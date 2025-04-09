@@ -100,14 +100,23 @@ def cargar_datos():
         return jsonify({"error": "No se envió ningún archivo"}), 400
 
     file = request.files['file']
-
     if file.filename == '':
         return jsonify({"error": "Nombre de archivo vacío"}), 400
 
     try:
-        excel_data = pd.read_excel(file, sheet_name=None)
+        excel_data = pd.read_excel(file, sheet_name=None, dtype=str)
         datos_hojas = {}
+        row_id = 1  
+
         for nombre_hoja, df in excel_data.items():
+            df.dropna(how='all', inplace=True)  
+            if df.empty:
+                continue  
+
+            df.insert(0, "id", range(row_id, row_id + len(df)))  
+            row_id += len(df)
+            df["Hoja"] = nombre_hoja  
+
             datos_hojas[nombre_hoja] = df.fillna('').to_dict(orient='records')
 
         return jsonify(datos_hojas), 200
