@@ -20,8 +20,8 @@ def limpiar_nombre_hoja(nombre):
 def limpiar_nombre_columna(columna):
     return columna.strip().replace(" ", "_").replace(":", "").replace("-", "_").lower()
 
-def procesar_excel(filepath, hoja_nombre=None):
-    excel_data = pd.read_excel(filepath, sheet_name=hoja_nombre if hoja_nombre else None)
+def procesar_excel(nombre_archivo, hoja_nombre=None):
+    ruta_archivo = os.path.join(UPLOAD_FOLDER, nombre_archivo)
 
     if not os.path.exists(ruta_archivo):
         print(f"Error: El archivo '{nombre_archivo}' no se encontró.")
