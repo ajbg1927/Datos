@@ -144,25 +144,30 @@ def upload_file():
     return jsonify({"error": "Archivo no encontrado"}), 400
 
 @app.route('/datos', methods=['POST'])
-def cargar_datos():
+def procesar_excel():
     if 'file' not in request.files:
         return jsonify({"error": "No se envió ningún archivo"}), 400
-    file = request.files['file']
-    if file.filename == '':
+
+    archivo = request.files['file']
+    if archivo.filename == '':
         return jsonify({"error": "Nombre de archivo vacío"}), 400
+
     try:
-        excel_data = pd.read_excel(file, sheet_name=None, dtype=str)
+        excel_data = pd.read_excel(archivo, sheet_name=None, dtype=str)
         datos_hojas = {}
         row_id = 1
+
         for nombre_hoja, df in excel_data.items():
-            df.dropna(how='all', inplace=True)
+            df.dropna(how='all', inplace=True)  
             if df.empty:
                 continue
             df.insert(0, "id", range(row_id, row_id + len(df)))
             row_id += len(df)
             df["Hoja"] = nombre_hoja
             datos_hojas[nombre_hoja] = df.fillna('').to_dict(orient='records')
+
         return jsonify(datos_hojas), 200
+
     except Exception as e:
         return jsonify({"error": f"Error procesando el archivo: {str(e)}"}), 500
 
