@@ -19,7 +19,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 CORS(app, resources={r"/*": {"origins": [
-    "https://datosexcel.vercel.app"
+    "https://datosexcel.vercel.app",
     "http://localhost:3000",
 ]}})
 
@@ -228,6 +228,29 @@ def procesar_todos_los_archivos():
     else:
         for archivo in archivos:
             procesar_excel(archivo, app) 
+            
+def procesar_excel(nombre_archivo, app):
+    filepath = os.path.join(app.config["UPLOAD_FOLDER"], nombre_archivo)
+    if not os.path.exists(filepath):
+        print(f"Archivo {nombre_archivo} no encontrado")
+        return
+
+    try:
+        xls = pd.ExcelFile(filepath)
+        for hoja in xls.sheet_names:
+            df = pd.read_excel(xls, sheet_name=hoja, dtype=str)
+            df.dropna(how="all", inplace=True)
+            if df.empty:
+                continue
+            for _, row in df.iterrows():
+                for columna, valor in row.items():
+                    if columna and valor:
+                        nuevo_dato = DatosExcel(nombre=columna, dato=str(valor))
+                        db.session.add(nuevo_dato)
+        db.session.commit()
+        print(f"Archivo {nombre_archivo} procesado correctamente.")
+    except Exception as e:
+        print(f"Error al procesar {nombre_archivo}: {e}")
 
 if __name__ == "__main__":  
     with app.app_context():
