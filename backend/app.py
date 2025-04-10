@@ -220,16 +220,17 @@ def listar_archivos_con_hojas():
     try:
         archivos = Archivo.query.all()
         resultado = []
+
         for archivo in archivos:
             hojas = Hoja.query.filter_by(archivo_id=archivo.id).all()
             resultado.append({
                 "archivo": archivo.nombre,
                 "hojas": [hoja.nombre for hoja in hojas]
             })
+
         return jsonify(resultado)
     except Exception as e:
         return jsonify({"error": f"Error al obtener archivos: {str(e)}"}), 500
-
 
 def procesar_todos_los_archivos():
     archivos = os.listdir(app.config["UPLOAD_FOLDER"])
