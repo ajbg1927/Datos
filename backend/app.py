@@ -19,8 +19,8 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 CORS(app, resources={r"/*": {"origins": [
-    "http://localhost:3000",
     "https://datosexcel.vercel.app"
+    "http://localhost:3000",
 ]}})
 
 
@@ -229,7 +229,7 @@ def procesar_todos_los_archivos():
         for archivo in archivos:
             procesar_excel(archivo, app) 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  
     with app.app_context():
         db.create_all()
         procesar_todos_los_archivos()
