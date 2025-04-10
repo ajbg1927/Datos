@@ -1,47 +1,33 @@
-from database.base import Base
-from sqlalchemy import Column, Integer, String, Date, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, ForeignKey
 from sqlalchemy.orm import relationship
-
+from backend.database.base import Base  # Corrección aquí
 
 class Archivo(Base):
     __tablename__ = 'archivos'
-
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     nombre = Column(String)
-    tipo = Column(String)
     hojas = relationship("Hoja", back_populates="archivo")
-
 
 class Hoja(Base):
     __tablename__ = 'hojas'
-
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     nombre = Column(String)
-    archivo_id = Column(Integer, ForeignKey("archivos.id"))
+    archivo_id = Column(Integer, ForeignKey('archivos.id'))
     archivo = relationship("Archivo", back_populates="hojas")
     datos = relationship("Datos", back_populates="hoja")
 
-
 class Datos(Base):
     __tablename__ = 'datos'
-
-    id = Column(Integer, primary_key=True, index=True)
-    hoja_id = Column(Integer, ForeignKey("hojas.id"))
-    rubro = Column(String, nullable=True)
-    valor = Column(Float, nullable=True)
-    descripcion = Column(String, nullable=True)
-    fecha = Column(Date, nullable=True)
-
+    id = Column(Integer, primary_key=True)
+    hoja_id = Column(Integer, ForeignKey('hojas.id'))
     hoja = relationship("Hoja", back_populates="datos")
-
+    columna = Column(String)
+    valor = Column(String) 
 
 class DatosExcel(Base):
     __tablename__ = 'datos_excel'
-
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     nombre_archivo = Column(String)
     nombre_hoja = Column(String)
-    rubro = Column(String)
-    valor = Column(Float)
-    descripcion = Column(String)
-    fecha = Column(Date)
+    columna = Column(String)
+    valor = Column(String)
