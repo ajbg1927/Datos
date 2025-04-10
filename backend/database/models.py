@@ -1,31 +1,47 @@
-from sqlalchemy import Column, Integer, String, Float, Date
-from database import Base
+from database.base import Base
+from sqlalchemy import Column, Integer, String, Date, Float, ForeignKey
+from sqlalchemy.orm import relationship
 
-class Compromiso(Base):
-    __tablename__ = "compromisos"
 
-    id = Column(Integer, primary_key=True, index=True)
-    entidad = Column(String)
-    dependencia = Column(String)
-    vigencia = Column(String)
-    rubro = Column(String)
-    nombre_rubro = Column(String)
-    valor_comprometido = Column(Float)
-    valor_ejecutado = Column(Float)
-    porcentaje_ejecucion = Column(Float)
-
-class PlanAccion(Base):
-    __tablename__ = "planes_accion"
+class Archivo(Base):
+    __tablename__ = 'archivos'
 
     id = Column(Integer, primary_key=True, index=True)
-    dependencia = Column(String)
-    nombre_proyecto = Column(String)
-    objetivo = Column(String)
+    nombre = Column(String)
+    tipo = Column(String)
+    hojas = relationship("Hoja", back_populates="archivo")
+
+
+class Hoja(Base):
+    __tablename__ = 'hojas'
+
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String)
+    archivo_id = Column(Integer, ForeignKey("archivos.id"))
+    archivo = relationship("Archivo", back_populates="hojas")
+    datos = relationship("Datos", back_populates="hoja")
+
+
+class Datos(Base):
+    __tablename__ = 'datos'
+
+    id = Column(Integer, primary_key=True, index=True)
+    hoja_id = Column(Integer, ForeignKey("hojas.id"))
+    rubro = Column(String, nullable=True)
+    valor = Column(Float, nullable=True)
+    descripcion = Column(String, nullable=True)
+    fecha = Column(Date, nullable=True)
+
+    hoja = relationship("Hoja", back_populates="datos")
+
+
+class DatosExcel(Base):
+    __tablename__ = 'datos_excel'
+
+    id = Column(Integer, primary_key=True, index=True)
+    nombre_archivo = Column(String)
+    nombre_hoja = Column(String)
     rubro = Column(String)
-    actividad = Column(String)
-    indicador = Column(String)
-    meta = Column(String)
     valor = Column(Float)
-    responsable = Column(String)
-    fecha_inicio = Column(Date)
-    fecha_fin = Column(Date)
+    descripcion = Column(String)
+    fecha = Column(Date)
