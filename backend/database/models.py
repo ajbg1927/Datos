@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey
 from sqlalchemy.orm import relationship
-from backend.database.base import Base  
+from .base import Base
 
 class Archivo(Base):
     __tablename__ = 'archivos'
