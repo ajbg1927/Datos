@@ -37,7 +37,7 @@ migrate = Migrate(app, db)
 
 app.register_blueprint(api_bp, url_prefix="/api")
 
-UPLOAD_FOLDER = "/tmp", "uploads"
+UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {"xls", "xlsx"}
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -235,6 +235,8 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()
         procesar_todos_los_archivos()
+
+        procesar_excel("mi_archivo.xlsx", app)
 
         datos = DatosExcel.query.all()
         for dato in datos:

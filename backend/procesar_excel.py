@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from flask import Flask
 from database import db
-from database.models import Data 
+from database.models import database 
 from database.models import DatosExcel, Archivo, Hoja, Data
 from extensions import db
 
@@ -22,7 +22,6 @@ def limpiar_nombre_columna(columna):
 
 def procesar_excel(nombre_archivo, app, hoja_nombre=None):
     ruta_archivo = os.path.join(UPLOAD_FOLDER, nombre_archivo)
-
     if not os.path.exists(ruta_archivo):
         print(f"Error: El archivo '{nombre_archivo}' no se encontró.")
         return
@@ -31,7 +30,6 @@ def procesar_excel(nombre_archivo, app, hoja_nombre=None):
         with app.app_context():
             excel = pd.ExcelFile(ruta_archivo)
             hojas = excel.sheet_names
-
             hojas_a_procesar = [hoja_nombre] if hoja_nombre and hoja_nombre in hojas else hojas
 
             nuevo_archivo = Archivo(nombre=nombre_archivo)
@@ -41,7 +39,6 @@ def procesar_excel(nombre_archivo, app, hoja_nombre=None):
             for hoja in hojas_a_procesar:
                 nombre_hoja = limpiar_nombre_hoja(hoja)
                 df = pd.read_excel(excel, sheet_name=hoja)
-
                 df.columns = [limpiar_nombre_columna(col) for col in df.columns]
                 print(f"Procesando hoja: {nombre_hoja}, Columnas: {df.columns}")
 
@@ -51,17 +48,15 @@ def procesar_excel(nombre_archivo, app, hoja_nombre=None):
 
                 for _, row in df.iterrows():
                     for columna, valor in row.items():
-                        if pd.notna(valor) and valor not in ["", "nan"]:
+                        if pd.notna(valor) and str(valor).strip().lower() not in ["", "nan"]:
                             nuevo_dato = Data(
-                                sheet_id=nombre_hoja,
+                                sheet_id=nueva_hoja.id,  
                                 columna=columna,
                                 valor=str(valor)
                             )
                             db.session.add(nuevo_dato)
-
                 db.session.commit()
                 print(f"Hoja '{nombre_hoja}' procesada correctamente.")
-
     except Exception as e:
         print(f"Error al procesar '{nombre_archivo}': {str(e)}")
 
