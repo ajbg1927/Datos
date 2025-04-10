@@ -11,6 +11,7 @@ from database.models import DatosExcel, Archivo, Hoja, Data
 from config import Config
 from routes import api_bp
 from procesar_excel import procesar_excel  
+from extensions import db 
 import pandas as pd
 import os
 
@@ -223,12 +224,12 @@ def get_usuarios():
     return jsonify([{"id": u.id, "nombre": u.nombre, "email": u.email} for u in usuarios])
 
 def procesar_todos_los_archivos():
-    archivos = os.listdir(UPLOAD_FOLDER)
+    archivos = os.listdir(app.config["UPLOAD_FOLDER"])
     if not archivos:
         print("No hay archivos en la carpeta 'uploads/'.")
     else:
         for archivo in archivos:
-            procesar_excel(archivo, app)
+            procesar_excel(archivo, app) 
 
 if __name__ == "__main__":
     with app.app_context():
