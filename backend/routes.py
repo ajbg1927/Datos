@@ -62,7 +62,7 @@ def procesar():
     if not nombre_archivo:
         return jsonify({"error": "No se proporcionó el nombre del archivo"}), 400
 
-     try:
+    try:
         procesar_excel(nombre_archivo)
         return jsonify({"mensaje": "Archivo procesado correctamente"}), 200
     except Exception as e:
