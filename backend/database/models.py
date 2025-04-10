@@ -1,33 +1,32 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey
 from sqlalchemy.orm import relationship
 from .base import Base
+ from database.db import db
 
-class Archivo(Base):
+class Archivo(db.Model):
     __tablename__ = 'archivos'
-    id = Column(Integer, primary_key=True)
-    nombre = Column(String)
-    hojas = relationship("Hoja", back_populates="archivo")
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String, nullable=False)
+    hojas = db.relationship("Hoja", backref="archivo", lazy=True)
 
-class Hoja(Base):
+class Hoja(db.Model):
     __tablename__ = 'hojas'
-    id = Column(Integer, primary_key=True)
-    nombre = Column(String)
-    archivo_id = Column(Integer, ForeignKey('archivos.id'))
-    archivo = relationship("Archivo", back_populates="hojas")
-    datos = relationship("Datos", back_populates="hoja")
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String, nullable=False)
+    archivo_id = db.Column(db.Integer, db.ForeignKey('archivos.id'), nullable=False)
+    datos = db.relationship("Datos", backref="hoja", lazy=True)
 
-class Datos(Base):
+class Datos(db.Model):
     __tablename__ = 'datos'
-    id = Column(Integer, primary_key=True)
-    hoja_id = Column(Integer, ForeignKey('hojas.id'))
-    hoja = relationship("Hoja", back_populates="datos")
-    columna = Column(String)
-    valor = Column(String) 
+    id = db.Column(db.Integer, primary_key=True)
+    hoja_id = db.Column(db.Integer, db.ForeignKey('hojas.id'), nullable=False)
+    columna = db.Column(db.String)
+    valor = db.Column(db.Text)
 
-class DatosExcel(Base):
+class DatosExcel(db.Model):
     __tablename__ = 'datos_excel'
-    id = Column(Integer, primary_key=True)
-    nombre_archivo = Column(String)
-    nombre_hoja = Column(String)
-    columna = Column(String)
-    valor = Column(String)
+    id = db.Column(db.Integer, primary_key=True)
+    nombre_archivo = db.Column(db.String)
+    nombre_hoja = db.Column(db.String)
+    columna = db.Column(db.String)
+    valor = db.Column(db.String)
