@@ -20,7 +20,7 @@ app.config.from_object(Config)
 
 CORS(app, resources={r"/*": {"origins": [
     "https://datosexcel.vercel.app",
-    "http://localhost:3000",
+    "http://localhost:3000"
 ]}})
 
 
@@ -228,7 +228,7 @@ def procesar_todos_los_archivos():
     else:
         for archivo in archivos:
             procesar_excel(archivo, app) 
-            
+
 def procesar_excel(nombre_archivo, app):
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], nombre_archivo)
     if not os.path.exists(filepath):
