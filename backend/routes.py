@@ -9,7 +9,6 @@ from procesar_excel import procesar_excel
 import os
 import pandas as pd
 
-
 api_bp = Blueprint("api", __name__)
 api = Api(api_bp)
 
@@ -26,25 +25,34 @@ class SubirArchivo(Resource):
     def post(self):
         if "archivo" not in request.files:
             return {"error": "No se encontró el archivo"}, 400
+
         archivo = request.files["archivo"]
+
         if archivo.filename == "":
             return {"error": "Nombre de archivo vacío"}, 400
+
         if archivo and allowed_file(archivo.filename):
             filename = secure_filename(archivo.filename)
             filepath = os.path.join(UPLOAD_FOLDER, filename)
             archivo.save(filepath)
+
             try:
                 hojas = pd.ExcelFile(filepath).sheet_names
+                return {
+                    "mensaje": "Archivo subido correctamente",
+                    "nombre": filename,
+                    "hojas": hojas
+                }, 200
             except Exception as e:
                 return {"error": f"Error al leer el archivo: {str(e)}"}, 500
-            return {"mensaje": "Archivo subido correctamente", "nombre": filename, "hojas": hojas}, 200
+
         return {"error": "Formato de archivo no permitido"}, 400
 
 class ObtenerDatos(Resource):
     def get(self):
         datos = Datos.query.all()
         resultado = [dato.to_dict() for dato in datos]
-        return {"mensaje": "API funcionando correctamente", "datos": resultado}
+        return {"mensaje": "Datos obtenidos correctamente", "datos": resultado}
 
 class Prueba(Resource):
     def get(self):
@@ -54,10 +62,11 @@ class Prueba(Resource):
 def procesar_endpoint():
     data = request.get_json()
     nombre_archivo = data.get("nombre")
+
     if not nombre_archivo:
         return jsonify({"error": "No se proporcionó el nombre del archivo"}), 400
+
     try:
-        # Usamos current_app para pasar la instancia de la app.
         procesar_excel(nombre_archivo, current_app)
         return jsonify({"mensaje": "Archivo procesado correctamente"}), 200
     except Exception as e:
@@ -68,12 +77,14 @@ def procesar_hoja_excel(filename):
     nombre_hoja = request.json.get("hoja")
     if not nombre_hoja:
         return jsonify({"error": "No se especificó la hoja"}), 400
+
     filepath = os.path.join(UPLOAD_FOLDER, secure_filename(filename))
     if not os.path.exists(filepath):
         return jsonify({"error": "El archivo no existe en el servidor"}), 404
+
     try:
         df = pd.read_excel(filepath, sheet_name=nombre_hoja)
-        df = df.dropna(how="all")  # Elimina filas completamente vacías
+        df = df.dropna(how="all") 
         columnas = df.columns.tolist()
         datos = df.fillna("").to_dict(orient="records")
         return jsonify({"columnas": columnas, "datos": datos}), 200
