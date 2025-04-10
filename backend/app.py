@@ -10,7 +10,6 @@ from database import db
 from database.models import DatosExcel, Archivo, Hoja, Data
 from config import Config
 from routes import api_bp
-from procesar_excel import procesar_excel  
 from extensions import db 
 import pandas as pd
 import os
