@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from fpdf import FPDF
 from database.db import db
 from database.models import Archivo, Hoja, Datos, DatosExcel
+from database.excel_processor import procesar_excel 
 from config import Config
 from routes import api_bp
 import pandas as pd
@@ -61,10 +62,18 @@ def subir_archivo():
     file = request.files["file"]
     if file.filename == "" or not allowed_file(file.filename):
         return jsonify({"error": "Formato de archivo no permitido"}), 400
+
     filename = secure_filename(file.filename)
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     file.save(filepath)
-    return jsonify({"mensaje": "Archivo subido exitosamente", "archivo": filename})
+
+    resultado = procesar_excel(nombre_archivo=filename, app=app)
+
+    return jsonify({
+        "mensaje": "Archivo subido y procesado exitosamente.",
+        "archivo": filename,
+        **resultado
+    })
 
 @app.route("/archivos", methods=["GET"])
 def listar_archivos():
