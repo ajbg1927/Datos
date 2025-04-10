@@ -20,7 +20,7 @@ def limpiar_nombre_hoja(nombre):
 def limpiar_nombre_columna(columna):
     return columna.strip().replace(" ", "_").replace(":", "").replace("-", "_").lower()
 
-def procesar_excel(nombre_archivo, hoja_nombre=None):
+def procesar_excel(nombre_archivo, app, hoja_nombre=None):
     ruta_archivo = os.path.join(UPLOAD_FOLDER, nombre_archivo)
 
     if not os.path.exists(ruta_archivo):
@@ -32,10 +32,11 @@ def procesar_excel(nombre_archivo, hoja_nombre=None):
             excel = pd.ExcelFile(ruta_archivo)
             hojas = excel.sheet_names
 
-            if hoja_nombre and hoja_nombre in hojas:
-                hojas_a_procesar = [hoja_nombre]
-            else:
-                hojas_a_procesar = hojas
+            hojas_a_procesar = [hoja_nombre] if hoja_nombre and hoja_nombre in hojas else hojas
+
+            nuevo_archivo = Archivo(nombre=nombre_archivo)
+            db.session.add(nuevo_archivo)
+            db.session.commit()
 
             for hoja in hojas_a_procesar:
                 nombre_hoja = limpiar_nombre_hoja(hoja)
@@ -44,7 +45,11 @@ def procesar_excel(nombre_archivo, hoja_nombre=None):
                 df.columns = [limpiar_nombre_columna(col) for col in df.columns]
                 print(f"Procesando hoja: {nombre_hoja}, Columnas: {df.columns}")
 
-                for index, row in df.iterrows():
+                nueva_hoja = Hoja(nombre=nombre_hoja, archivo_id=nuevo_archivo.id)
+                db.session.add(nueva_hoja)
+                db.session.commit()
+
+                for _, row in df.iterrows():
                     for columna, valor in row.items():
                         if pd.notna(valor) and valor not in ["", "nan"]:
                             nuevo_dato = Data(
@@ -59,7 +64,6 @@ def procesar_excel(nombre_archivo, hoja_nombre=None):
 
     except Exception as e:
         print(f"Error al procesar '{nombre_archivo}': {str(e)}")
-
 
 if __name__ == "__main__":
     archivos = os.listdir(UPLOAD_FOLDER)

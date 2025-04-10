@@ -6,9 +6,10 @@ from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from fpdf import FPDF
 from database import db
-from database.models import DatosExcel
+from database.models import DatosExcel, Archivo, Hoja, Data
 from config import Config
 from routes import api_bp
+from procesar_excel import procesar_excel  
 import pandas as pd
 import os
 
@@ -184,6 +185,37 @@ def upload_file():
         return jsonify({"filename": filename}), 200
     return jsonify({"error": "Archivo no encontrado"}), 400
 
+<<<<<<< HEAD
+=======
+@app.route('/datos', methods=['POST'])
+def procesar_excel_endpoint():
+    if 'file' not in request.files:
+        return jsonify({"error": "No se envió ningún archivo"}), 400
+
+    archivo = request.files['file']
+    if archivo.filename == '':
+        return jsonify({"error": "Nombre de archivo vacío"}), 400
+
+    try:
+        excel_data = pd.read_excel(archivo, sheet_name=None, dtype=str)
+        datos_hojas = {}
+        row_id = 1
+
+        for nombre_hoja, df in excel_data.items():
+            df.dropna(how='all', inplace=True)
+            if df.empty:
+                continue
+            df.insert(0, "id", range(row_id, row_id + len(df)))
+            row_id += len(df)
+            df["Hoja"] = nombre_hoja
+            datos_hojas[nombre_hoja] = df.fillna('').to_dict(orient='records')
+
+        return jsonify(datos_hojas), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Error procesando el archivo: {str(e)}"}), 500
+
+>>>>>>> 5809c50 (Actualización)
 @app.route('/api/datos', methods=['GET'])
 def get_datos():
     try:
@@ -233,6 +265,22 @@ def get_usuarios():
     usuarios = Usuario.query.all()
     return jsonify([{"id": u.id, "nombre": u.nombre, "email": u.email} for u in usuarios])
 
+def procesar_todos_los_archivos():
+    archivos = os.listdir(UPLOAD_FOLDER)
+    if not archivos:
+        print("No hay archivos en la carpeta 'uploads/'.")
+    else:
+        for archivo in archivos:
+            procesar_excel(archivo, app)
+
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
+        procesar_todos_los_archivos()
+
+        datos = DatosExcel.query.all()
+        for dato in datos:
+            print(dato.nombre, dato.dato)
+
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=True, host="0.0.0.0", port=port)
