@@ -5,12 +5,6 @@ from database.models import Archivo, Hoja, Data
 
 UPLOAD_FOLDER = "uploads/"  
 
-with app.app_context():
-
-    datos = DatosExcel.query.all()
-    for dato in datos:
-        print(dato.nombre, dato.dato)
-
 def limpiar_nombre_hoja(nombre):
     return nombre.strip().replace(" ", "_").lower()
 
