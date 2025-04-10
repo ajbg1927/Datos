@@ -1,10 +1,7 @@
 import os
 import pandas as pd
-from flask import Flask
-from database import db
-from database.models import database 
+from extensions import db  
 from database.models import Archivo, Hoja, Data
-from extensions import db
 
 UPLOAD_FOLDER = "uploads/"  
 
