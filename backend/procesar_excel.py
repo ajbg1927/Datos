@@ -1,9 +1,9 @@
 import os
 import pandas as pd
-from extensions import db  
+from extensions import db  # O, si lo prefieres: "from database import db"
 from database.models import Archivo, Hoja, Data
 
-UPLOAD_FOLDER = "uploads/"  
+UPLOAD_FOLDER = "uploads/"
 
 def limpiar_nombre_hoja(nombre):
     return nombre.strip().replace(" ", "_").lower()
