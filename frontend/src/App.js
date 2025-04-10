@@ -39,14 +39,38 @@ const App = () => {
   const [nombreHoja, setNombreHoja] = useState("");
 
 
- useEffect(() => {
-    axios.get(`${API_URL}/archivos`)
+  useEffect(() => {
+    axios.get(`${API_URL}/archivos_detalle`)
       .then(res => {
-        setArchivos(Array.isArray(res.data.archivos) ? res.data.archivos : []);
+        setArchivos(res.data);
       })
-      .catch(error => console.error("Error obteniendo archivos:", error));
+      .catch(error => console.error("Error obteniendo archivos y hojas:", error));
   }, [archivoSubido]);
 
+  const obtenerHojas = (archivo) => {
+    const encontrado = archivos.find(a => a.archivo === archivo);
+    setHojas(encontrado ? encontrado.hojas : []);
+  };
+
+  const cargarDatos = async () => {
+    if (!archivoSeleccionado || hojasSeleccionadas.length === 0) {
+      alert("Selecciona un archivo y al menos una hoja antes de cargar los datos.");
+      return;
+    }
+
+    setCargando(true);
+    try {
+      const res = await axios.post(`${API_URL}/datos/${encodeURIComponent(archivoSeleccionado)}`, {
+        hojas: hojasSeleccionadas,
+      });
+      setDatos(Array.isArray(res.data.datos) ? res.data.datos : []);
+    } catch (error) {
+      console.error("Error obteniendo datos:", error);
+      alert("Error al obtener datos.");
+      setDatos([]);
+    }
+    setCargando(false);
+  };
 
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
@@ -139,37 +163,6 @@ const subirArchivo = async (file) => {
     const file = e.dataTransfer.files[0];
     subirArchivo(file);
   };
-
-  const obtenerHojas = async (archivo) => {
-    if (!archivo) return;
-    try {
-      const res = await axios.get(`${API_URL}/hojas/${encodeURIComponent(archivo)}`);
-      setHojas(res.data.hojas || []);
-    } catch (error) {
-      console.error("Error obteniendo hojas:", error);
-      setHojas([]);
-    }
-  };
-
-  const cargarDatos = async () => {
-  if (!archivoSeleccionado || hojasSeleccionadas.length === 0) {
-    alert("Selecciona un archivo y al menos una hoja antes de cargar los datos.");
-    return;
-  }
-
-  setCargando(true);
-  try {
-    const res = await axios.post(`${API_URL}/datos/${encodeURIComponent(archivoSeleccionado)}`, {
-      hojas: hojasSeleccionadas, 
-    });
-    setDatos(Array.isArray(res.data) ? res.data : []); 
-  } catch (error) {
-    console.error("Error obteniendo datos:", error);
-    alert("Error al obtener datos.");
-    setDatos([]); 
-  }
-  setCargando(false);
-};
 
   const toggleHojaSeleccionada = (hoja) => {
     setHojasSeleccionadas(prev =>
