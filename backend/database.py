@@ -1,24 +1,12 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from config import Config
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
-db = SQLAlchemy()
+DATABASE_URL = "postgresql://neondb_owner:npg_ZIbjLBH4G7Nu@ep-tight-block-a5lntt0d-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require"
 
-class Datos(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(255), nullable=False)
-    valor = db.Column(db.Float, nullable=False)
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-class Usuario(db.Model):
-    __tablename__ = 'usuario'
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
-
-def init_app(app):
-    app.config.from_object(Config)
-    db.init_app(app)
-
-
+Base = declarative_base()
 
 
