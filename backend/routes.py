@@ -95,29 +95,6 @@ api.add_resource(SubirArchivo, "/subir")
 api.add_resource(ObtenerDatos, "/api/datos")
 api.add_resource(Prueba, "/prueba")
 
-@api_bp.route("/subir", methods=["POST"])
-def subir_archivo():
-    if "archivo" not in request.files:
-        return jsonify({"error": "No se encontró el archivo"}), 400
-    archivo = request.files["archivo"]
-    if archivo.filename == "":
-        return jsonify({"error": "Nombre de archivo vacío"}), 400
-    if archivo and allowed_file(archivo.filename):
-        filename = secure_filename(archivo.filename)
-        filepath = os.path.join(UPLOAD_FOLDER, filename)
-        archivo.save(filepath)
-        try:
-            hojas = pd.ExcelFile(filepath).sheet_names
-        except Exception as e:
-            return jsonify({"error": f"Error al leer el archivo: {str(e)}"}), 500
-        return jsonify({"mensaje": "Archivo subido correctamente", "nombre": filename, "hojas": hojas}), 200
-    return jsonify({"error": "Formato de archivo no permitido"}), 400
-
-@api_bp.route("/api/datos", methods=["GET"])
-def obtener_datos_rest():
-    datos = Datos.query.all()
-    return jsonify([dato.to_dict() for dato in datos])
-
 if __name__ == "__main__":
     from flask import Flask
     app = Flask(__name__)
