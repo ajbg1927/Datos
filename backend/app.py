@@ -23,7 +23,6 @@ CORS(app, resources={r"/*": {"origins": [
     "http://localhost:3000"
 ]}})
 
-
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("Falta la variable de entorno DATABASE_URL")
@@ -134,7 +133,7 @@ def obtener_datos_archivo():
     except Exception as e:
         return jsonify({"error": f"Error al procesar el archivo: {str(e)}"}), 500
 
-@app.route('/upload', methods=['POST'])
+@app.route("/upload", methods=["POST"])
 def upload_file():
     file = request.files['file']
     if file:
@@ -144,20 +143,17 @@ def upload_file():
         return jsonify({"filename": filename}), 200
     return jsonify({"error": "Archivo no encontrado"}), 400
 
-@app.route('/datos', methods=['POST'])
+@app.route("/datos", methods=["POST"])
 def procesar_excel_endpoint():
     if 'file' not in request.files:
         return jsonify({"error": "No se envió ningún archivo"}), 400
-
     archivo = request.files['file']
     if archivo.filename == '':
         return jsonify({"error": "Nombre de archivo vacío"}), 400
-
     try:
         excel_data = pd.read_excel(archivo, sheet_name=None, dtype=str)
         datos_hojas = {}
         row_id = 1
-
         for nombre_hoja, df in excel_data.items():
             df.dropna(how='all', inplace=True)
             if df.empty:
@@ -166,13 +162,11 @@ def procesar_excel_endpoint():
             row_id += len(df)
             df["Hoja"] = nombre_hoja
             datos_hojas[nombre_hoja] = df.fillna('').to_dict(orient='records')
-
         return jsonify(datos_hojas), 200
-
     except Exception as e:
         return jsonify({"error": f"Error procesando el archivo: {str(e)}"}), 500
 
-@app.route('/api/datos', methods=['GET'])
+@app.route("/api/datos", methods=["GET"])
 def get_datos():
     try:
         datos = DatosExcel.query.all()
@@ -209,17 +203,33 @@ def generate_report():
     except Exception as e:
         return jsonify({"error": f"Error al generar el informe: {str(e)}"}), 500
 
-@app.route('/download/<filename>', methods=['GET'])
+@app.route("/download/<filename>", methods=["GET"])
 def download_file(filename):
     file_path = os.path.join(UPLOAD_FOLDER, filename)
     if os.path.exists(file_path):
         return send_file(file_path, as_attachment=True)
     return jsonify({"error": "Archivo no encontrado"}), 404
 
-@app.route('/usuarios', methods=['GET'])
+@app.route("/usuarios", methods=["GET"])
 def get_usuarios():
     usuarios = Usuario.query.all()
     return jsonify([{"id": u.id, "nombre": u.nombre, "email": u.email} for u in usuarios])
+
+@app.route("/archivos_detalle", methods=["GET"])
+def listar_archivos_con_hojas():
+    try:
+        archivos = Archivo.query.all()
+        resultado = []
+        for archivo in archivos:
+            hojas = Hoja.query.filter_by(archivo_id=archivo.id).all()
+            resultado.append({
+                "archivo": archivo.nombre,
+                "hojas": [hoja.nombre for hoja in hojas]
+            })
+        return jsonify(resultado)
+    except Exception as e:
+        return jsonify({"error": f"Error al obtener archivos: {str(e)}"}), 500
+
 
 def procesar_todos_los_archivos():
     archivos = os.listdir(app.config["UPLOAD_FOLDER"])
@@ -227,14 +237,13 @@ def procesar_todos_los_archivos():
         print("No hay archivos en la carpeta 'uploads/'.")
     else:
         for archivo in archivos:
-            procesar_excel(archivo, app) 
+            procesar_excel(archivo, app)
 
 def procesar_excel(nombre_archivo, app):
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], nombre_archivo)
     if not os.path.exists(filepath):
         print(f"Archivo {nombre_archivo} no encontrado")
         return
-
     try:
         xls = pd.ExcelFile(filepath)
         for hoja in xls.sheet_names:
@@ -252,16 +261,14 @@ def procesar_excel(nombre_archivo, app):
     except Exception as e:
         print(f"Error al procesar {nombre_archivo}: {e}")
 
+
 if __name__ == "__main__":  
     with app.app_context():
         db.create_all()
         procesar_todos_los_archivos()
-
         procesar_excel("mi_archivo.xlsx", app)
-
         datos = DatosExcel.query.all()
         for dato in datos:
             print(dato.nombre, dato.dato)
-
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=True, host="0.0.0.0", port=port)
