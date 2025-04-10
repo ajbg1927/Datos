@@ -6,7 +6,7 @@ from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from fpdf import FPDF
 from database import db
-from database.models import DatosExcel, Archivo, Hoja, Data
+from database.models import Archivo, Hoja, Data, DatosExcel
 from config import Config
 from routes import api_bp
 from extensions import db 
