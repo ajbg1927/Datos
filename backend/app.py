@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from routes import main_routes
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from fpdf import FPDF
@@ -35,7 +36,7 @@ migrate = Migrate(app, db)
 
 app.register_blueprint(api_bp, url_prefix="/api")
 
-UPLOAD_FOLDER = "uploads"
+UPLOAD_FOLDER = "/tmp", "uploads"
 ALLOWED_EXTENSIONS = {"xls", "xlsx"}
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)

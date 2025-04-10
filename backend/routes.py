@@ -5,8 +5,10 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 from database import db
 from database.models import Datos
+from procesar_excel import procesar_excel
 import os
 import pandas as pd
+
 
 api_bp = Blueprint("api", __name__)
 api = Api(api_bp)
@@ -52,6 +54,19 @@ class Prueba(Resource):
     def get(self):
         return {"mensaje": "API funcionando correctamente"}
 
+@api_bp.route("/api/procesar_excel", methods=["POST"])
+def procesar():
+    data = request.get_json()
+    nombre_archivo = data.get("nombre")
+
+    if not nombre_archivo:
+        return jsonify({"error": "No se proporcionó el nombre del archivo"}), 400
+
+     try:
+        procesar_excel(nombre_archivo)
+        return jsonify({"mensaje": "Archivo procesado correctamente"}), 200
+    except Exception as e:
+        return jsonify({"error": f"Error al procesar el archivo: {str(e)}"}), 500
 
 @api_bp.route("/datos/<filename>", methods=["POST"])
 def procesar_hoja_excel(filename):
@@ -74,7 +89,6 @@ def procesar_hoja_excel(filename):
         return jsonify({"columnas": columnas, "datos": datos}), 200
     except Exception as e:
         return jsonify({"error": f"Error al procesar la hoja: {str(e)}"}), 500
-
 
 api.add_resource(SubirArchivo, "/subir")
 api.add_resource(ObtenerDatos, "/api/datos")

@@ -4,7 +4,8 @@ from flask import Flask
 from database import db
 from database.models import Data
 from app import app  
-from database.models import DatosExcel
+from database.models import DatosExcel, Archivo, Hoja, Data
+from extensions import db
 
 UPLOAD_FOLDER = "uploads/"  
 
