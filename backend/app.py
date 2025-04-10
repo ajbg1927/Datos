@@ -5,7 +5,7 @@ from flask_migrate import Migrate
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from fpdf import FPDF
-from database import db
+from database.db import db
 from database.models import Archivo, Hoja, Datos, DatosExcel
 from config import Config
 from routes import api_bp
