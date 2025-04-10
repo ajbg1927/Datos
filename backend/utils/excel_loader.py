@@ -21,7 +21,6 @@ def columnas_validas(tipo, columnas):
     else:
         return False
 
-    # Verifica si al menos todas las requeridas están presentes (modo estricto)
     return all(any(req in col for col in columnas_lower) for req in requeridas)
 
 
@@ -50,7 +49,6 @@ def procesar_excel(file_storage):
             if not contiene_rubro(columnas):
                 return jsonify({"error": f"No se encontró columna relacionada con 'rubro' en hoja '{hoja}'."}), 400
 
-            # Convertimos los datos a dict
             resultado[hoja] = df.fillna("").to_dict(orient="records")
 
         return jsonify(resultado)
