@@ -61,10 +61,10 @@ def procesar_excel(nombre_archivo, app, hoja_nombre=None):
         print(f"Error al procesar '{nombre_archivo}': {str(e)}")
 
 if __name__ == "__main__":
+    from app import app
     archivos = os.listdir(UPLOAD_FOLDER)
-
     if not archivos:
         print("No hay archivos en la carpeta 'uploads/'.")
     else:
         for archivo in archivos:
-            procesar_excel(archivo)
+            procesar_excel(archivo, app)
