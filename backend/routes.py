@@ -3,7 +3,6 @@ from flask_cors import CORS
 from flask_restful import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
-from routes import main_routes
 from database import db
 from database.models import Datos
 from procesar_excel import procesar_excel
