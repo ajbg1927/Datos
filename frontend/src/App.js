@@ -42,10 +42,66 @@ const App = () => {
   useEffect(() => {
     axios.get(`${API_URL}/archivos_detalle`)
       .then(res => {
-        setArchivos(res.data);
+        
+        const nuevosArchivos = res.data.filter(a => !archivos.find(b => b.archivo === a.archivo));
+        setArchivos(prev => [...prev, ...nuevosArchivos]);
       })
       .catch(error => console.error("Error obteniendo archivos y hojas:", error));
   }, [archivoSubido]);
+
+  const subirArchivo = async (file) => {
+    if (!file || (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls"))) {
+      alert("Solo se permiten archivos Excel.");
+      return;
+    }
+
+    setCargando(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await axios.post(`${API_URL}/subir`, formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+
+      const archivoNombre = response.data.archivo;
+      setArchivoSubido(archivoNombre);
+      setArchivoSeleccionado(archivoNombre);
+
+      setTimeout(async () => {
+        try {
+          const hojasResponse = await axios.get(`${API_URL}/hojas/${encodeURIComponent(archivoNombre)}`);
+          setHojas(hojasResponse.data.hojas || []);
+          setHojasSeleccionadas([]);
+        } catch (error) {
+          console.error("Error obteniendo hojas:", error);
+          alert("No se pudieron obtener las hojas del archivo.");
+        }
+      }, 500);
+    } catch (error) {
+      console.error("Error al subir archivo:", error);
+      alert("Error al subir el archivo.");
+    }
+
+    setCargando(false);
+  };
+
+  const manejarArchivo = (e) => {
+    const file = e.target.files[0];
+    subirArchivo(file);
+  };
+
+  const manejarDrop = (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    subirArchivo(file);
+  };
+
+  const toggleHojaSeleccionada = (hoja) => {
+    setHojasSeleccionadas(prev =>
+      prev.includes(hoja) ? prev.filter(h => h !== hoja) : [...prev, hoja]
+    );
+  };
 
   const obtenerHojas = (archivo) => {
     const encontrado = archivos.find(a => a.archivo === archivo);
@@ -129,60 +185,6 @@ const App = () => {
     setCargando(false);
   };
 
-const subirArchivo = async (file) => {
-  if (!file || (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls"))) {
-    alert("Solo se permiten archivos Excel.");
-    return;
-  }
-
-  setCargando(true);
-  const formData = new FormData();
-  formData.append("file", file);
-
-  try {
-    const response = await axios.post(`${API_URL}/subir`, formData, {
-      headers: { "Content-Type": "multipart/form-data" }
-    });
-
-    const archivoNombre = response.data.archivo; 
-    setArchivoSubido(archivoNombre);
-    setArchivoSeleccionado(archivoNombre);
-
-    setTimeout(async () => {
-      try {
-        const hojasResponse = await axios.get(`${API_URL}/hojas/${encodeURIComponent(archivoNombre)}`);
-        setHojas(hojasResponse.data.hojas || []);
-        setHojasSeleccionadas([]);
-      } catch (error) {
-        console.error("Error obteniendo hojas:", error);
-        alert("No se pudieron obtener las hojas del archivo.");
-      }
-    }, 500);
-  } catch (error) {
-    console.error("Error al subir archivo:", error);
-    alert("Error al subir el archivo.");
-  }
-
-  setCargando(false);
-};
-
-  const manejarArchivo = (e) => {
-    const file = e.target.files[0];
-    subirArchivo(file);
-  };
-
-  const manejarDrop = (e) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    subirArchivo(file);
-  };
-
-  const toggleHojaSeleccionada = (hoja) => {
-    setHojasSeleccionadas(prev =>
-      prev.includes(hoja) ? prev.filter(h => h !== hoja) : [...prev, hoja]
-    );
-  };
-
   const exportarExcel = () => {
     if (columnasSeleccionadas.length === 0) {
       alert("Selecciona al menos una columna para exportar.");
@@ -239,6 +241,7 @@ const subirArchivo = async (file) => {
   const datosFiltrados = useMemo(() => {
     const datosArray = Array.isArray(datos) ? datos : [];
     return datosArray.filter(row => {
+      console.log("Filtrando fila:", row); // Debug temporal
       let coincide = true;
       if (filtroGlobal) {
         coincide = Object.values(row).some(val => val?.toString().toLowerCase().includes(filtroGlobal.toLowerCase()));
@@ -328,53 +331,61 @@ const subirArchivo = async (file) => {
         {cargando && <CircularProgress />}
       </div>
 
-       <Box mb={2}>
+       <Box my={3}>
+        <input type="file" accept=".xlsx,.xls" onChange={(e) => subirArchivo(e.target.files[0])} />
+        {cargando && <CircularProgress />}
+      </Box>
+
+      <Box mb={2}>
         <Select
           value={archivoSeleccionado}
           onChange={(e) => {
             setArchivoSeleccionado(e.target.value);
-            obtenerHojas(e.target.value);
+            const encontrado = archivos.find(a => a.archivo === e.target.value);
+            setHojas(encontrado ? encontrado.hojas : []);
+            setHojasSeleccionadas([]);
           }}
           displayEmpty
-          style={{ marginLeft: 10, minWidth: 200 }}
+          style={{ minWidth: 240 }}
         >
-          <MenuItem value="" disabled>
-            Selecciona un archivo
-          </MenuItem>
-          {archivos.map((archivo, idx) => (
-            <MenuItem key={idx} value={archivo}>
-              {archivo}
+          <MenuItem value="" disabled>Selecciona un archivo</MenuItem>
+          {archivos.map((archivoObj, idx) => (
+            <MenuItem key={idx} value={archivoObj.archivo}>
+              {archivoObj.archivo}
             </MenuItem>
           ))}
         </Select>
-      </Box>  
+      </Box>
 
-    {hojas.length > 0 && (
-      <Accordion defaultExpanded>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography>Seleccionar Hojas</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <FormGroup row>
-            {hojas.map((hoja, idx) => (
-              <FormControlLabel
-                key={idx}
-                control={
-                  <Checkbox
-                    checked={hojasSeleccionadas.includes(hoja)}
-                    onChange={() => toggleHojaSeleccionada(hoja)}
-                  />
-                }
-                label={hoja}
-              />
-            ))}
-          </FormGroup>
-          <Button variant="contained" onClick={cargarDatos}>
-            Cargar Datos
-          </Button>
-        </AccordionDetails>
-      </Accordion>
-    )}
+      {hojas.length > 0 && (
+        <Accordion defaultExpanded>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography>Seleccionar Hojas</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <FormGroup row>
+              {hojas.map((hoja, idx) => (
+                <FormControlLabel
+                  key={idx}
+                  control={<Checkbox checked={hojasSeleccionadas.includes(hoja)} onChange={() => {
+                    setHojasSeleccionadas(prev => prev.includes(hoja)
+                      ? prev.filter(h => h !== hoja)
+                      : [...prev, hoja]);
+                  }} />}
+                  label={hoja}
+                />
+              ))}
+            </FormGroup>
+            <Button variant="contained" onClick={cargarDatos}>Cargar Datos</Button>
+          </AccordionDetails>
+        </Accordion>
+      )}
+
+      {!cargando && datos.length === 0 && (
+        <Typography variant="body2" color="textSecondary">
+          No hay datos cargados aún. Selecciona un archivo y una hoja.
+        </Typography>
+      )}
 
     <Box mt={3}>
       <Grid container spacing={2}>
