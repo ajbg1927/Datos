@@ -330,12 +330,7 @@ const App = () => {
         <input type="file" accept=".xlsx,.xls" onChange={manejarArchivo} />
         {cargando && <CircularProgress />}
       </div>
-
-       <Box my={3}>
-        <input type="file" accept=".xlsx,.xls" onChange={(e) => subirArchivo(e.target.files[0])} />
-        {cargando && <CircularProgress />}
-      </Box>
-
+      
       <Box mb={2}>
         <Select
           value={archivoSeleccionado}
