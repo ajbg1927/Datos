@@ -144,7 +144,7 @@ const subirArchivo = async (file) => {
       headers: { "Content-Type": "multipart/form-data" }
     });
 
-    const archivoNombre = file.name;
+    const archivoNombre = response.data.archivo; 
     setArchivoSubido(archivoNombre);
     setArchivoSeleccionado(archivoNombre);
 
@@ -157,7 +157,7 @@ const subirArchivo = async (file) => {
         console.error("Error obteniendo hojas:", error);
         alert("No se pudieron obtener las hojas del archivo.");
       }
-    }, 300);
+    }, 500);
   } catch (error) {
     console.error("Error al subir archivo:", error);
     alert("Error al subir el archivo.");
