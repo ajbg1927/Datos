@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API_BASE_URL = 'https://backend-flask-0rnq.onrender.com';
 
-export const uploadExcelFile = async (formData) => {
+export const subirArchivoExcel = async (formData) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/upload`, formData);
     return response.data;
@@ -11,7 +11,7 @@ export const uploadExcelFile = async (formData) => {
   }
 };
 
-export const getSheetNames = async (filename) => {
+export const obtenerHojas = async (filename) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/get_sheets/${filename}`);
     return response.data.sheet_names;
@@ -20,7 +20,7 @@ export const getSheetNames = async (filename) => {
   }
 };
 
-export const getSheetData = async (filename, sheetName) => {
+export const obtenerDatos = async (filename, sheetName) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/read_sheet`, {
       params: { filename, sheet_name: sheetName }
@@ -31,7 +31,7 @@ export const getSheetData = async (filename, sheetName) => {
   }
 };
 
-export const getAvailableFiles = async () => {
+export const obtenerArchivos = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/available_files`);
     return response.data.files;
