@@ -141,11 +141,16 @@ const subirArchivo = async (file) => {
 
   try {
     await axios.post(`${API_URL}/subir`, formData, {
-      headers: { "Content-Type": "multipart/form-data" }
+      headers: { "Content-Type": "multipart/form-data" },
     });
     alert("Archivo subido exitosamente");
     setArchivoSubido(file.name);
-    setArchivos([...archivos, file.name]);
+    setArchivoSeleccionado(file.name);
+
+    const hojasResponse = await axios.get(`${API_URL}/hojas/${encodeURIComponent(file.name)}`);
+    setHojas(hojasResponse.data.hojas);
+    setHojasSeleccionadas([]);
+
   } catch (error) {
     console.error("Error al subir archivo:", error);
     alert("Error al subir el archivo.");

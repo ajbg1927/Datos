@@ -34,7 +34,7 @@ migrate = Migrate(app, db)
 
 app.register_blueprint(api_bp, url_prefix="/api")
 
-UPLOAD_FOLDER = "uploads"
+UPLOAD_FOLDER = "/tmp"
 ALLOWED_EXTENSIONS = {"xls", "xlsx"}
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -65,7 +65,7 @@ def subir_archivo():
         return jsonify({"error": "Formato de archivo no permitido"}), 400
 
     filename = secure_filename(file.filename)
-    filepath = os.path.join("/tmp", filename)  
+    filepath = os.path.join("/tmp", filename)
 
     try:
         file.save(filepath)
@@ -80,7 +80,7 @@ def listar_archivos():
 
 @app.route("/hojas/<filename>", methods=["GET"])
 def obtener_hojas(filename):
-    filepath = os.path.join("/tmp", filename)  
+    filepath = os.path.join("/tmp", filename)
 
     if not os.path.exists(filepath):
         return jsonify({"error": "Archivo no encontrado"}), 404
@@ -93,7 +93,7 @@ def obtener_hojas(filename):
 
 @app.route("/datos/<filename>", methods=["POST"])
 def obtener_datos(filename):
-    filepath = os.path.join("/tmp", filename)   
+    filepath = os.path.join("/tmp", filename)
 
     if not os.path.exists(filepath):
         return jsonify({"error": "Archivo no encontrado"}), 404
@@ -218,7 +218,7 @@ def generate_report():
 
 @app.route("/download/<filename>", methods=["GET"])
 def download_file(filename):
-    file_path = os.path.join("/tmp", filename)
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
     if os.path.exists(file_path):
         return send_file(file_path, as_attachment=True)
     return jsonify({"error": "Archivo no encontrado"}), 404
@@ -246,15 +246,15 @@ def listar_archivos_con_hojas():
         return jsonify({"error": f"Error al obtener archivos: {str(e)}"}), 500
 
 def procesar_todos_los_archivos():
-    archivos = os.listdir(app.config["/tmp"])
+    archivos = os.listdir(app.config["UPLOAD_FOLDER"])
     if not archivos:
-        print("No hay archivos en la carpeta 'uploads/'.")
+        print("No hay archivos en la carpeta '/tmp'.")
     else:
         for archivo in archivos:
             procesar_excel(archivo, app)
 
 def procesar_excel(nombre_archivo, app):
-    filepath = os.path.join(app.config["/tmp"], nombre_archivo)
+    filepath = os.path.join(app.config["UPLOAD_FOLDER"], nombre_archivo)
     if not os.path.exists(filepath):
         print(f"Archivo {nombre_archivo} no encontrado")
         return
