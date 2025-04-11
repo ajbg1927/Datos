@@ -4,14 +4,14 @@ const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#1976d2', // azul profesional
+      main: '#1976d2', 
     },
     secondary: {
-      main: '#1565c0', // azul oscuro para contrastes
+      main: '#1565c0',
     },
     background: {
-      default: '#f4f6f8', // fondo claro y moderno
-      paper: '#ffffff',   // blanco para las tarjetas
+      default: '#f4f6f8', 
+      paper: '#ffffff',   
     },
     text: {
       primary: '#212121',
