@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Container, Typography, Divider, Box, CircularProgress, Alert } from '@mui/material';
+import { Container, Typography, Divider, Box, CircularProgress, Alert, CssBaseline, ThemeProvider } from '@mui/material';
 import UploadFile from './components/UploadFile';
 import TablaArchivos from './components/TablaArchivos';
 import TablaHojas from './components/TablaHojas';
 import TablaDatos from './components/TablaDatos';
 import Graficos from './components/Graficos';
 import { getAvailableFiles, obtenerArchivos, obtenerHojas, obtenerDatos } from './services/api';
+import theme from './theme';
 
 function App() {
   const [archivos, setArchivos] = useState([]);
@@ -22,82 +23,54 @@ function App() {
   const [cargandoDatos, setCargandoDatos] = useState(false);
   const [error, setError] = useState('');
 
-  // Cargar lista de archivos al iniciar
-  useEffect(() => {
+    useEffect(() => {
     const cargarArchivos = async () => {
-      try {
-        const archivosObtenidos = await obtenerArchivos();
-        setArchivos(archivosObtenidos);
-      } catch (e) {
-        setError('Error al obtener archivos.');
-      }
+      const archivosObtenidos = await obtenerArchivos();
+      setArchivos(archivosObtenidos);
     };
     cargarArchivos();
   }, []);
 
-  // Cargar hojas al seleccionar un archivo
   useEffect(() => {
     if (archivoSeleccionado) {
       const cargarHojas = async () => {
-        setCargandoHojas(true);
-        setError('');
-        try {
-          const hojasObtenidas = await obtenerHojas(archivoSeleccionado);
-          setHojas(hojasObtenidas);
-          setHojaSeleccionada('');
-          setDatos([]);
-          setColumnas([]);
-          setColumnasNumericas([]);
-        } catch (e) {
-          setError('Error al obtener hojas del archivo.');
-        } finally {
-          setCargandoHojas(false);
-        }
+        const hojasObtenidas = await obtenerHojas(archivoSeleccionado);
+        setHojas(hojasObtenidas);
+        setHojaSeleccionada('');
+        setDatos([]);
       };
       cargarHojas();
     }
   }, [archivoSeleccionado]);
 
-  // Cargar datos al seleccionar hoja
   useEffect(() => {
     if (archivoSeleccionado && hojaSeleccionada) {
       const cargarDatos = async () => {
-        setCargandoDatos(true);
-        setError('');
-        try {
-          const datosObtenidos = await obtenerDatos(archivoSeleccionado, hojaSeleccionada);
-          if (datosObtenidos.length > 0) {
-            setDatos(datosObtenidos);
-            const columnasExtraidas = Object.keys(datosObtenidos[0]);
-            setColumnas(columnasExtraidas);
-            const numericas = columnasExtraidas.filter(col =>
-              datosObtenidos.every(row => !isNaN(parseFloat(row[col])) && isFinite(row[col]))
-            );
-            setColumnasNumericas(numericas);
-          } else {
-            setDatos([]);
-            setColumnas([]);
-            setColumnasNumericas([]);
-            setError('La hoja seleccionada no contiene datos.');
-          }
-        } catch (e) {
-          setError('Error al obtener datos de la hoja.');
-        } finally {
-          setCargandoDatos(false);
+        const datosObtenidos = await obtenerDatos(archivoSeleccionado, hojaSeleccionada);
+        if (datosObtenidos.length > 0) {
+          setDatos(datosObtenidos);
+          const columnasExtraidas = Object.keys(datosObtenidos[0]);
+          setColumnas(columnasExtraidas);
+          const numericas = columnasExtraidas.filter(col =>
+            datosObtenidos.every(row => !isNaN(parseFloat(row[col])) && isFinite(row[col]))
+          );
+          setColumnasNumericas(numericas);
+        } else {
+          setDatos([]);
+          setColumnas([]);
+          setColumnasNumericas([]);
         }
       };
       cargarDatos();
     }
   }, [archivoSeleccionado, hojaSeleccionada]);
 
-  // Aplicar filtros
   const datosFiltrados = datos.filter(row =>
     Object.entries(filtros).every(([col, valor]) =>
       valor ? String(row[col]).toLowerCase().includes(valor.toLowerCase()) : true
     )
   );
 
-  // Callbacks
   const handleArchivoSeleccionado = useCallback(nombre => {
     setArchivoSeleccionado(nombre);
   }, []);
@@ -116,52 +89,49 @@ function App() {
   }, []);
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 4 }}>
-      <Typography variant="h4" align="center" gutterBottom>
-        Análisis de Archivos Excel
-      </Typography>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Container maxWidth="xl" sx={{ mt: 4 }}>
+        <Typography variant="h4" align="center" gutterBottom>
+          Análisis de Archivos Excel
+        </Typography>
 
-      <Divider sx={{ mb: 4 }} />
+        <Divider sx={{ mb: 4 }} />
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        <UploadFile onUploadSuccess={handleNuevoArchivo} />
 
-      <UploadFile onUploadSuccess={handleNuevoArchivo} />
-
-      <TablaArchivos
-        archivos={archivos}
-        onArchivoSeleccionado={handleArchivoSeleccionado}
-        archivoSeleccionado={archivoSeleccionado}
-      />
-
-      {cargandoHojas && <Box sx={{ mt: 2, textAlign: 'center' }}><CircularProgress /></Box>}
-
-      {!cargandoHojas && hojas.length > 0 && (
-        <TablaHojas
-          hojas={hojas}
-          onHojaSeleccionada={handleHojaSeleccionada}
-          hojaSeleccionada={hojaSeleccionada}
+        <TablaArchivos
+          archivos={archivos}
+          onArchivoSeleccionado={handleArchivoSeleccionado}
+          archivoSeleccionado={archivoSeleccionado}
         />
-      )}
 
-      {cargandoDatos && <Box sx={{ mt: 4, textAlign: 'center' }}><CircularProgress /></Box>}
-
-      {!cargandoDatos && datos.length > 0 && (
-        <>
-          <TablaDatos
-            datos={datosFiltrados}
-            columnas={columnas}
-            columnasNumericas={columnasNumericas}
-            onFiltroChange={handleFiltros}
+        {hojas.length > 0 && (
+          <TablaHojas
+            hojas={hojas}
+            onHojaSeleccionada={handleHojaSeleccionada}
+            hojaSeleccionada={hojaSeleccionada}
           />
-          <Box sx={{ mt: 4 }}>
-            <Graficos
+        )}
+
+        {datos.length > 0 && (
+          <>
+            <TablaDatos
               datos={datosFiltrados}
+              columnas={columnas}
               columnasNumericas={columnasNumericas}
+              onFiltroChange={handleFiltros}
             />
-          </Box>
-        </>
-      )}
-    </Container>
+            <Box sx={{ mt: 4 }}>
+              <Graficos
+                datos={datosFiltrados}
+                columnasNumericas={columnasNumericas}
+              />
+            </Box>
+          </>
+        )}
+      </Container>
+    </ThemeProvider>
   );
 }
 
