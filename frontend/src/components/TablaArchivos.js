@@ -1,42 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { getArchivos } from "../services/api";  
-import { List, ListItemButton, ListItemText, Typography, Paper } from "@mui/material"; 
+import React from 'react';
+import { Box, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
-function TablaArchivos({ setSelectedFile }) {
-  const [archivos, setArchivos] = useState([]);
-
-  useEffect(() => {
-    getArchivos()
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setArchivos(data);
-        } else {
-          console.error("Respuesta inesperada de archivos:", data);
-          setArchivos([]);
-        }
-      })
-      .catch((error) => console.error("Error cargando archivos:", error));
-  }, []);
-
+const TablaArchivos = ({ archivos, archivoSeleccionado, handleArchivoChange }) => {
   return (
-    <Paper style={{ padding: "10px", marginTop: "20px" }}>
-      <Typography variant="h5">Archivos Subidos 📂</Typography>
-      {archivos.length > 0 ? (
-        <List>
+    <Box m={2} width="300px">
+      <FormControl fullWidth>
+        <InputLabel>Seleccionar archivo</InputLabel>
+        <Select value={archivoSeleccionado} onChange={handleArchivoChange}>
           {archivos.map((archivo) => (
-            <ListItemButton  
-              key={archivo.id}
-              onClick={() => setSelectedFile(archivo.id)}
-            >
-              <ListItemText primary={archivo.nombre} />
-            </ListItemButton>
+            <MenuItem key={archivo} value={archivo}>
+              {archivo}
+            </MenuItem>
           ))}
-        </List>
-      ) : (
-        <Typography>No hay archivos disponibles</Typography>
-      )}
-    </Paper>
+        </Select>
+      </FormControl>
+    </Box>
   );
-}
+};
 
 export default TablaArchivos;

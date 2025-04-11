@@ -1,80 +1,23 @@
-import React, { useState } from "react";
-import { subirArchivo, getHojas, getDatosHoja } from "../services/api";
+import React from 'react';
+import { Box, Button } from '@mui/material';
 
-const UploadFile = () => {
-    const [archivo, setArchivo] = useState(null);
-    const [nombreArchivo, setNombreArchivo] = useState("");
-    const [hojas, setHojas] = useState([]);
-    const [hojaSeleccionada, setHojaSeleccionada] = useState("");
-
-    const handleFileChange = (event) => {
-        const file = event.target.files[0];
-        setArchivo(file);
-        setNombreArchivo(file.name);
-    };
-
-    const handleUpload = async () => {
-        if (!archivo) {
-            alert("Selecciona un archivo antes de subirlo.");
-            return;
-        }
-
-        try {
-            await subirArchivo(archivo);
-            alert("Archivo subido correctamente");
-            const hojasResponse = await getHojas(nombreArchivo);
-            setHojas(hojasResponse.hojas || []);
-        } catch (error) {
-            console.error("Error al subir el archivo o al obtener las hojas:", error);
-            alert("Error al subir el archivo o al obtener las hojas.");
-        }
-    };
-
-    const handleSeleccionHoja = async (event) => {
-        const hoja = event.target.value;
-        setHojaSeleccionada(hoja);
-
-        try {
-            const datos = await getDatosHoja(nombreArchivo, hoja);
-            console.log("Datos recibidos:", datos);
-        } catch (error) {
-            console.error("Error al obtener los datos de la hoja:", error);
-        }
-    };
-
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        const formData = new FormData();
-        formData.append("file", selectedFile);
-        formData.append("hoja_nombre", selectedSheetName);
-
-        const response = await fetch("/archivos/cargar", {
-            method: "POST",
-            body: formData,
-        });
-
-        const data = await response.json();
-
-    };
-
-    return (
-        <div>
-            <input type="file" onChange={handleFileChange} />
-            <button onClick={handleUpload}>Subir Archivo</button>
-
-            {hojas.length > 0 && (
-                <div>
-                    <label>Selecciona una hoja:</label>
-                    <select onChange={handleSeleccionHoja} value={hojaSeleccionada}>
-                        <option value="">-- Selecciona una hoja --</option>
-                        {hojas.map((hoja, index) => (
-                            <option key={index} value={hoja}>{hoja}</option>
-                        ))}
-                    </select>
-                </div>
-            )}
-        </div>
-    );
+const UploadFile = ({ handleFileUpload }) => {
+  return (
+    <Box display="flex" justifyContent="center" m={2}>
+      <input
+        accept=".xls,.xlsx"
+        style={{ display: 'none' }}
+        id="upload-excel"
+        type="file"
+        onChange={handleFileUpload}
+      />
+      <label htmlFor="upload-excel">
+        <Button variant="contained" component="span" color="primary">
+          Subir archivo Excel
+        </Button>
+      </label>
+    </Box>
+  );
 };
 
 export default UploadFile;

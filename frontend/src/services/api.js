@@ -1,33 +1,41 @@
-const API_URL = "https://backend-flask-0rnq.onrender.com"; 
+import axios from 'axios';
 
-export const subirArchivo = async (archivo) => {
-    const formData = new FormData();
-    formData.append("archivo", archivo);
+const API_BASE_URL = 'https://backend-flask-0rnq.onrender.com';
 
-    try {
-        const response = await fetch(`${API_URL}/subir`, {
-            method: "POST",
-            body: formData,
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || "Error al subir archivo");
-        }
-
-        return response.json();
-    } catch (error) {
-        console.error("Error en la solicitud:", error);
-        throw error;
-    }
+export const uploadExcelFile = async (formData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/upload`, formData);
+    return response.data;
+  } catch (error) {
+    throw new Error(`Error al subir archivo: ${error.message}`);
+  }
 };
 
-export const getHojas = async (nombreArchivo) => {
-    const response = await fetch(`${API_URL}/hojas/${nombreArchivo}`);
-    return response.json();
+export const getSheetNames = async (filename) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/get_sheets/${filename}`);
+    return response.data.sheet_names;
+  } catch (error) {
+    throw new Error(`Error al obtener hojas: ${error.message}`);
+  }
 };
 
-export const getDatosHoja = async (nombreArchivo, nombreHoja) => {
-    const response = await fetch(`${API_URL}/datos/${nombreArchivo}/${nombreHoja}`);
-    return response.json();
+export const getSheetData = async (filename, sheetName) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/read_sheet`, {
+      params: { filename, sheet_name: sheetName }
+    });
+    return response.data.data;
+  } catch (error) {
+    throw new Error(`Error al obtener datos: ${error.message}`);
+  }
+};
+
+export const getAvailableFiles = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/available_files`);
+    return response.data.files;
+  } catch (error) {
+    throw new Error(`Error al obtener archivos disponibles: ${error.message}`);
+  }
 };
