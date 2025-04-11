@@ -19,31 +19,25 @@ export const getAvailableFiles = async () => {
 };
 
 export const obtenerArchivos = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/available_files`);
-    return response.data.files;
-  } catch (error) {
-    throw new Error(`Error al obtener archivos disponibles: ${error.message}`);
-  }
+  return getAvailableFiles();
 };
 
 export const obtenerHojas = async (filename) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/get_sheets/${filename}`);
-    return response.data.sheet_names;
+    const response = await axios.get(`${API_BASE_URL}/hojas/${filename}`);
+    return response.data.hojas;
   } catch (error) {
     throw new Error(`Error al obtener hojas: ${error.message}`);
   }
 };
 
-export const obtenerDatos = async (filename, sheetName) => {
+export const obtenerDatos = async (filename, hojasSeleccionadas) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/read_sheet`, {
-      params: { filename, sheet_name: sheetName }
+    const response = await axios.post(`${API_BASE_URL}/datos/${filename}`, {
+      hojas: hojasSeleccionadas
     });
-    return response.data.data;
+    return response.data.datos;
   } catch (error) {
     throw new Error(`Error al obtener datos: ${error.message}`);
   }
 };
-
