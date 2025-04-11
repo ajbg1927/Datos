@@ -140,21 +140,29 @@ const subirArchivo = async (file) => {
   formData.append("file", file);
 
   try {
-    await axios.post(`${API_URL}/subir`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
+    const response = await axios.post(`${API_URL}/subir`, formData, {
+      headers: { "Content-Type": "multipart/form-data" }
     });
-    alert("Archivo subido exitosamente");
-    setArchivoSubido(file.name);
-    setArchivoSeleccionado(file.name);
 
-    const hojasResponse = await axios.get(`${API_URL}/hojas/${encodeURIComponent(file.name)}`);
-    setHojas(hojasResponse.data.hojas);
-    setHojasSeleccionadas([]);
+    const archivoNombre = file.name;
+    setArchivoSubido(archivoNombre);
+    setArchivoSeleccionado(archivoNombre);
 
+    setTimeout(async () => {
+      try {
+        const hojasResponse = await axios.get(`${API_URL}/hojas/${encodeURIComponent(archivoNombre)}`);
+        setHojas(hojasResponse.data.hojas || []);
+        setHojasSeleccionadas([]);
+      } catch (error) {
+        console.error("Error obteniendo hojas:", error);
+        alert("No se pudieron obtener las hojas del archivo.");
+      }
+    }, 300);
   } catch (error) {
     console.error("Error al subir archivo:", error);
     alert("Error al subir el archivo.");
   }
+
   setCargando(false);
 };
 
