@@ -25,16 +25,16 @@ export const obtenerArchivos = async () => {
 export const obtenerHojas = async (filename) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/hojas/${filename}`);
-    return response.data.hojas;
+    return response.data.hojas; 
   } catch (error) {
     throw new Error(`Error al obtener hojas: ${error.message}`);
   }
 };
 
-export const obtenerDatos = async (filename, hojasSeleccionadas) => {
+export const obtenerDatos = async (filename, hojas) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/datos/${filename}`, {
-      hojas: hojasSeleccionadas
+      hojas: hojas
     });
     return response.data.datos;
   } catch (error) {
