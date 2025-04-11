@@ -18,10 +18,9 @@ load_dotenv()
 app = Flask(__name__)
 app.config.from_object(Config)
 
-CORS(app, resources={r"/*": {"origins": [
-    "https://datosexcel.vercel.app",
-    "http://localhost:3000"
-]}})
+CORS(app, supports_credentials=True, origins=[
+    "https://datosexcel.vercel.app", "http://localhost:3000"
+])
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
