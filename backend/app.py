@@ -59,32 +59,32 @@ def prueba():
 def subir_archivo():
     if "file" not in request.files:
         return jsonify({"error": "No se envió ningún archivo"}), 400
+
     file = request.files["file"]
     if file.filename == "" or not allowed_file(file.filename):
         return jsonify({"error": "Formato de archivo no permitido"}), 400
 
     filename = secure_filename(file.filename)
-    filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    file.save(filepath)
+    filepath = os.path.join("/tmp", filename)  
 
-    resultado = procesar_excel(nombre_archivo=filename, app=app)
-
-    return jsonify({
-        "mensaje": "Archivo subido y procesado exitosamente.",
-        "archivo": filename,
-        **resultado
-    })
+    try:
+        file.save(filepath)
+        return jsonify({"mensaje": "Archivo subido exitosamente", "archivo": filename})
+    except Exception as e:
+        return jsonify({"error": f"No se pudo guardar el archivo: {str(e)}"}), 500
 
 @app.route("/archivos", methods=["GET"])
 def listar_archivos():
-    archivos = os.listdir(UPLOAD_FOLDER)
+    archivos = os.listdir("/tmp")
     return jsonify({"archivos": archivos})
 
 @app.route("/hojas/<filename>", methods=["GET"])
 def obtener_hojas(filename):
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    filepath = os.path.join("/tmp", filename)  
+
     if not os.path.exists(filepath):
         return jsonify({"error": "Archivo no encontrado"}), 404
+
     try:
         xls = pd.ExcelFile(filepath)
         return jsonify({"hojas": xls.sheet_names})
@@ -93,24 +93,29 @@ def obtener_hojas(filename):
 
 @app.route("/datos/<filename>", methods=["POST"])
 def obtener_datos(filename):
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    filepath = os.path.join("/tmp", filename)   
+
     if not os.path.exists(filepath):
         return jsonify({"error": "Archivo no encontrado"}), 404
+
     try:
         data = request.json
         hojas = data.get("hojas", [])
         xls = pd.ExcelFile(filepath)
         datos_totales = []
         id_counter = 1
+
         for hoja in hojas:
             if hoja not in xls.sheet_names:
                 return jsonify({"error": f"La hoja '{hoja}' no existe"}), 400
+
             df = pd.read_excel(xls, sheet_name=hoja, dtype=str)
             df.dropna(how="all", inplace=True)
             df.insert(0, "id", range(id_counter, id_counter + len(df)))
             id_counter += len(df)
             df["Hoja"] = hoja
             datos_totales.extend(df.fillna("").to_dict(orient="records"))
+
         return jsonify({"datos": datos_totales})
     except Exception as e:
         return jsonify({"error": f"Error al leer los datos: {str(e)}"}), 500
@@ -123,7 +128,7 @@ def obtener_datos_archivo():
     if not filename:
         return jsonify({"error": "Archivo no encontrado"}), 400
     try:
-        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        filepath = os.path.join("/tmp", filename)
         if not os.path.exists(filepath):
             return jsonify({"error": "Archivo no encontrado"}), 400
         xls = pd.ExcelFile(filepath)
@@ -213,7 +218,7 @@ def generate_report():
 
 @app.route("/download/<filename>", methods=["GET"])
 def download_file(filename):
-    file_path = os.path.join(UPLOAD_FOLDER, filename)
+    file_path = os.path.join("/tmp", filename)
     if os.path.exists(file_path):
         return send_file(file_path, as_attachment=True)
     return jsonify({"error": "Archivo no encontrado"}), 404
@@ -241,7 +246,7 @@ def listar_archivos_con_hojas():
         return jsonify({"error": f"Error al obtener archivos: {str(e)}"}), 500
 
 def procesar_todos_los_archivos():
-    archivos = os.listdir(app.config["UPLOAD_FOLDER"])
+    archivos = os.listdir(app.config["/tmp"])
     if not archivos:
         print("No hay archivos en la carpeta 'uploads/'.")
     else:
@@ -249,7 +254,7 @@ def procesar_todos_los_archivos():
             procesar_excel(archivo, app)
 
 def procesar_excel(nombre_archivo, app):
-    filepath = os.path.join(app.config["UPLOAD_FOLDER"], nombre_archivo)
+    filepath = os.path.join(app.config["/tmp"], nombre_archivo)
     if not os.path.exists(filepath):
         print(f"Archivo {nombre_archivo} no encontrado")
         return
