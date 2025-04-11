@@ -5,7 +5,7 @@ import TablaArchivos from './components/TablaArchivos';
 import TablaHojas from './components/TablaHojas';
 import TablaDatos from './components/TablaDatos';
 import Graficos from './components/Graficos';
-import { getAvailableFiles, getSheetNames, getSheetData } from './services/api';
+import { getAvailableFiles, obtenerArchivos, obtenerHojas, obtenerDatos } from './services/api';
 
 function App() {
   const [archivos, setArchivos] = useState([]);
