@@ -4,7 +4,7 @@ import UploadFile from './components/UploadFile';
 import TablaArchivos from './components/TablaArchivos';
 import TablaHojas from './components/TablaHojas';
 import TablaDatos from './components/TablaDatos';
-import Graficos from './components/graficos';
+import Graficos from './components/Graficos';
 import { obtenerArchivos, obtenerHojas, obtenerDatos } from './services/api';
 
 function App() {
