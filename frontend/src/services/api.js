@@ -2,12 +2,19 @@ import axios from 'axios';
 
 const API_BASE_URL = 'https://backend-flask-0rnq.onrender.com';
 
-export const subirArchivoExcel = async (formData) => {
+export const subirArchivoExcel = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await axios.post(`${API_BASE_URL}/subir`, formData);
+  return response.data;
+};
+
+export const getAvailableFiles = async () => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/upload`, formData);
-    return response.data;
+    const response = await axios.get(`${API_BASE_URL}/archivos`);
+    return response.data.archivos;
   } catch (error) {
-    throw new Error(`Error al subir archivo: ${error.message}`);
+    throw new Error(`Error al obtener archivos disponibles: ${error.message}`);
   }
 };
 
