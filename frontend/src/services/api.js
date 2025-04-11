@@ -18,6 +18,10 @@ export const getAvailableFiles = async () => {
   }
 };
 
+export const obtenerArchivos = async () => {
+  return getAvailableFiles();
+};
+
 export const obtenerHojas = async (filename) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/hojas/${filename}`);
