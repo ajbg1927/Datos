@@ -1,5 +1,10 @@
 import React from 'react';
-import { Container, Fab } from '@mui/material';
+import {
+  Container,
+  Fab,
+  TextField,
+  MenuItem
+} from '@mui/material';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import Layout from './components/Layout';
 import UploadFile from './components/UploadFile';
@@ -10,7 +15,7 @@ import TablaDatos from './components/TablaDatos';
 import Graficos from './components/Graficos';
 import ExportButtons from './components/ExportButtons';
 import useArchivos from './hooks/useArchivos';
-import useFiltros from './hooks/useFiltros';
+import useFiltrosAvanzado from './hooks/useFiltrosAvanzado';
 import useExportaciones from './hooks/useExportaciones';
 import axios from 'axios';
 
@@ -33,7 +38,41 @@ function App() {
   } = useArchivos();
 
   const [filtros, setFiltros] = React.useState({});
-  const datosFiltrados = useFiltros(datos, filtros);
+  const [columnaValor, setColumnaValor] = React.useState('Pagos');
+
+  const texto = filtros.busqueda || '';
+  const fechaInicio = filtros.Fecha_desde || '';
+  const fechaFin = filtros.Fecha_hasta || '';
+
+  const pagosMin = filtros[`${columnaValor}_min`] || '';
+  const pagosMax = filtros[`${columnaValor}_max`] || '';
+
+  const filtrosColumnas = Object.fromEntries(
+    Object.entries(filtros).filter(
+      ([key]) =>
+        ![
+          'busqueda',
+          'Fecha_desde',
+          'Fecha_hasta',
+          'Pagos_min',
+          'Pagos_max',
+          `${columnaValor}_min`,
+          `${columnaValor}_max`,
+        ].includes(key)
+    )
+  );
+
+  const datosFiltrados = useFiltrosAvanzado(
+    datos,
+    texto,
+    fechaInicio,
+    fechaFin,
+    filtrosColumnas,
+    pagosMin,
+    pagosMax,
+    columnaValor
+  );
+
   const { exportToExcel } = useExportaciones();
 
   const handleClearFilters = () => {
@@ -81,19 +120,38 @@ function App() {
       )}
 
       {columnas.length > 0 && (
-        <Filtros
-          columnas={columnas}
-          valoresUnicos={valoresUnicos}
-          filtros={filtros}
-          setFiltros={setFiltros}
-          handleClearFilters={handleClearFilters}
-          columnasFecha={columnasFecha}
-          columnasNumericas={columnasNumericas}
-        />
+        <>
+          {columnasNumericas.length > 0 && (
+            <TextField
+              select
+              fullWidth
+              label="Columna a analizar (Pagos, Deducciones, etc.)"
+              value={columnaValor}
+              onChange={(e) => setColumnaValor(e.target.value)}
+              sx={{ my: 2 }}
+            >
+              {columnasNumericas.map((col) => (
+                <MenuItem key={col} value={col}>
+                  {col}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+          <Filtros
+            columnas={columnas}
+            valoresUnicos={valoresUnicos}
+            filtros={filtros}
+            setFiltros={setFiltros}
+            handleClearFilters={handleClearFilters}
+            columnasFecha={columnasFecha}
+            columnasNumericas={columnasNumericas}
+            columnaValor={columnaValor}
+          />
+        </>
       )}
 
       <TablaDatos datos={datosFiltrados} columnas={columnas} />
-      <Graficos datos={datosFiltrados} columnas={columnas} />
+      <Graficos datos={datosFiltrados} columnas={columnas} columnaValor={columnaValor} />
       <ExportButtons onExport={() => exportToExcel(datosFiltrados, columnas)} />
 
       <Fab
