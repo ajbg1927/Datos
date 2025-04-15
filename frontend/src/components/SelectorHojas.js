@@ -8,15 +8,23 @@ import {
   Paper,
   Typography,
   Divider,
-  Box
+  Box,
 } from '@mui/material';
 
 const SelectorHojas = ({ hojas, hojasSeleccionadas, setHojasSeleccionadas }) => {
   const handleToggle = (hoja) => {
     if (hojasSeleccionadas.includes(hoja)) {
-      setHojasSeleccionadas(hojasSeleccionadas.filter(h => h !== hoja));
+      setHojasSeleccionadas(hojasSeleccionadas.filter((h) => h !== hoja));
     } else {
       setHojasSeleccionadas([...hojasSeleccionadas, hoja]);
+    }
+  };
+
+  const handleToggleAll = () => {
+    if (hojasSeleccionadas.length === hojas.length) {
+      setHojasSeleccionadas([]);
+    } else {
+      setHojasSeleccionadas(hojas);
     }
   };
 
@@ -28,8 +36,8 @@ const SelectorHojas = ({ hojas, hojasSeleccionadas, setHojasSeleccionadas }) => 
       sx={{
         p: 3,
         mb: 3,
-        borderLeft: '6px solid #2e7d32', 
-        backgroundColor: '#f9f9f9'
+        borderLeft: '6px solid #2e7d32',
+        backgroundColor: '#f9f9f9',
       }}
     >
       <Box display="flex" flexDirection="column" gap={2}>
@@ -43,7 +51,31 @@ const SelectorHojas = ({ hojas, hojasSeleccionadas, setHojasSeleccionadas }) => 
               Marca las hojas que deseas combinar:
             </Typography>
           </FormLabel>
-          <FormGroup row sx={{ flexWrap: 'wrap' }}>
+          <FormGroup
+            row
+            sx={{
+              flexWrap: 'wrap',
+              maxHeight: 250,
+              overflowY: 'auto',
+            }}
+          >
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={hojasSeleccionadas.length === hojas.length}
+                  onChange={handleToggleAll}
+                  sx={{
+                    color: '#2e7d32',
+                    '&.Mui-checked': { color: '#ffcd00' },
+                  }}
+                />
+              }
+              label={
+                <Typography variant="body2" fontWeight="bold">
+                  Seleccionar todas
+                </Typography>
+              }
+            />
             {hojas.map((hoja) => (
               <FormControlLabel
                 key={hoja}
@@ -55,7 +87,7 @@ const SelectorHojas = ({ hojas, hojasSeleccionadas, setHojasSeleccionadas }) => 
                     sx={{
                       color: '#2e7d32',
                       '&.Mui-checked': {
-                        color: '#ffcd00', 
+                        color: '#ffcd00',
                       },
                     }}
                   />

@@ -11,6 +11,7 @@ const TablaArchivos = ({ archivos = [], archivoSeleccionado, onArchivoChange }) 
           label="Selecciona un archivo"
           onChange={(e) => onArchivoChange(e.target.value)}
           displayEmpty
+          renderValue={(selected) => selected || 'Selecciona un archivo'}
           sx={{
             backgroundColor: '#f5f5f5',
             '& .MuiOutlinedInput-notchedOutline': { borderColor: '#cfd8dc' },
@@ -18,10 +19,11 @@ const TablaArchivos = ({ archivos = [], archivoSeleccionado, onArchivoChange }) 
             '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#43a047' },
           }}
         >
+          <MenuItem disabled value="">
+            Selecciona un archivo
+          </MenuItem>
           {archivos.length === 0 ? (
-            <MenuItem disabled value="">
-              No hay archivos disponibles
-            </MenuItem>
+            <MenuItem disabled>No hay archivos disponibles</MenuItem>
           ) : (
             archivos.map((archivo, index) => (
               <MenuItem

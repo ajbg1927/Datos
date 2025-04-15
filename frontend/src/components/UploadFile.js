@@ -9,26 +9,33 @@ const UploadFile = ({ onFilesUploaded }) => {
     file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
     file.type === 'application/vnd.ms-excel';
 
-  const handleFiles = (files) => {
-    const validFiles = Array.from(files).filter(isExcelFile);
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    const validFiles = files.filter(isExcelFile);
     if (validFiles.length > 0) {
       if (typeof onFilesUploaded === 'function') {
         onFilesUploaded(validFiles);
       } else {
-        console.error('❌ onFilesUploaded no es una función:', onFilesUploaded);
+        console.error('onFilesUploaded no es una función');
       }
     } else {
       alert('Por favor sube archivos Excel (.xlsx o .xls)');
     }
   };
 
-  const handleFileChange = (e) => {
-    handleFiles(e.target.files);
-  };
-
   const handleDrop = (e) => {
     e.preventDefault();
-    handleFiles(e.dataTransfer.files);
+    const files = Array.from(e.dataTransfer.files);
+    const validFiles = files.filter(isExcelFile);
+    if (validFiles.length > 0) {
+      if (typeof onFilesUploaded === 'function') {
+        onFilesUploaded(validFiles);
+      } else {
+        console.error('onFilesUploaded no es una función');
+      }
+    } else {
+      alert('Por favor sube archivos Excel (.xlsx o .xls)');
+    }
   };
 
   const handleDragOver = (e) => {
@@ -44,7 +51,6 @@ const UploadFile = ({ onFilesUploaded }) => {
         border: '2px dashed #ccc',
         bgcolor: '#fafafa',
         cursor: 'pointer',
-        transition: 'background-color 0.3s',
         '&:hover': { bgcolor: '#f0f0f0' },
       }}
       onDrop={handleDrop}
@@ -61,8 +67,8 @@ const UploadFile = ({ onFilesUploaded }) => {
           hidden
           type="file"
           multiple
-          accept=".xlsx,.xls"
           onChange={handleFileChange}
+          accept=".xlsx,.xls"
           ref={fileInputRef}
         />
       </Button>
