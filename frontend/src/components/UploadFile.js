@@ -1,64 +1,46 @@
-import React, { useState } from 'react';
-import { Box, Button, Typography, LinearProgress } from '@mui/material';
+import React from 'react';
+import { Box, Typography, Button } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { subirArchivoExcel } from '../services/api';
 
-const UploadFile = ({ onUploadSuccess }) => {
-  const [archivo, setArchivo] = useState(null);
-  const [subiendo, setSubiendo] = useState(false);
-  const [mensaje, setMensaje] = useState("");
+const DragDropArea = styled('div')(({ theme }) => ({
+  border: '2px dashed #ccc',
+  padding: theme.spacing(4),
+  textAlign: 'center',
+  cursor: 'pointer',
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: '#f9f9f9',
+  color: '#888',
+  '&:hover': {
+    borderColor: theme.palette.primary.main,
+    backgroundColor: '#f1f1f1',
+  },
+}));
 
-  const handleFileChange = (e) => {
-    setArchivo(e.target.files[0]);
+const UploadFile = ({ onFilesUploaded }) => {
+  const handleFileUpload = (event) => {
+    const uploadedFiles = Array.from(event.target.files);
+    onFilesUploaded(uploadedFiles);
   };
 
-  const handleUpload = async () => {
-    if (!archivo) {
-      setMensaje("Selecciona un archivo primero.");
-      return;
-    }
-    setSubiendo(true);
-    setMensaje("");
-    try {
-      await subirArchivoExcel(archivo);
-      setMensaje("Archivo subido con éxito.");
-      onUploadSuccess();
-      setArchivo(null);
-    } catch (error) {
-      setMensaje("Error al subir el archivo.");
-    }
-    setSubiendo(false);
+  const handleDrop = (event) => {
+    event.preventDefault();
+    const droppedFiles = Array.from(event.dataTransfer.files);
+    onFilesUploaded(droppedFiles);
   };
 
   return (
-    <Box sx={{ mb: 4 }}>
-      <input
-        type="file"
-        accept=".xls,.xlsx"
-        onChange={handleFileChange}
-        style={{ display: 'none' }}
-        id="upload-input"
-      />
-      <label htmlFor="upload-input">
-        <Button
-          variant="contained"
-          component="span"
-          startIcon={<CloudUploadIcon />}
-        >
-          Seleccionar archivo
-        </Button>
-      </label>
-      <Button
-        variant="outlined"
-        sx={{ ml: 2 }}
-        onClick={handleUpload}
-        disabled={subiendo}
-      >
-        Subir
+    <DragDropArea onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}>
+      <UploadFileIcon sx={{ fontSize: 40 }} />
+      <Typography variant="body1" gutterBottom>
+        Arrastra o pega un archivo aquí
+      </Typography>
+      <Button variant="contained" component="label" startIcon={<CloudUploadIcon />}>
+        Elegir archivo
+        <input type="file" hidden multiple onChange={handleFileUpload} />
       </Button>
-      {subiendo && <LinearProgress sx={{ mt: 2 }} />}
-      {mensaje && <Typography sx={{ mt: 2 }}>{mensaje}</Typography>}
-    </Box>
+    </DragDropArea>
   );
 };
 
