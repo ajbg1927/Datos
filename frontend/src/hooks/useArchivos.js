@@ -7,7 +7,7 @@ const useArchivos = () => {
   const [archivos, setArchivos] = useState([]);
   const [archivoSeleccionado, setArchivoSeleccionado] = useState('');
   const [hojas, setHojas] = useState([]);
-  const [hojaSeleccionada, setHojaSeleccionada] = useState('');
+  const [hojasSeleccionadas, setHojasSeleccionadas] = useState([]);
   const [datos, setDatos] = useState([]);
   const [columnas, setColumnas] = useState([]);
 
@@ -27,22 +27,19 @@ const useArchivos = () => {
         });
     } else {
       setHojas([]);
+      setHojasSeleccionadas([]);
     }
   }, [archivoSeleccionado]);
 
   useEffect(() => {
-    if (archivoSeleccionado && hojaSeleccionada) {
-      console.log('Obteniendo datos de:', archivoSeleccionado, hojaSeleccionada);
-
-      axios.get(`${API_URL}/datos/${encodeURIComponent(archivoSeleccionado)}/${encodeURIComponent(hojaSeleccionada)}`)
+    if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
+      axios.post(`${API_URL}/datos/${encodeURIComponent(archivoSeleccionado)}`, {
+        hojas: hojasSeleccionadas
+      })
         .then(res => {
           const datosRecibidos = res.data.datos || [];
           setDatos(datosRecibidos);
-          if (datosRecibidos.length > 0) {
-            setColumnas(Object.keys(datosRecibidos[0]));
-          } else {
-            setColumnas([]);
-          }
+          setColumnas(datosRecibidos.length > 0 ? Object.keys(datosRecibidos[0]) : []);
         })
         .catch(err => {
           console.error('Error al obtener datos:', err);
@@ -53,7 +50,7 @@ const useArchivos = () => {
       setDatos([]);
       setColumnas([]);
     }
-  }, [archivoSeleccionado, hojaSeleccionada]);
+  }, [archivoSeleccionado, hojasSeleccionadas]);
 
   return {
     archivos,
@@ -61,8 +58,8 @@ const useArchivos = () => {
     archivoSeleccionado,
     setArchivoSeleccionado,
     hojas,
-    hojaSeleccionada,
-    setHojaSeleccionada,
+    hojasSeleccionadas,
+    setHojasSeleccionadas,
     datos,
     columnas
   };
