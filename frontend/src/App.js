@@ -11,8 +11,8 @@ import TablaDatos from './components/TablaDatos';
 import Graficos from './components/Graficos';
 import ExportButtons from './components/ExportButtons';
 import useArchivos from './hooks/useArchivos'; 
-import { useFiltros } from './hooks/useFiltros';
-import { useExportaciones } from './hooks/useExportaciones';
+import useFiltros from './hooks/useFiltros';
+import useExportaciones from './hooks/useExportaciones';
 
 function App() {
   const {
