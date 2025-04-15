@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
-import { Container, Typography, Box, Button, Grid, TextField, MenuItem, Paper } from '@mui/material';
+import {
+  Container, Typography, Box, Button, Grid, TextField, MenuItem, Paper,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination
+} from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -15,6 +18,9 @@ function App() {
   const [file, setFile] = useState(null);
   const [sheetNames, setSheetNames] = useState([]);
   const [selectedSheet, setSelectedSheet] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
   const [filters, setFilters] = useState({
     search: '',
     sector: '',
@@ -50,7 +56,8 @@ function App() {
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
         const worksheet = workbook.Sheets[selectedSheet];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+        console.log("Datos cargados:", jsonData);
         setData(jsonData);
         setFilteredData(jsonData);
       };
@@ -105,6 +112,15 @@ function App() {
     saveAs(blob, 'datos_filtrados.xlsx');
   };
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Header />
@@ -156,9 +172,45 @@ function App() {
             </ResponsiveContainer>
           </Paper>
         </Box>
+
+        {/* Tabla con paginación */}
+        <Box my={2}>
+          <Paper>
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    {filteredData[0] && Object.keys(filteredData[0]).map((key) => (
+                      <TableCell key={key}>{key}</TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, i) => (
+                    <TableRow key={i}>
+                      {Object.values(row).map((value, j) => (
+                        <TableCell key={j}>{value}</TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              component="div"
+              count={filteredData.length}
+              page={page}
+              onPageChange={handleChangePage}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              rowsPerPageOptions={[5, 10, 25, 50]}
+            />
+          </Paper>
+        </Box>
       </Container>
     </LocalizationProvider>
   );
 }
 
 export default App;
+
