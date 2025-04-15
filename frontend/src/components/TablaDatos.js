@@ -10,7 +10,7 @@ import {
   Typography,
   TablePagination,
   Button,
-  Box
+  Box,
 } from '@mui/material';
 import { CSVLink } from 'react-csv';
 
@@ -18,7 +18,7 @@ const TablaDatos = ({ datos, columnas }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  if (datos.length === 0) {
+  if (!datos || datos.length === 0) {
     return (
       <Typography variant="body1" sx={{ mt: 2 }}>
         No hay datos para mostrar.
@@ -36,15 +36,15 @@ const TablaDatos = ({ datos, columnas }) => {
 
   return (
     <Box sx={{ mt: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
         <CSVLink
           data={datos}
           filename="datos_exportados.csv"
           headers={columnas.map((col) => ({ label: col, key: col }))}
           style={{ textDecoration: 'none' }}
         >
-          <Button variant="outlined" color="primary">
-            Descargar CSV
+          <Button variant="contained" color="success">
+            Exportar CSV
           </Button>
         </CSVLink>
       </Box>

@@ -27,20 +27,19 @@ function App() {
     setHojasSeleccionadas,
     datos,
     columnas,
-    setArchivos
+    columnasFecha,
+    columnasNumericas,
+    valoresUnicos,
+    setArchivos,
   } = useArchivos();
 
-  const [filtros, setFiltros] = React.useState({
-    texto: '',
-    fechaInicio: '',
-    fechaFin: ''
-  });
+  const [filtros, setFiltros] = React.useState({});
 
-  const datosFiltrados = useFiltros(datos, filtros.texto, filtros.fechaInicio, filtros.fechaFin);
+  const datosFiltrados = useFiltros(datos, filtros);
   const { exportToExcel } = useExportaciones();
 
-  const handleCambioFiltros = (filtro) => {
-    setFiltros(prev => ({ ...prev, ...filtro }));
+  const handleClearFilters = () => {
+    setFiltros({});
   };
 
   const handleArchivosSubidos = async (files) => {
@@ -51,7 +50,7 @@ function App() {
 
     try {
       await axios.post(`${API_URL}/subir`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
 
       const res = await axios.get(`${API_URL}/archivos`);
@@ -88,24 +87,20 @@ function App() {
         {columnas.length > 0 && (
           <Filtros
             columnas={columnas}
+            valoresUnicos={valoresUnicos}
             filtros={filtros}
-            onCambioFiltros={handleCambioFiltros}
+            setFiltros={setFiltros}
+            handleClearFilters={handleClearFilters}
+            columnasFecha={columnasFecha}
+            columnasNumericas={columnasNumericas}
           />
         )}
 
-        <TablaDatos
-          datos={datosFiltrados}
-          columnas={columnas}
-        />
+        <TablaDatos datos={datosFiltrados} columnas={columnas} />
 
-        <Graficos
-          datos={datosFiltrados}
-          columnas={columnas}
-        />
+        <Graficos datos={datosFiltrados} columnas={columnas} />
 
-        <ExportButtons
-          onExport={() => exportToExcel(datosFiltrados, columnas)}
-        />
+        <ExportButtons onExport={() => exportToExcel(datosFiltrados, columnas)} />
 
         <Fab
           color="primary"
