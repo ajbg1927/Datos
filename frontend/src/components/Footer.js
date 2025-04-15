@@ -5,7 +5,7 @@ import { Facebook, YouTube, Twitter, Instagram } from '@mui/icons-material';
 const Footer = () => {
   const redesSociales = [
     {
-      icon: <Facebook sx={{ color: '#fff', fontSize: 18 }} />, // tamaño reducido
+      icon: <Facebook sx={{ color: '#fff', fontSize: 18 }} />, 
       nombre: '@AlcaldiaDeMosquera',
       url: 'https://www.facebook.com/AlcaldiaDeMosquera/',
     },
