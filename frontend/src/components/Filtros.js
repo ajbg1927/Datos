@@ -16,8 +16,8 @@ const Filtros = ({
   filtros,
   setFiltros,
   handleClearFilters,
-  columnasFecha,
-  columnasNumericas,
+  columnasFecha = [],
+  columnasNumericas = [],
 }) => {
   return (
     <Paper elevation={3} sx={{ p: 3, mt: 4, mb: 4 }}>
@@ -69,7 +69,7 @@ const Filtros = ({
             )
         )}
 
-        {columnasFecha.map((col) => (
+        {(columnasFecha || []).map((col) => (
           <React.Fragment key={col}>
             <Grid item xs={6} sm={3}>
               <TextField
@@ -104,7 +104,7 @@ const Filtros = ({
           </React.Fragment>
         ))}
 
-        {columnasNumericas.map((col) => (
+        {(columnasNumericas || []).map((col) => (
           <React.Fragment key={col}>
             <Grid item xs={6} sm={3}>
               <TextField

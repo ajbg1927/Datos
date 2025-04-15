@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  Container,
-  Fab,
-  TextField,
-  MenuItem
-} from '@mui/material';
+import { Container, Fab, TextField, MenuItem } from '@mui/material';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import Layout from './components/Layout';
 import UploadFile from './components/UploadFile';
@@ -43,22 +38,13 @@ function App() {
   const texto = filtros.busqueda || '';
   const fechaInicio = filtros.Fecha_desde || '';
   const fechaFin = filtros.Fecha_hasta || '';
-
-  const pagosMin = filtros[`${columnaValor}_min`] || '';
-  const pagosMax = filtros[`${columnaValor}_max`] || '';
+  const pagosMin = filtros['Pagos_min'] || '';
+  const pagosMax = filtros['Pagos_max'] || '';
 
   const filtrosColumnas = Object.fromEntries(
     Object.entries(filtros).filter(
       ([key]) =>
-        ![
-          'busqueda',
-          'Fecha_desde',
-          'Fecha_hasta',
-          'Pagos_min',
-          'Pagos_max',
-          `${columnaValor}_min`,
-          `${columnaValor}_max`,
-        ].includes(key)
+        !['busqueda', 'Fecha_desde', 'Fecha_hasta', 'Pagos_min', 'Pagos_max'].includes(key)
     )
   );
 
@@ -120,34 +106,34 @@ function App() {
       )}
 
       {columnas.length > 0 && (
-        <>
-          {columnasNumericas.length > 0 && (
-            <TextField
-              select
-              fullWidth
-              label="Columna a analizar (Pagos, Deducciones, etc.)"
-              value={columnaValor}
-              onChange={(e) => setColumnaValor(e.target.value)}
-              sx={{ my: 2 }}
-            >
-              {columnasNumericas.map((col) => (
-                <MenuItem key={col} value={col}>
-                  {col}
-                </MenuItem>
-              ))}
-            </TextField>
-          )}
-          <Filtros
-            columnas={columnas}
-            valoresUnicos={valoresUnicos}
-            filtros={filtros}
-            setFiltros={setFiltros}
-            handleClearFilters={handleClearFilters}
-            columnasFecha={columnasFecha}
-            columnasNumericas={columnasNumericas}
-            columnaValor={columnaValor}
-          />
-        </>
+        <Filtros
+          columnas={columnas}
+          valoresUnicos={valoresUnicos}
+          filtros={filtros}
+          setFiltros={setFiltros}
+          handleClearFilters={handleClearFilters}
+          columnasFecha={columnasFecha}
+          columnasNumericas={columnasNumericas}
+        />
+      )}
+
+      {columnasNumericas && columnasNumericas.length > 0 && (
+        <Container maxWidth="md">
+          <TextField
+            select
+            fullWidth
+            label="Columna a analizar (Pagos, Deducciones, etc.)"
+            value={columnaValor}
+            onChange={(e) => setColumnaValor(e.target.value)}
+            sx={{ my: 2 }}
+          >
+            {columnasNumericas.map((col) => (
+              <MenuItem key={col} value={col}>
+                {col}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Container>
       )}
 
       <TablaDatos datos={datosFiltrados} columnas={columnas} />

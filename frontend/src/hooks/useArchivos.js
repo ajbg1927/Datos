@@ -10,46 +10,63 @@ const useArchivos = () => {
   const [hojasSeleccionadas, setHojasSeleccionadas] = useState([]);
   const [datos, setDatos] = useState([]);
   const [columnas, setColumnas] = useState([]);
+  const [columnasFecha, setColumnasFecha] = useState([]);
+  const [columnasNumericas, setColumnasNumericas] = useState([]); // <- importante
+  const [valoresUnicos, setValoresUnicos] = useState({});
 
   useEffect(() => {
-    axios.get(`${API_URL}/archivos`)
-      .then(res => setArchivos(res.data.archivos))
-      .catch(err => console.error('Error al obtener archivos:', err));
+    const fetchArchivos = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/archivos`);
+        setArchivos(res.data.archivos);
+      } catch (err) {
+        console.error('Error al obtener archivos:', err);
+      }
+    };
+
+    fetchArchivos();
   }, []);
 
   useEffect(() => {
-    if (archivoSeleccionado) {
-      axios.get(`${API_URL}/hojas/${encodeURIComponent(archivoSeleccionado)}`)
-        .then(res => setHojas(res.data.hojas))
-        .catch(err => {
-          console.error('Error al obtener hojas:', err);
-          setHojas([]);
-        });
-    } else {
-      setHojas([]);
-      setHojasSeleccionadas([]);
-    }
+    const fetchHojas = async () => {
+      if (!archivoSeleccionado) return;
+      try {
+        const res = await axios.get(`${API_URL}/hojas?archivo=${archivoSeleccionado}`);
+        setHojas(res.data.hojas);
+      } catch (err) {
+        console.error('Error al obtener hojas:', err);
+      }
+    };
+
+    fetchHojas();
   }, [archivoSeleccionado]);
 
   useEffect(() => {
-    if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
-      axios.post(`${API_URL}/datos/${encodeURIComponent(archivoSeleccionado)}`, {
-        hojas: hojasSeleccionadas
-      })
-        .then(res => {
-          const datosRecibidos = res.data.datos || [];
-          setDatos(datosRecibidos);
-          setColumnas(datosRecibidos.length > 0 ? Object.keys(datosRecibidos[0]) : []);
-        })
-        .catch(err => {
-          console.error('Error al obtener datos:', err);
-          setDatos([]);
-          setColumnas([]);
+    const fetchDatos = async () => {
+      if (!archivoSeleccionado || hojasSeleccionadas.length === 0) return;
+      try {
+        const res = await axios.post(`${API_URL}/datos`, {
+          archivo: archivoSeleccionado,
+          hojas: hojasSeleccionadas,
         });
-    } else {
-      setDatos([]);
-      setColumnas([]);
-    }
+
+        const datos = res.data.datos || [];
+        const columnas = res.data.columnas || [];
+        const fechas = res.data.columnas_fecha || [];
+        const numeros = res.data.columnas_numericas || [];
+        const unicos = res.data.valores_unicos || {};
+
+        setDatos(datos);
+        setColumnas(columnas);
+        setColumnasFecha(fechas);
+        setColumnasNumericas(numeros);
+        setValoresUnicos(unicos);
+      } catch (err) {
+        console.error('Error al obtener datos:', err);
+      }
+    };
+
+    fetchDatos();
   }, [archivoSeleccionado, hojasSeleccionadas]);
 
   return {
@@ -61,7 +78,10 @@ const useArchivos = () => {
     hojasSeleccionadas,
     setHojasSeleccionadas,
     datos,
-    columnas
+    columnas,
+    columnasFecha,
+    columnasNumericas,
+    valoresUnicos,
   };
 };
 
