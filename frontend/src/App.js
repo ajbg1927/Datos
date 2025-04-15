@@ -9,10 +9,10 @@ import { DataGrid } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import './App.css';
-import logo from '../public/logo_am.png';
-import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid
-} from 'recharts';
+
+// Componentes personalizados
+import Header from './components/Header';
+import Footer from './components/Footer';
 
 const DragDropArea = styled('div')(({ theme }) => ({
   border: '2px dashed #ccc',
@@ -36,9 +36,6 @@ function App() {
   const [data, setData] = useState([]);
   const [columns, setColumns] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [groupByColumn, setGroupByColumn] = useState('');
-  const [valueColumn, setValueColumn] = useState('');
-  const [chartData, setChartData] = useState([]);
 
   const handleFileUpload = (event) => {
     const uploadedFiles = Array.from(event.target.files);
@@ -65,10 +62,10 @@ function App() {
         setSelectedFileIndex(newFiles.length - 1);
         setSheets(workbook.SheetNames);
         setSelectedSheet(workbook.SheetNames[0]);
+        setLoading(false);
       };
       reader.readAsArrayBuffer(file);
     });
-    setLoading(false);
   };
 
   const handleFileChange = (event) => {
@@ -95,46 +92,12 @@ function App() {
         flex: 1,
       }));
       setColumns(columns);
-      if (jsonData.length > 0) {
-        setGroupByColumn(Object.keys(jsonData[0])[0]);
-        setValueColumn(Object.keys(jsonData[0])[1]);
-      }
     }
   }, [selectedFileIndex, selectedSheet]);
 
-  useEffect(() => {
-    if (groupByColumn && valueColumn && data.length > 0) {
-      const grouped = data.reduce((acc, row) => {
-        const key = row[groupByColumn];
-        const value = parseFloat(row[valueColumn]) || 0;
-        acc[key] = (acc[key] || 0) + value;
-        return acc;
-      }, {});
-      const chartFormatted = Object.entries(grouped).map(([key, value]) => ({
-        [groupByColumn]: key,
-        [valueColumn]: value,
-      }));
-      setChartData(chartFormatted);
-    }
-  }, [groupByColumn, valueColumn, data]);
-
   return (
     <Box sx={{ bgcolor: '#fff', minHeight: '100vh' }}>
-      <Box
-        sx={{
-          bgcolor: '#fff',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          p: 2,
-          borderBottom: '2px solid #eee',
-        }}
-      >
-        <Box component="img" src={logo} alt="Logo" sx={{ height: 60, mr: 2 }} />
-        <Typography variant="h5" fontWeight="bold" textAlign="center">
-          Análisis de Datos – Municipio de Mosquera
-        </Typography>
-      </Box>
+      <Header />
 
       <Container sx={{ py: 4 }}>
         <DragDropArea onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}>
@@ -150,7 +113,7 @@ function App() {
 
         {files.length > 0 && (
           <Grid container spacing={2} mt={3}>
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={6}>
               <FormControl fullWidth>
                 <InputLabel>Archivo</InputLabel>
                 <Select
@@ -164,7 +127,7 @@ function App() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={6}>
               <FormControl fullWidth>
                 <InputLabel>Hoja</InputLabel>
                 <Select
@@ -174,34 +137,6 @@ function App() {
                 >
                   {sheets.map((sheet, idx) => (
                     <MenuItem key={idx} value={sheet}>{sheet}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} md={2}>
-              <FormControl fullWidth>
-                <InputLabel>Grupo</InputLabel>
-                <Select
-                  value={groupByColumn}
-                  onChange={(e) => setGroupByColumn(e.target.value)}
-                  label="Grupo"
-                >
-                  {columns.map((col, idx) => (
-                    <MenuItem key={idx} value={col.field}>{col.field}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} md={2}>
-              <FormControl fullWidth>
-                <InputLabel>Valor</InputLabel>
-                <Select
-                  value={valueColumn}
-                  onChange={(e) => setValueColumn(e.target.value)}
-                  label="Valor"
-                >
-                  {columns.map((col, idx) => (
-                    <MenuItem key={idx} value={col.field}>{col.field}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -223,44 +158,15 @@ function App() {
             </Paper>
           )}
         </Box>
-
-        {chartData.length > 0 && (
-          <Box mt={5}>
-            <Typography variant="h6" gutterBottom>
-              Gráfico: {valueColumn} por {groupByColumn}
-            </Typography>
-            <Paper elevation={3} sx={{ height: 400, p: 2 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey={groupByColumn} angle={-45} textAnchor="end" height={80} />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey={valueColumn} fill="#4caf50" />
-                </BarChart>
-              </ResponsiveContainer>
-            </Paper>
-          </Box>
-        )}
       </Container>
 
-      <Box sx={{ bgcolor: '#f4f4f4', mt: 5, py: 2, textAlign: 'center', fontSize: 12 }}>
-        <Typography variant="body2" gutterBottom>
-          © {new Date().getFullYear()} Municipio de Mosquera
-        </Typography>
-        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
-          <a href="https://www.facebook.com/AlcaldiaDeMosquera/" target="_blank" rel="noopener noreferrer">Facebook</a>
-          <a href="https://www.youtube.com/user/Mosqueratv" target="_blank" rel="noopener noreferrer">YouTube</a>
-          <a href="https://x.com/alcmosquera" target="_blank" rel="noopener noreferrer">Twitter</a>
-          <a href="https://www.instagram.com/alcaldiademosquera/?hl=es-la" target="_blank" rel="noopener noreferrer">Instagram</a>
-        </Box>
-      </Box>
+      <Footer />
     </Box>
   );
 }
 
 export default App;
+
 
 
 
