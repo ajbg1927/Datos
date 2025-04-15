@@ -31,7 +31,7 @@ const Graficos = ({ datos }) => {
     if (datos.length === 0) return [];
     const ejemplo = datos[0];
     return Object.keys(ejemplo).filter(
-      key => typeof ejemplo[key] === 'number'
+      key => typeof ejemplo[key] === 'number' || !isNaN(parseFloat(ejemplo[key]))
     );
   }, [datos]);
 
@@ -48,16 +48,19 @@ const Graficos = ({ datos }) => {
     const agrupados = {};
     datos.forEach(item => {
       const clave = item[campoX];
-      const valor = Number(item[campoY]) || 0;
+      const valor = parseFloat(item[campoY]) || 0;
       if (clave) {
         agrupados[clave] = (agrupados[clave] || 0) + valor;
       }
     });
-    return Object.entries(agrupados).map(([key, value]) => ({ [campoX]: key, [campoY]: value }));
+    return Object.entries(agrupados).map(([key, value]) => ({
+      [campoX]: key,
+      [campoY]: value,
+    }));
   }, [campoX, campoY, datos]);
 
   return (
-    <Box m={4}>
+    <Box sx={{ m: 4 }}>
       <Typography variant="h6" gutterBottom>
         Selección de Gráficos
       </Typography>
@@ -66,9 +69,15 @@ const Graficos = ({ datos }) => {
         <Grid item xs={12} md={6}>
           <FormControl fullWidth>
             <InputLabel>Columna de Agrupación</InputLabel>
-            <Select value={campoX} label="Columna de Agrupación" onChange={e => setCampoX(e.target.value)}>
-              {columnasTextuales.map(col => (
-                <MenuItem key={col} value={col}>{col}</MenuItem>
+            <Select
+              value={campoX}
+              label="Columna de Agrupación"
+              onChange={(e) => setCampoX(e.target.value)}
+            >
+              {columnasTextuales.map((col) => (
+                <MenuItem key={col} value={col}>
+                  {col}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -77,9 +86,15 @@ const Graficos = ({ datos }) => {
         <Grid item xs={12} md={6}>
           <FormControl fullWidth>
             <InputLabel>Columna de Valores</InputLabel>
-            <Select value={campoY} label="Columna de Valores" onChange={e => setCampoY(e.target.value)}>
-              {columnasNumericas.map(col => (
-                <MenuItem key={col} value={col}>{col}</MenuItem>
+            <Select
+              value={campoY}
+              label="Columna de Valores"
+              onChange={(e) => setCampoY(e.target.value)}
+            >
+              {columnasNumericas.map((col) => (
+                <MenuItem key={col} value={col}>
+                  {col}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -101,7 +116,7 @@ const Graficos = ({ datos }) => {
             </BarChart>
           </ResponsiveContainer>
 
-          <Typography variant="h6" gutterBottom mt={4}>
+          <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
             Gráfico de Pastel
           </Typography>
           <ResponsiveContainer width="100%" height={300}>
@@ -114,10 +129,14 @@ const Graficos = ({ datos }) => {
                 label
               >
                 {datosAgrupados.map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={colores[index % colores.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={colores[index % colores.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip />
+              <Legend />
             </PieChart>
           </ResponsiveContainer>
         </>
@@ -127,4 +146,5 @@ const Graficos = ({ datos }) => {
 };
 
 export default Graficos;
+
 
