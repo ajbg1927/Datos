@@ -47,7 +47,7 @@ function Header() {
                 textOverflow: 'ellipsis',
               }}
             >
-              Análisis de Datos Excel 
+              Análisis de Datos Excel
             </Typography>
           </Box>
 
