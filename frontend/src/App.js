@@ -27,8 +27,7 @@ function App() {
     setHojaSeleccionada,
     datos,
     columnas,
-    setArchivos,
-    setHojaSeleccionada: resetHoja,
+    setArchivos
   } = useArchivos();
 
   const [filtros, setFiltros] = React.useState({
@@ -60,7 +59,7 @@ function App() {
 
       const res = await axios.get(`${API_URL}/archivos`);
       setArchivoSeleccionado('');
-      resetHoja('');
+      setHojaSeleccionada('');
       setArchivos(res.data.archivos);
     } catch (error) {
       console.error('Error al subir archivos:', error);
