@@ -1,57 +1,37 @@
-import React, { useState } from "react";
-import {
-  Box,
-  Typography,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Grid,
-  IconButton,
-  Tooltip,
-} from "@mui/material";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import YouTubeIcon from "@mui/icons-material/YouTube";
-import TwitterIcon from "@mui/icons-material/Twitter";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import MosqueraLogo from "../../public/logo_am.png";
+import React from 'react';
+import { AppBar, Toolbar, Typography, Box } from '@mui/material';
 
 const Header = () => {
   return (
-    <Box
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        backgroundColor: "white",
-        padding: 2,
-        borderBottom: "2px solid #4CAF50",
-        flexWrap: "wrap",
-      }}
-    >
-      <Box sx={{ display: "flex", alignItems: "center" }}>
-        <img
-          src="/logo_am.png"
-          alt="Logo Mosquera"
-          style={{ height: 60, marginRight: 16 }}
-        />
-      </Box>
-      <Typography
-        variant="h5"
-        sx={{
-          flexGrow: 1,
-          textAlign: "center",
-          fontWeight: "bold",
-          color: "#2E7D32",
-          minWidth: "300px",
-        }}
-      >
-        Análisis de Datos – Municipio de Mosquera
-      </Typography>
-      <Box sx={{ width: 60 }} />
-    </Box>
+    <AppBar position="static" sx={{ backgroundColor: '#ffffff', color: '#000000', boxShadow: 1 }}>
+      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+        {/* Logo a la izquierda */}
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <img
+            src="/logo_am.png"
+            alt="Logo Municipio de Mosquera"
+            style={{ height: 50, marginRight: 16 }}
+          />
+        </Box>
+
+        {/* Texto centrado */}
+        <Box sx={{ flexGrow: 1, textAlign: 'center' }}>
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{ fontWeight: 'bold', fontSize: { xs: '16px', sm: '20px' } }}
+          >
+            Análisis de Datos – Municipio de Mosquera
+          </Typography>
+        </Box>
+
+        {/* Espacio vacío a la derecha para centrar bien el texto */}
+        <Box sx={{ width: 66 }} /> 
+      </Toolbar>
+    </AppBar>
   );
 };
 
 export default Header;
+
 
