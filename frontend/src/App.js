@@ -100,7 +100,7 @@ function App() {
 
       <UploadFile onFilesUploaded={handleArchivosSubidos} />
 
-      {archivos.length > 0 && (
+      {Array.isArray(archivos) && archivos.length > 0 && (
         <>
           <TablaArchivos
             archivos={archivos}
@@ -115,7 +115,7 @@ function App() {
         </>
       )}
 
-      {columnas.length > 0 && (
+      {Array.isArray(columnas) && columnas.length > 0 && (
         <Filtros
           columnas={columnas}
           valoresUnicos={valoresUnicos}
@@ -127,7 +127,7 @@ function App() {
         />
       )}
 
-      {columnasNumericas && columnasNumericas.length > 0 && (
+      {Array.isArray(columnasNumericas) && columnasNumericas.length > 0 && (
         <Container maxWidth="md">
           <TextField
             select
