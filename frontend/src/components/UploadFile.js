@@ -5,34 +5,35 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 const UploadFile = ({ onFilesUploaded }) => {
   const fileInputRef = React.useRef();
 
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    const validFiles = files.filter(isExcelFile);
+  const isExcelFile = (file) =>
+    file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+    file.type === 'application/vnd.ms-excel';
+
+  const handleFiles = (files) => {
+    const validFiles = Array.from(files).filter(isExcelFile);
     if (validFiles.length > 0) {
-      onFilesUploaded(validFiles);
+      if (typeof onFilesUploaded === 'function') {
+        onFilesUploaded(validFiles);
+      } else {
+        console.error('❌ onFilesUploaded no es una función:', onFilesUploaded);
+      }
     } else {
       alert('Por favor sube archivos Excel (.xlsx o .xls)');
     }
   };
 
+  const handleFileChange = (e) => {
+    handleFiles(e.target.files);
+  };
+
   const handleDrop = (e) => {
     e.preventDefault();
-    const files = Array.from(e.dataTransfer.files);
-    const validFiles = files.filter(isExcelFile);
-    if (validFiles.length > 0) {
-      onFilesUploaded(validFiles);
-    } else {
-      alert('Por favor sube archivos Excel (.xlsx o .xls)');
-    }
+    handleFiles(e.dataTransfer.files);
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
   };
-
-  const isExcelFile = (file) =>
-    file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
-    file.type === 'application/vnd.ms-excel';
 
   return (
     <Paper
@@ -43,6 +44,7 @@ const UploadFile = ({ onFilesUploaded }) => {
         border: '2px dashed #ccc',
         bgcolor: '#fafafa',
         cursor: 'pointer',
+        transition: 'background-color 0.3s',
         '&:hover': { bgcolor: '#f0f0f0' },
       }}
       onDrop={handleDrop}
@@ -59,8 +61,8 @@ const UploadFile = ({ onFilesUploaded }) => {
           hidden
           type="file"
           multiple
-          onChange={handleFileChange}
           accept=".xlsx,.xls"
+          onChange={handleFileChange}
           ref={fileInputRef}
         />
       </Button>
