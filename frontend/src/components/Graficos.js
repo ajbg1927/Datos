@@ -159,6 +159,3 @@ const Graficos = ({ datos = [] }) => {
 };
 
 export default Graficos;
-
-
-
