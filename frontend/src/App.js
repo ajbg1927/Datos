@@ -11,6 +11,8 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { saveAs } from 'file-saver';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import Header from './components/Header';
+import Footer from './components/Footer';
+
 
 function App() {
   const [data, setData] = useState([]);
@@ -208,6 +210,7 @@ function App() {
           </Paper>
         </Box>
       </Container>
+      <Footer />
     </LocalizationProvider>
   );
 }

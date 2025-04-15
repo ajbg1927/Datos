@@ -1,24 +1,24 @@
 import React from 'react';
 import { AppBar, Toolbar, Typography, Box } from '@mui/material';
 
-function Header() {
+const Header = () => {
   return (
-    <AppBar position="static" sx={{ backgroundColor: '#006400' }}>
-      <Toolbar>
-        <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+    <AppBar position="static" elevation={0} sx={{ backgroundColor: '#ffffff', borderBottom: '2px solid #e0e0e0' }}>
+      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Box display="flex" alignItems="center">
           <img
-            src="/logo_am.png"
-            alt="Logotipo del Municipio de Mosquera"
-            style={{ height: '40px', marginRight: '10px' }}
+            src="/logo AM.png"
+            alt="Logo Municipio de Mosquera"
+            style={{ height: 64, marginRight: 16 }}
           />
-          <Typography variant="h6" component="div">
-            Análisis de Datos – Municipio de Mosquera
-          </Typography>
         </Box>
+        <Typography variant="h6" sx={{ color: '#222', fontWeight: 600 }}>
+          Análisis de Datos – Municipio de Mosquera
+        </Typography>
       </Toolbar>
     </AppBar>
   );
-}
+};
 
 export default Header;
 
