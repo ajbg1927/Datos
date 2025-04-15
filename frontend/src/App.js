@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Container, Typography, Box, MenuItem, Select, FormControl,
-  InputLabel, Grid, Paper, Button, CircularProgress
+  Box, Container, Typography, Button, Grid, MenuItem, Select,
+  FormControl, InputLabel, Paper, CircularProgress, Fab
 } from '@mui/material';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
-import * as XLSX from 'xlsx';
 import { DataGrid } from '@mui/x-data-grid';
-import { styled } from '@mui/material/styles';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import './App.css';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import * as XLSX from 'xlsx';
+import { styled } from '@mui/material/styles';
 
-// Componentes personalizados
 import Header from './components/Header';
 import Footer from './components/Footer';
 
@@ -22,6 +21,7 @@ const DragDropArea = styled('div')(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
   backgroundColor: '#f9f9f9',
   color: '#888',
+  marginBottom: theme.spacing(4),
   '&:hover': {
     borderColor: theme.palette.primary.main,
     backgroundColor: '#f1f1f1',
@@ -36,6 +36,7 @@ function App() {
   const [data, setData] = useState([]);
   const [columns, setColumns] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [filters, setFilters] = useState({});
 
   const handleFileUpload = (event) => {
     const uploadedFiles = Array.from(event.target.files);
@@ -51,8 +52,7 @@ function App() {
   const processFiles = (fileList) => {
     setLoading(true);
     const newFiles = [...files];
-
-    fileList.forEach(file => {
+    fileList.forEach((file) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const data = new Uint8Array(e.target.result);
@@ -85,21 +85,45 @@ function App() {
       const worksheet = files[selectedFileIndex].workbook.Sheets[selectedSheet];
       const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
       setData(jsonData);
-      const columns = Object.keys(jsonData[0] || {}).map((key, index) => ({
+
+      const keys = Object.keys(jsonData[0] || {});
+      const generatedColumns = keys.map((key) => ({
         field: key,
         headerName: key,
         width: 200,
         flex: 1,
       }));
-      setColumns(columns);
+      setColumns(generatedColumns);
+
+      const newFilters = {};
+      keys.forEach((key) => {
+        newFilters[key] = '';
+      });
+      setFilters(newFilters);
     }
   }, [selectedFileIndex, selectedSheet]);
+
+  const handleFilterChange = (key, value) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const filteredData = data.filter((row) => {
+    return Object.entries(filters).every(([key, value]) => {
+      return value === '' || String(row[key]).toLowerCase().includes(value.toLowerCase());
+    });
+  });
+
+  const exportToExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(filteredData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, selectedSheet || 'Hoja1');
+    XLSX.writeFile(wb, 'exportado.xlsx');
+  };
 
   return (
     <Box sx={{ bgcolor: '#fff', minHeight: '100vh' }}>
       <Header />
-
-      <Container sx={{ py: 4 }}>
+      <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
         <DragDropArea onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}>
           <UploadFileIcon sx={{ fontSize: 40 }} />
           <Typography variant="body1" gutterBottom>
@@ -112,7 +136,7 @@ function App() {
         </DragDropArea>
 
         {files.length > 0 && (
-          <Grid container spacing={2} mt={3}>
+          <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
               <FormControl fullWidth>
                 <InputLabel>Archivo</InputLabel>
@@ -122,7 +146,9 @@ function App() {
                   label="Archivo"
                 >
                   {files.map((file, idx) => (
-                    <MenuItem key={idx} value={idx}>{file.file.name}</MenuItem>
+                    <MenuItem key={idx} value={idx}>
+                      {file.file.name}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -136,11 +162,29 @@ function App() {
                   label="Hoja"
                 >
                   {sheets.map((sheet, idx) => (
-                    <MenuItem key={idx} value={sheet}>{sheet}</MenuItem>
+                    <MenuItem key={idx} value={sheet}>
+                      {sheet}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
+          </Grid>
+        )}
+
+        {columns.length > 0 && (
+          <Grid container spacing={2} sx={{ mt: 2 }}>
+            {columns.map((col) => (
+              <Grid item xs={12} sm={6} md={4} key={col.field}>
+                <TextField
+                  fullWidth
+                  label={`Filtrar por ${col.headerName}`}
+                  value={filters[col.field] || ''}
+                  onChange={(e) => handleFilterChange(col.field, e.target.value)}
+                  variant="outlined"
+                />
+              </Grid>
+            ))}
           </Grid>
         )}
 
@@ -150,7 +194,7 @@ function App() {
           ) : (
             <Paper elevation={3} sx={{ height: 500 }}>
               <DataGrid
-                rows={data.map((row, index) => ({ id: index, ...row }))}
+                rows={filteredData.map((row, index) => ({ id: index, ...row }))}
                 columns={columns}
                 pageSize={10}
                 rowsPerPageOptions={[10, 25, 50]}
@@ -161,11 +205,30 @@ function App() {
       </Container>
 
       <Footer />
+
+      <Fab
+        color="primary"
+        aria-label="exportar"
+        onClick={exportToExcel}
+        sx={{
+          position: 'fixed',
+          bottom: 24,
+          right: 24,
+          backgroundColor: '#ffcd00',
+          color: '#000',
+          '&:hover': {
+            backgroundColor: '#e6b800',
+          },
+        }}
+      >
+        <SaveAltIcon />
+      </Fab>
     </Box>
   );
 }
 
 export default App;
+
 
 
 
