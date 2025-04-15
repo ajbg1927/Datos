@@ -135,7 +135,7 @@ const Graficos = ({ datos = [] }) => {
               Gráfico de Barras
             </Typography>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={datosAgrupados}>
+              <BarChart data={datosAgrupados} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey={campoX} />
                 <YAxis />

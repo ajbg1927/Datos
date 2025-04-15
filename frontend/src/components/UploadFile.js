@@ -1,130 +1,62 @@
 import React from 'react';
+import { useDropzone } from 'react-dropzone';
 import {
-  Grid,
-  TextField,
-  MenuItem,
+  Box,
   Button,
   Typography,
   Paper,
-  InputAdornment,
+  Stack,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
-const Filtros = ({
-  columnas,
-  valoresUnicos,
-  filtros,
-  setFiltros,
-  handleClearFilters,
-  columnasFecha,
-  columnasNumericas,
-}) => {
+const UploadFile = ({ onFilesUploaded }) => {
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: (acceptedFiles) => {
+      onFilesUploaded(acceptedFiles);
+    },
+    accept: {
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+      'application/vnd.ms-excel': ['.xls'],
+    },
+  });
+
   return (
-    <Paper elevation={2} sx={{ p: 3, mt: 4, mb: 4 }}>
-      <Typography variant="h6" gutterBottom>
-        Filtros de búsqueda
-      </Typography>
+    <Paper
+      elevation={3}
+      sx={{
+        p: 4,
+        textAlign: 'center',
+        backgroundColor: '#f9f9f9',
+        border: '2px dashed #ccc',
+        borderRadius: 2,
+        mt: 4,
+      }}
+    >
+      <Box {...getRootProps()} sx={{ cursor: 'pointer' }}>
+        <input {...getInputProps()} />
+        <CloudUploadIcon sx={{ fontSize: 50, color: '#888' }} />
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          {isDragActive ? 'Suelta los archivos aquí...' : 'Arrastra o pega un archivo aquí'}
+        </Typography>
+        <Typography variant="body2" sx={{ mt: 1 }}>
+          o haz clic para seleccionar archivos desde tu equipo
+        </Typography>
+      </Box>
 
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={6} md={4}>
-          <TextField
-            label="Búsqueda global"
-            fullWidth
-            variant="outlined"
-            value={filtros.busqueda || ''}
-            onChange={(e) => setFiltros((prev) => ({ ...prev, busqueda: e.target.value }))}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon color="action" />
-                </InputAdornment>
-              ),
-            }}
+      <Stack direction="row" justifyContent="center" spacing={2} mt={3}>
+        <Button variant="contained" component="label" color="primary">
+          Elegir archivo
+          <input
+            type="file"
+            hidden
+            multiple
+            onChange={(e) => onFilesUploaded([...e.target.files])}
+            accept=".xlsx,.xls"
           />
-        </Grid>
-
-        {columnas.map(
-          (col) =>
-            valoresUnicos[col]?.length < 100 && (
-              <Grid item xs={12} sm={6} md={3} key={col}>
-                <TextField
-                  select
-                  label={col}
-                  value={filtros[col] || ''}
-                  onChange={(e) => setFiltros((prev) => ({ ...prev, [col]: e.target.value }))}
-                  fullWidth
-                >
-                  <MenuItem value="">Todos</MenuItem>
-                  {valoresUnicos[col]?.map((valor, idx) => (
-                    <MenuItem key={idx} value={valor}>
-                      {valor}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-            )
-        )}
-
-        {columnasFecha.map((col) => (
-          <React.Fragment key={col}>
-            <Grid item xs={6} sm={3}>
-              <TextField
-                label={`Desde (${col})`}
-                type="date"
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-                onChange={(e) =>
-                  setFiltros((prev) => ({ ...prev, [`${col}_desde`]: e.target.value }))
-                }
-              />
-            </Grid>
-            <Grid item xs={6} sm={3}>
-              <TextField
-                label={`Hasta (${col})`}
-                type="date"
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-                onChange={(e) =>
-                  setFiltros((prev) => ({ ...prev, [`${col}_hasta`]: e.target.value }))
-                }
-              />
-            </Grid>
-          </React.Fragment>
-        ))}
-
-        {columnasNumericas.map((col) => (
-          <React.Fragment key={col}>
-            <Grid item xs={6} sm={3}>
-              <TextField
-                label={`Mín. ${col}`}
-                type="number"
-                fullWidth
-                onChange={(e) =>
-                  setFiltros((prev) => ({ ...prev, [`${col}_min`]: e.target.value }))
-                }
-              />
-            </Grid>
-            <Grid item xs={6} sm={3}>
-              <TextField
-                label={`Máx. ${col}`}
-                type="number"
-                fullWidth
-                onChange={(e) =>
-                  setFiltros((prev) => ({ ...prev, [`${col}_max`]: e.target.value }))
-                }
-              />
-            </Grid>
-          </React.Fragment>
-        ))}
-
-        <Grid item xs={12} textAlign="right">
-          <Button variant="outlined" color="error" onClick={handleClearFilters}>
-            Limpiar filtros
-          </Button>
-        </Grid>
-      </Grid>
+        </Button>
+      </Stack>
     </Paper>
   );
 };
 
-export default Filtros;
+export default UploadFile;
