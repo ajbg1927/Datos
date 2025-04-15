@@ -10,7 +10,7 @@ import Filtros from './components/Filtros';
 import TablaDatos from './components/TablaDatos';
 import Graficos from './components/Graficos';
 import ExportButtons from './components/ExportButtons';
-import { useArchivos } from './hooks/useArchivos';
+import useArchivos from './hooks/useArchivos'; 
 import { useFiltros } from './hooks/useFiltros';
 import { useExportaciones } from './hooks/useExportaciones';
 
