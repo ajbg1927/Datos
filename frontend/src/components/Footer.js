@@ -5,7 +5,7 @@ import { Facebook, YouTube, Twitter, Instagram } from '@mui/icons-material';
 const Footer = () => {
   const redesSociales = [
     {
-      icon: <Facebook sx={{ color: '#fff', fontSize: 18 }} />, 
+      icon: <Facebook sx={{ color: '#fff', fontSize: 18 }} />,
       nombre: '@AlcaldiaDeMosquera',
       url: 'https://www.facebook.com/AlcaldiaDeMosquera/',
     },
@@ -92,17 +92,28 @@ const Footer = () => {
           ))}
         </Grid>
 
-        <Typography
-          variant="body2"
-          sx={{
-            mt: 4,
-            fontStyle: 'italic',
-            color: '#777',
-            fontSize: '0.85rem',
-          }}
-        >
-          Desarrollo: Angie Julieth Barreto Guerrero
-        </Typography>
+        <Box sx={{ mt: 5 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              fontFamily: "'Dancing Script', cursive",
+              color: '#777',
+              fontSize: '1rem',
+            }}
+          >
+            Desarrollo: Angie Julieth Barreto Guerrero
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              fontFamily: "'Dancing Script', cursive",
+              color: '#aaa',
+              fontSize: '0.95rem',
+            }}
+          >
+            Ingeniera de Software
+          </Typography>
+        </Box>
       </Box>
     </>
   );
