@@ -1,84 +1,63 @@
-import React from 'react';
-import { Paper, Typography, Button, Divider } from '@mui/material';
+import React, { useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { Box, Button, Typography } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
-const UploadFile = ({ onFilesUploaded }) => {
-  const fileInputRef = React.useRef();
+function UploadFile({ onFilesUploaded }) {
+  const onDrop = useCallback(
+    (acceptedFiles) => {
+      const validFiles = acceptedFiles.filter(
+        (file) =>
+          file.type ===
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+          file.type === 'application/vnd.ms-excel'
+      );
 
-  const isExcelFile = (file) =>
-    file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
-    file.type === 'application/vnd.ms-excel';
-
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    const validFiles = files.filter(isExcelFile);
-    if (validFiles.length > 0) {
       if (typeof onFilesUploaded === 'function') {
         onFilesUploaded(validFiles);
       } else {
-        console.error('onFilesUploaded no es una función');
+        console.error('Error: onFilesUploaded no es una función');
       }
-    } else {
-      alert('Por favor sube archivos Excel (.xlsx o .xls)');
-    }
-  };
+    },
+    [onFilesUploaded]
+  );
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const files = Array.from(e.dataTransfer.files);
-    const validFiles = files.filter(isExcelFile);
-    if (validFiles.length > 0) {
-      if (typeof onFilesUploaded === 'function') {
-        onFilesUploaded(validFiles);
-      } else {
-        console.error('onFilesUploaded no es una función');
-      }
-    } else {
-      alert('Por favor sube archivos Excel (.xlsx o .xls)');
-    }
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
+  const { getRootProps, getInputProps, open } = useDropzone({
+    onDrop,
+    noClick: true,
+    noKeyboard: true,
+  });
 
   return (
-    <Paper
-      elevation={4}
+    <Box
+      {...getRootProps()}
       sx={{
-        p: 4,
-        textAlign: 'center',
         border: '2px dashed #ccc',
-        bgcolor: '#fafafa',
-        cursor: 'pointer',
-        '&:hover': { bgcolor: '#f0f0f0' },
+        padding: 4,
+        textAlign: 'center',
+        borderRadius: 2,
+        backgroundColor: '#f9f9f9',
+        mb: 4,
       }}
-      onClick={() => fileInputRef.current.click()}
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
     >
-      <CloudUploadIcon sx={{ fontSize: 50, color: '#777' }} />
+      <input {...getInputProps()} />
+      <CloudUploadIcon sx={{ fontSize: 50, color: '#888' }} />
       <Typography variant="h6" sx={{ mt: 2 }}>
-        Arrastra o pega un archivo aquí
+        Arrastra y suelta archivos Excel aquí, o
       </Typography>
-      <Typography variant="body2" sx={{ color: '#666', mb: 2 }}>
-        Archivos permitidos: .xlsx, .xls (puedes subir varios a la vez)
-      </Typography>
-      <Divider sx={{ my: 2 }} />
-      <Button variant="contained" component="label">
-        Elegir archivo
-        <input
-          hidden
-          type="file"
-          multiple
-          onClick={(e) => e.stopPropagation()}
-          onChange={handleFileChange}
-          accept=".xlsx,.xls"
-          ref={fileInputRef}
-        />
+      <Button
+        variant="contained"
+        onClick={open}
+        sx={{
+          mt: 2,
+          backgroundColor: '#2e7d32',
+          '&:hover': { backgroundColor: '#1b5e20' },
+        }}
+      >
+        Seleccionar archivo
       </Button>
-    </Paper>
+    </Box>
   );
-};
+}
 
 export default UploadFile;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Fab,
@@ -27,20 +27,44 @@ function App() {
     archivos,
     archivoSeleccionado,
     setArchivoSeleccionado,
-    hojas,
     hojasSeleccionadas,
     setHojasSeleccionadas,
-    datos,
-    columnas,
-    columnasFecha,
-    columnasNumericas,
-    valoresUnicos,
-    setArchivos,
+    hojasPorArchivo,
+    datosPorArchivo,
+    columnasPorArchivo,
+    obtenerDatos,
+    datosCombinados,
+    setArchivos
   } = useArchivos();
 
-  const [filtros, setFiltros] = React.useState({});
-  const [columnaValor, setColumnaValor] = React.useState('Pagos');
-  const [isLoadingUpload, setIsLoadingUpload] = React.useState(false);
+  const [filtros, setFiltros] = useState({});
+  const [columnaValor, setColumnaValor] = useState('Pagos');
+  const [isLoadingUpload, setIsLoadingUpload] = useState(false);
+
+  // Obtener datos cuando seleccionamos archivo y hojas
+  useEffect(() => {
+    if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
+      obtenerDatos(archivoSeleccionado, hojasSeleccionadas);
+    }
+  }, [archivoSeleccionado, hojasSeleccionadas]);
+
+  const datos = datosCombinados();
+  const columnas = columnasPorArchivo[archivoSeleccionado] || [];
+
+  // Detección automática de columnas
+  const columnasFecha = columnas.filter((col) =>
+    col.toLowerCase().includes('fecha')
+  );
+  const columnasNumericas = columnas.filter((col) =>
+    col.toLowerCase().match(/pago|valor|deducci|oblig|monto|total|suma|saldo/)
+  );
+
+  const valoresUnicos = {};
+  columnas.forEach((col) => {
+    valoresUnicos[col] = [
+      ...new Set(datos.map((row) => row[col]).filter((v) => v !== null)),
+    ];
+  });
 
   // Extraer valores de filtros
   const texto = filtros.busqueda || '';
@@ -116,7 +140,7 @@ function App() {
             onArchivoChange={setArchivoSeleccionado}
           />
           <SelectorHojas
-            hojas={hojas}
+            hojas={hojasPorArchivo[archivoSeleccionado] || []}
             hojasSeleccionadas={hojasSeleccionadas}
             setHojasSeleccionadas={setHojasSeleccionadas}
           />
