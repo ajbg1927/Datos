@@ -11,7 +11,7 @@ const useArchivos = () => {
   const [datos, setDatos] = useState([]);
   const [columnas, setColumnas] = useState([]);
   const [columnasFecha, setColumnasFecha] = useState([]);
-  const [columnasNumericas, setColumnasNumericas] = useState([]); // <- importante
+  const [columnasNumericas, setColumnasNumericas] = useState([]);
   const [valoresUnicos, setValoresUnicos] = useState({});
 
   useEffect(() => {
@@ -31,7 +31,7 @@ const useArchivos = () => {
     const fetchHojas = async () => {
       if (!archivoSeleccionado) return;
       try {
-        const res = await axios.get(`${API_URL}/hojas?archivo=${archivoSeleccionado}`);
+        const res = await axios.get(`${API_URL}/hojas/${archivoSeleccionado}`); 
         setHojas(res.data.hojas);
       } catch (err) {
         console.error('Error al obtener hojas:', err);
