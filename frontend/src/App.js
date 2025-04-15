@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Fab, TextField, MenuItem } from '@mui/material';
+import { Container, Fab, TextField, MenuItem, Typography } from '@mui/material';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import Layout from './components/Layout';
 import UploadFile from './components/UploadFile';
@@ -34,6 +34,7 @@ function App() {
 
   const [filtros, setFiltros] = React.useState({});
   const [columnaValor, setColumnaValor] = React.useState('Pagos');
+  const [isLoadingUpload, setIsLoadingUpload] = React.useState(false);
 
   const texto = filtros.busqueda || '';
   const fechaInicio = filtros.Fecha_desde || '';
@@ -72,6 +73,7 @@ function App() {
     }
 
     try {
+      setIsLoadingUpload(true);
       await axios.post(`${API_URL}/subir`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
@@ -83,11 +85,19 @@ function App() {
     } catch (error) {
       console.error('Error al subir archivos:', error);
       alert('Error al subir archivos');
+    } finally {
+      setIsLoadingUpload(false);
     }
   };
 
   return (
     <Layout>
+      {isLoadingUpload && (
+        <Typography align="center" sx={{ mb: 2 }}>
+          Subiendo archivo(s)... por favor espera
+        </Typography>
+      )}
+
       <UploadFile onFilesUploaded={handleArchivosSubidos} />
 
       {archivos.length > 0 && (
@@ -150,6 +160,7 @@ function App() {
           right: 24,
           backgroundColor: '#ffcd00',
           color: '#000',
+          boxShadow: '0px 4px 12px rgba(0,0,0,0.2)',
           '&:hover': {
             backgroundColor: '#e6b800',
           },

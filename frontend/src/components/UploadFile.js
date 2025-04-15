@@ -1,32 +1,38 @@
 import React from 'react';
-import {
-  Box,
-  Typography,
-  Button,
-  Paper,
-  Divider,
-} from '@mui/material';
+import { Paper, Typography, Button, Divider } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 const UploadFile = ({ onFilesUploaded }) => {
-  const handleDrop = (event) => {
-    event.preventDefault();
-    const files = event.dataTransfer.files;
-    if (files.length > 0) {
-      onFilesUploaded(Array.from(files));
+  const fileInputRef = React.useRef();
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    const validFiles = files.filter(isExcelFile);
+    if (validFiles.length > 0) {
+      onFilesUploaded(validFiles);
+    } else {
+      alert('Por favor sube archivos Excel (.xlsx o .xls)');
     }
   };
 
-  const handleFileChange = (event) => {
-    const files = event.target.files;
-    if (files.length > 0) {
-      onFilesUploaded(Array.from(files));
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer.files);
+    const validFiles = files.filter(isExcelFile);
+    if (validFiles.length > 0) {
+      onFilesUploaded(validFiles);
+    } else {
+      alert('Por favor sube archivos Excel (.xlsx o .xls)');
     }
   };
 
-  const handleDragOver = (event) => {
-    event.preventDefault();
+  const handleDragOver = (e) => {
+    e.preventDefault();
   };
+
+  const isExcelFile = (file) =>
+    file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+    file.type === 'application/vnd.ms-excel';
 
   return (
     <Paper
@@ -37,6 +43,7 @@ const UploadFile = ({ onFilesUploaded }) => {
         border: '2px dashed #ccc',
         bgcolor: '#fafafa',
         cursor: 'pointer',
+        '&:hover': { bgcolor: '#f0f0f0' },
       }}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
@@ -48,7 +55,14 @@ const UploadFile = ({ onFilesUploaded }) => {
       <Divider sx={{ my: 2 }} />
       <Button variant="contained" component="label">
         Elegir archivo
-        <input hidden type="file" multiple onChange={handleFileChange} />
+        <input
+          hidden
+          type="file"
+          multiple
+          onChange={handleFileChange}
+          accept=".xlsx,.xls"
+          ref={fileInputRef}
+        />
       </Button>
     </Paper>
   );

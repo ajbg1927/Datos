@@ -145,15 +145,19 @@ def obtener_datos_archivo():
     except Exception as e:
         return jsonify({"error": f"Error al procesar el archivo: {str(e)}"}), 500
 
-@app.route("/upload", methods=["POST"])
+@app.route('/upload', methods=['POST'])
 def upload_file():
-    file = request.files['file']
-    if file:
-        filename = secure_filename(file.filename)
-        file_path = os.path.join('/tmp', filename)
-        file.save(file_path)
-        return jsonify({"filename": filename}), 200
-    return jsonify({"error": "Archivo no encontrado"}), 400
+    if 'archivo' not in request.files:
+        return jsonify({'error': 'No se envió archivo'}), 400
+    archivo = request.files['archivo']
+    if archivo.filename == '':
+        return jsonify({'error': 'Nombre de archivo vacío'}), 400
+
+    filename = secure_filename(archivo.filename)
+    path = os.path.join('/tmp', filename)
+    archivo.save(path)
+
+    return jsonify({'mensaje': 'Archivo subido exitosamente', 'archivo': filename}), 200
 
 @app.route("/datos", methods=["POST"])
 def procesar_excel_endpoint():
