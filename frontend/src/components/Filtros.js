@@ -1,70 +1,102 @@
 import React from 'react';
-import { Grid, TextField, MenuItem, Button } from '@mui/material';
+import { Grid, TextField, MenuItem, Button, Typography, Paper } from '@mui/material';
 
 const Filtros = ({
-  columnas, valoresUnicos, filtros, setFiltros,
-  handleClearFilters, columnasFecha, columnasNumericas
+  columnas,
+  valoresUnicos,
+  filtros,
+  setFiltros,
+  handleClearFilters,
+  columnasFecha,
+  columnasNumericas
 }) => {
   return (
-    <Grid container spacing={2} mt={2}>
-      <Grid item xs={12} sm={6} md={4}>
-        <TextField
-          label="Búsqueda global"
-          fullWidth
-          value={filtros.busqueda || ''}
-          onChange={(e) => setFiltros(prev => ({ ...prev, busqueda: e.target.value }))}
-        />
-      </Grid>
+    <Paper elevation={2} sx={{ p: 3, mt: 4, mb: 4 }}>
+      <Typography variant="h6" gutterBottom>
+        Filtros de búsqueda
+      </Typography>
 
-      {columnas.map(col => (
-        valoresUnicos[col]?.length < 100 && (
-          <Grid item xs={12} sm={6} md={3} key={col}>
-            <TextField
-              select
-              label={col}
-              value={filtros[col] || ''}
-              onChange={(e) => setFiltros(prev => ({ ...prev, [col]: e.target.value }))}
-              fullWidth
-            >
-              <MenuItem value="">Todos</MenuItem>
-              {valoresUnicos[col]?.map((valor, idx) => (
-                <MenuItem key={idx} value={valor}>{valor}</MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-        )
-      ))}
-
-      {/* Fechas y valores numéricos si están */}
-      {columnasFecha.map(col => (
-        <Grid item xs={6} sm={3} key={col}>
+      <Grid container spacing={2}>
+        <Grid item xs={12} sm={6} md={4}>
           <TextField
-            label={`Desde (${col})`}
-            type="date"
+            label="Búsqueda global"
             fullWidth
-            InputLabelProps={{ shrink: true }}
-            onChange={(e) => setFiltros(prev => ({ ...prev, [`${col}_desde`]: e.target.value }))}
+            variant="outlined"
+            value={filtros.busqueda || ''}
+            onChange={(e) => setFiltros(prev => ({ ...prev, busqueda: e.target.value }))}
           />
         </Grid>
-      ))}
 
-      {columnasNumericas.map(col => (
-        <Grid item xs={6} sm={3} key={col}>
-          <TextField
-            label={`Mín. ${col}`}
-            type="number"
-            fullWidth
-            onChange={(e) => setFiltros(prev => ({ ...prev, [`${col}_min`]: e.target.value }))}
-          />
+        {columnas.map(col => (
+          valoresUnicos[col]?.length < 100 && (
+            <Grid item xs={12} sm={6} md={3} key={col}>
+              <TextField
+                select
+                label={col}
+                value={filtros[col] || ''}
+                onChange={(e) => setFiltros(prev => ({ ...prev, [col]: e.target.value }))}
+                fullWidth
+              >
+                <MenuItem value="">Todos</MenuItem>
+                {valoresUnicos[col]?.map((valor, idx) => (
+                  <MenuItem key={idx} value={valor}>{valor}</MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+          )
+        ))}
+
+        {columnasFecha.map(col => (
+          <React.Fragment key={col}>
+            <Grid item xs={6} sm={3}>
+              <TextField
+                label={`Desde (${col})`}
+                type="date"
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+                onChange={(e) => setFiltros(prev => ({ ...prev, [`${col}_desde`]: e.target.value }))}
+              />
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <TextField
+                label={`Hasta (${col})`}
+                type="date"
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+                onChange={(e) => setFiltros(prev => ({ ...prev, [`${col}_hasta`]: e.target.value }))}
+              />
+            </Grid>
+          </React.Fragment>
+        ))}
+
+        {columnasNumericas.map(col => (
+          <React.Fragment key={col}>
+            <Grid item xs={6} sm={3}>
+              <TextField
+                label={`Mín. ${col}`}
+                type="number"
+                fullWidth
+                onChange={(e) => setFiltros(prev => ({ ...prev, [`${col}_min`]: e.target.value }))}
+              />
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <TextField
+                label={`Máx. ${col}`}
+                type="number"
+                fullWidth
+                onChange={(e) => setFiltros(prev => ({ ...prev, [`${col}_max`]: e.target.value }))}
+              />
+            </Grid>
+          </React.Fragment>
+        ))}
+
+        <Grid item xs={12}>
+          <Button variant="contained" color="secondary" onClick={handleClearFilters}>
+            Limpiar filtros
+          </Button>
         </Grid>
-      ))}
-
-      <Grid item xs={12}>
-        <Button variant="outlined" color="secondary" onClick={handleClearFilters}>
-          Limpiar filtros
-        </Button>
       </Grid>
-    </Grid>
+    </Paper>
   );
 };
 

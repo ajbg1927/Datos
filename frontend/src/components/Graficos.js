@@ -7,6 +7,7 @@ import {
   MenuItem,
   Select,
   Grid,
+  Paper,
 } from '@mui/material';
 import {
   BarChart,
@@ -23,12 +24,12 @@ import {
 
 const colores = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00c49f', '#0088fe'];
 
-const Graficos = ({ datos }) => {
+const Graficos = ({ datos = [] }) => {
   const [campoX, setCampoX] = useState('');
   const [campoY, setCampoY] = useState('');
 
   const columnasNumericas = useMemo(() => {
-    if (datos.length === 0) return [];
+    if (!datos || datos.length === 0) return [];
     const ejemplo = datos[0];
     return Object.keys(ejemplo).filter(
       key => typeof ejemplo[key] === 'number' || !isNaN(parseFloat(ejemplo[key]))
@@ -36,10 +37,10 @@ const Graficos = ({ datos }) => {
   }, [datos]);
 
   const columnasTextuales = useMemo(() => {
-    if (datos.length === 0) return [];
+    if (!datos || datos.length === 0) return [];
     const ejemplo = datos[0];
     return Object.keys(ejemplo).filter(
-      key => typeof ejemplo[key] === 'string'
+      key => typeof ejemplo[key] === 'string' && ejemplo[key].length < 100
     );
   }, [datos]);
 
@@ -59,47 +60,59 @@ const Graficos = ({ datos }) => {
     }));
   }, [campoX, campoY, datos]);
 
+  if (!datos || datos.length === 0) {
+    return (
+      <Box m={4}>
+        <Typography variant="h6" color="text.secondary">
+          No hay datos disponibles para graficar.
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
-    <Box sx={{ m: 4 }}>
-      <Typography variant="h6" gutterBottom>
-        Selección de Gráficos
+    <Box m={4}>
+      <Typography variant="h5" gutterBottom fontWeight={600}>
+        Visualización de Gráficos
       </Typography>
 
-      <Grid container spacing={2} mb={3}>
-        <Grid item xs={12} md={6}>
-          <FormControl fullWidth>
-            <InputLabel>Columna de Agrupación</InputLabel>
-            <Select
-              value={campoX}
-              label="Columna de Agrupación"
-              onChange={(e) => setCampoX(e.target.value)}
-            >
-              {columnasTextuales.map((col) => (
-                <MenuItem key={col} value={col}>
-                  {col}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
+      <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth>
+              <InputLabel>Columna de Agrupación</InputLabel>
+              <Select
+                value={campoX}
+                label="Columna de Agrupación"
+                onChange={(e) => setCampoX(e.target.value)}
+              >
+                {columnasTextuales.map((col) => (
+                  <MenuItem key={col} value={col}>
+                    {col}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
 
-        <Grid item xs={12} md={6}>
-          <FormControl fullWidth>
-            <InputLabel>Columna de Valores</InputLabel>
-            <Select
-              value={campoY}
-              label="Columna de Valores"
-              onChange={(e) => setCampoY(e.target.value)}
-            >
-              {columnasNumericas.map((col) => (
-                <MenuItem key={col} value={col}>
-                  {col}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth>
+              <InputLabel>Columna de Valores</InputLabel>
+              <Select
+                value={campoY}
+                label="Columna de Valores"
+                onChange={(e) => setCampoY(e.target.value)}
+              >
+                {columnasNumericas.map((col) => (
+                  <MenuItem key={col} value={col}>
+                    {col}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
         </Grid>
-      </Grid>
+      </Paper>
 
       {campoX && campoY && datosAgrupados.length > 0 && (
         <>
@@ -112,7 +125,7 @@ const Graficos = ({ datos }) => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey={campoY} fill="#8884d8" />
+              <Bar dataKey={campoY} fill="#1976d2" />
             </BarChart>
           </ResponsiveContainer>
 
@@ -146,5 +159,6 @@ const Graficos = ({ datos }) => {
 };
 
 export default Graficos;
+
 
 

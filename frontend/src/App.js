@@ -26,25 +26,24 @@ function App() {
     columnas
   } = useArchivos();
 
-  const [filters, setFilters] = React.useState({
+  const [filtros, setFiltros] = React.useState({
     texto: '',
     fechaInicio: '',
     fechaFin: ''
   });
 
-  const filteredData = useFiltros(datos, filters.texto, filters.fechaInicio, filters.fechaFin);
+  const datosFiltrados = useFiltros(datos, filtros.texto, filtros.fechaInicio, filtros.fechaFin);
 
   const { exportToExcel } = useExportaciones();
 
-  const handleFilterChange = (filtro) => {
-    setFilters(prev => ({ ...prev, ...filtro }));
+  const handleCambioFiltros = (filtro) => {
+    setFiltros(prev => ({ ...prev, ...filtro }));
   };
 
   return (
     <Box sx={{ bgcolor: '#fff', minHeight: '100vh' }}>
       <Header />
       <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-
         <UploadFile />
 
         {archivos.length > 0 && (
@@ -64,30 +63,30 @@ function App() {
 
         {columnas.length > 0 && (
           <Filtros
-            columns={columnas}
-            filters={filters}
-            onFilterChange={handleFilterChange}
+            columnas={columnas}
+            filtros={filtros}
+            onCambioFiltros={handleCambioFiltros}
           />
         )}
 
         <TablaDatos
-          data={filteredData}
-          columns={columnas}
+          datos={datosFiltrados}
+          columnas={columnas}
         />
 
         <Graficos
-          data={filteredData}
-          columns={columnas}
+          datos={datosFiltrados}
+          columnas={columnas}
         />
 
         <ExportButtons
-          onExport={() => exportToExcel(filteredData, columnas)}
+          onExport={() => exportToExcel(datosFiltrados, columnas)}
         />
 
         <Fab
           color="primary"
           aria-label="exportar"
-          onClick={() => exportToExcel(filteredData, columnas)}
+          onClick={() => exportToExcel(datosFiltrados, columnas)}
           sx={{
             position: 'fixed',
             bottom: 24,
@@ -108,11 +107,3 @@ function App() {
 }
 
 export default App;
-
-
-
-
-
-
-
-
