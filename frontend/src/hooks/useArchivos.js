@@ -14,6 +14,7 @@ const useArchivos = () => {
   const [columnasNumericas, setColumnasNumericas] = useState([]);
   const [valoresUnicos, setValoresUnicos] = useState({});
 
+  
   useEffect(() => {
     const fetchArchivos = async () => {
       try {
@@ -27,11 +28,12 @@ const useArchivos = () => {
     fetchArchivos();
   }, []);
 
+  
   useEffect(() => {
     const fetchHojas = async () => {
       if (!archivoSeleccionado) return;
       try {
-        const res = await axios.get(`${API_URL}/hojas/${archivoSeleccionado}`); 
+        const res = await axios.get(`${API_URL}/hojas/${archivoSeleccionado}`);
         setHojas(res.data.hojas);
       } catch (err) {
         console.error('Error al obtener hojas:', err);
@@ -41,14 +43,29 @@ const useArchivos = () => {
     fetchHojas();
   }, [archivoSeleccionado]);
 
+  // Cargar datos de hojas seleccionadas
   useEffect(() => {
     const fetchDatos = async () => {
       if (!archivoSeleccionado || hojasSeleccionadas.length === 0) return;
+
+      console.log('Enviando a /datos:', {
+        archivo: archivoSeleccionado,
+        hojas: hojasSeleccionadas,
+      });
+
       try {
-        const res = await axios.post(`${API_URL}/datos`, {
-          archivo: archivoSeleccionado,
-          hojas: hojasSeleccionadas,
-        });
+        const res = await axios.post(
+          `${API_URL}/datos`,
+          {
+            archivo: archivoSeleccionado,
+            hojas: hojasSeleccionadas,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
 
         const datos = res.data.datos || [];
         const columnas = res.data.columnas || [];
@@ -86,3 +103,4 @@ const useArchivos = () => {
 };
 
 export default useArchivos;
+
