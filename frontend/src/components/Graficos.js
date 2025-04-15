@@ -24,6 +24,7 @@ import {
   CartesianGrid,
 } from 'recharts';
 import html2canvas from 'html2canvas';
+import useGraficos from '../hooks/useGraficos'; // ✅ Asegúrate de que la ruta sea correcta
 
 const colores = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00c49f', '#0088fe'];
 
@@ -48,19 +49,8 @@ const Graficos = ({ datos = [] }) => {
     );
   }, [datos]);
 
-  const datosAgrupados = useMemo(() => {
-    if (!campoX || !campoY) return [];
-    const agrupados = {};
-    datos.forEach(item => {
-      const clave = item[campoX] || 'Sin dato';
-      const valor = parseFloat(item[campoY]) || 0;
-      agrupados[clave] = (agrupados[clave] || 0) + valor;
-    });
-    return Object.entries(agrupados).map(([key, value]) => ({
-      [campoX]: key,
-      [campoY]: value,
-    }));
-  }, [campoX, campoY, datos]);
+  // ✅ Usamos el hook para agrupar datos
+  const datosAgrupados = useGraficos(datos, campoX, campoY);
 
   const handleDownload = () => {
     if (chartRef.current) {
@@ -136,11 +126,11 @@ const Graficos = ({ datos = [] }) => {
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={datosAgrupados} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey={campoX} />
+                <XAxis dataKey="nombre" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey={campoY} fill="#1976d2" />
+                <Bar dataKey="valor" fill="#1976d2" />
               </BarChart>
             </ResponsiveContainer>
 
@@ -151,8 +141,8 @@ const Graficos = ({ datos = [] }) => {
               <PieChart>
                 <Pie
                   data={datosAgrupados}
-                  dataKey={campoY}
-                  nameKey={campoX}
+                  dataKey="valor"
+                  nameKey="nombre"
                   outerRadius={120}
                   label
                 >
