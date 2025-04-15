@@ -21,26 +21,43 @@ const useArchivos = () => {
     if (archivoSeleccionado) {
       axios.get(`${API_URL}/hojas/${archivoSeleccionado}`)
         .then(res => setHojas(res.data.hojas))
-        .catch(err => console.error('Error al obtener hojas:', err));
+        .catch(err => {
+          console.error('Error al obtener hojas:', err);
+          setHojas([]);
+        });
+    } else {
+      setHojas([]);
     }
   }, [archivoSeleccionado]);
 
   useEffect(() => {
     if (archivoSeleccionado && hojaSeleccionada) {
+      console.log('Obteniendo datos de:', archivoSeleccionado, hojaSeleccionada);
+
       axios.get(`${API_URL}/datos/${archivoSeleccionado}/${hojaSeleccionada}`)
         .then(res => {
           const datosRecibidos = res.data.datos || [];
           setDatos(datosRecibidos);
           if (datosRecibidos.length > 0) {
             setColumnas(Object.keys(datosRecibidos[0]));
+          } else {
+            setColumnas([]);
           }
         })
-        .catch(err => console.error('Error al obtener datos:', err));
+        .catch(err => {
+          console.error('Error al obtener datos:', err);
+          setDatos([]);
+          setColumnas([]);
+        });
+    } else {
+      setDatos([]);
+      setColumnas([]);
     }
   }, [archivoSeleccionado, hojaSeleccionada]);
 
   return {
     archivos,
+    setArchivos,
     archivoSeleccionado,
     setArchivoSeleccionado,
     hojas,
