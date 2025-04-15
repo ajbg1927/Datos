@@ -20,21 +20,32 @@ const DragDropArea = styled(Box)(({ theme }) => ({
   },
 }));
 
-const handleFileUpload = (event) => {
-  const uploadedFiles = Array.from(event.target.files);
-  const validFiles = uploadedFiles.filter(file => file.type.includes('excel') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls'));
+const UploadFile = ({ onFilesUploaded }) => {
+  const handleFileUpload = (event) => {
+    const uploadedFiles = Array.from(event.target.files);
+    const validFiles = uploadedFiles.filter(file =>
+      file.type.includes('excel') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')
+    );
 
-  if (validFiles.length > 0) {
-    onFilesUploaded(validFiles);
-  } else {
-    alert('Por favor, selecciona archivos Excel válidos (.xlsx, .xls)');
-  }
-};
+    if (validFiles.length > 0) {
+      onFilesUploaded(validFiles);
+    } else {
+      alert('Por favor, selecciona archivos Excel válidos (.xlsx, .xls)');
+    }
+  };
 
   const handleDrop = (event) => {
     event.preventDefault();
     const droppedFiles = Array.from(event.dataTransfer.files);
-    onFilesUploaded(droppedFiles);
+    const validFiles = droppedFiles.filter(file =>
+      file.type.includes('excel') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')
+    );
+
+    if (validFiles.length > 0) {
+      onFilesUploaded(validFiles);
+    } else {
+      alert('Por favor, arrastra archivos Excel válidos (.xlsx, .xls)');
+    }
   };
 
   return (
