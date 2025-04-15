@@ -33,7 +33,7 @@ const Graficos = ({ datos = [] }) => {
   const chartRef = useRef();
 
   const columnasNumericas = useMemo(() => {
-    if (!datos || datos.length === 0) return [];
+    if (!datos.length) return [];
     const ejemplo = datos[0];
     return Object.keys(ejemplo).filter(
       key => typeof ejemplo[key] === 'number' || !isNaN(parseFloat(ejemplo[key]))
@@ -41,7 +41,7 @@ const Graficos = ({ datos = [] }) => {
   }, [datos]);
 
   const columnasTextuales = useMemo(() => {
-    if (!datos || datos.length === 0) return [];
+    if (!datos.length) return [];
     const ejemplo = datos[0];
     return Object.keys(ejemplo).filter(
       key => typeof ejemplo[key] === 'string' && ejemplo[key].length < 100
@@ -49,7 +49,7 @@ const Graficos = ({ datos = [] }) => {
   }, [datos]);
 
   const datosAgrupados = useMemo(() => {
-    if (!campoX || !campoY || datos.length === 0) return [];
+    if (!campoX || !campoY) return [];
     const agrupados = {};
     datos.forEach(item => {
       const clave = item[campoX] || 'Sin dato';
@@ -63,9 +63,8 @@ const Graficos = ({ datos = [] }) => {
   }, [campoX, campoY, datos]);
 
   const handleDownload = () => {
-    const chart = chartRef.current;
-    if (chart) {
-      html2canvas(chart).then((canvas) => {
+    if (chartRef.current) {
+      html2canvas(chartRef.current).then((canvas) => {
         const link = document.createElement('a');
         link.download = 'grafico.png';
         link.href = canvas.toDataURL();
@@ -74,7 +73,7 @@ const Graficos = ({ datos = [] }) => {
     }
   };
 
-  if (!datos || datos.length === 0) {
+  if (!datos.length) {
     return (
       <Box m={4}>
         <Typography variant="h6" color="text.secondary">
@@ -158,10 +157,7 @@ const Graficos = ({ datos = [] }) => {
                   label
                 >
                   {datosAgrupados.map((_, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={colores[index % colores.length]}
-                    />
+                    <Cell key={`cell-${index}`} fill={colores[index % colores.length]} />
                   ))}
                 </Pie>
                 <Tooltip />

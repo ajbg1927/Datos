@@ -1,67 +1,54 @@
 import React from 'react';
-import { useDropzone } from 'react-dropzone';
 import {
   Box,
-  Button,
   Typography,
+  Button,
   Paper,
+  Divider,
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 const UploadFile = ({ onFilesUploaded }) => {
-  const handleFileChange = (e) => {
-    const archivos = [...e.target.files];
-    if (archivos.length > 0) {
-      onFilesUploaded(archivos);
+  const handleDrop = (event) => {
+    event.preventDefault();
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+      onFilesUploaded(Array.from(files));
     }
   };
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop: onFilesUploaded,
-    multiple: true,
-    accept: {
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-      'application/vnd.ms-excel': ['.xls'],
-    },
-  });
+  const handleFileChange = (event) => {
+    const files = event.target.files;
+    if (files.length > 0) {
+      onFilesUploaded(Array.from(files));
+    }
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
 
   return (
     <Paper
-      elevation={3}
+      elevation={4}
       sx={{
         p: 4,
         textAlign: 'center',
-        backgroundColor: '#f9f9f9',
         border: '2px dashed #ccc',
-        borderRadius: 2,
-        mt: 4,
+        bgcolor: '#fafafa',
+        cursor: 'pointer',
       }}
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
     >
-      <Box {...getRootProps()} sx={{ cursor: 'pointer', mb: 5 }}>
-        <input {...getInputProps()} />
-        <CloudUploadIcon sx={{ fontSize: 60, color: '#888' }} />
-        <Typography variant="h6" sx={{ mt: 2 }}>
-          {isDragActive ? 'Suelta los archivos aquí...' : 'Arrastra o pega un archivo aquí'}
-        </Typography>
-        <Typography variant="body2" sx={{ mt: 1 }}>
-          o haz clic en el botón de abajo para seleccionar archivos desde tu equipo
-        </Typography>
-      </Box>
-
-      <Button
-        variant="contained"
-        component="label"
-        color="primary"
-        sx={{ mt: 2 }}
-      >
+      <CloudUploadIcon sx={{ fontSize: 50, color: '#777' }} />
+      <Typography variant="h6" sx={{ mt: 2 }}>
+        Arrastra o pega un archivo aquí
+      </Typography>
+      <Divider sx={{ my: 2 }} />
+      <Button variant="contained" component="label">
         Elegir archivo
-        <input
-          type="file"
-          hidden
-          multiple
-          onChange={handleFileChange}
-          accept=".xlsx,.xls"
-        />
+        <input hidden type="file" multiple onChange={handleFileChange} />
       </Button>
     </Paper>
   );

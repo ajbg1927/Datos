@@ -1,8 +1,7 @@
 import React from 'react';
-import { Box, Container, Fab } from '@mui/material';
+import { Container, Fab } from '@mui/material';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
-import Header from './components/Header';
-import Footer from './components/Footer';
+import Layout from './components/Layout';
 import UploadFile from './components/UploadFile';
 import TablaArchivos from './components/TablaArchivos';
 import SelectorHojas from './components/SelectorHojas';
@@ -34,7 +33,6 @@ function App() {
   } = useArchivos();
 
   const [filtros, setFiltros] = React.useState({});
-
   const datosFiltrados = useFiltros(datos, filtros);
   const { exportToExcel } = useExportaciones();
 
@@ -64,64 +62,58 @@ function App() {
   };
 
   return (
-    <Box sx={{ bgcolor: '#fff', minHeight: '100vh' }}>
-      <Header />
-      <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-        <UploadFile onFilesUploaded={handleArchivosSubidos} />
+    <Layout>
+      <UploadFile onFilesUploaded={handleArchivosSubidos} />
 
-        {archivos.length > 0 && (
-          <>
-            <TablaArchivos
-              archivos={archivos}
-              archivoSeleccionado={archivoSeleccionado}
-              onArchivoChange={setArchivoSeleccionado}
-            />
-            <SelectorHojas
-              hojas={hojas}
-              hojasSeleccionadas={hojasSeleccionadas}
-              setHojasSeleccionadas={setHojasSeleccionadas}
-            />
-          </>
-        )}
-
-        {columnas.length > 0 && (
-          <Filtros
-            columnas={columnas}
-            valoresUnicos={valoresUnicos}
-            filtros={filtros}
-            setFiltros={setFiltros}
-            handleClearFilters={handleClearFilters}
-            columnasFecha={columnasFecha}
-            columnasNumericas={columnasNumericas}
+      {archivos.length > 0 && (
+        <>
+          <TablaArchivos
+            archivos={archivos}
+            archivoSeleccionado={archivoSeleccionado}
+            onArchivoChange={setArchivoSeleccionado}
           />
-        )}
+          <SelectorHojas
+            hojas={hojas}
+            hojasSeleccionadas={hojasSeleccionadas}
+            setHojasSeleccionadas={setHojasSeleccionadas}
+          />
+        </>
+      )}
 
-        <TablaDatos datos={datosFiltrados} columnas={columnas} />
+      {columnas.length > 0 && (
+        <Filtros
+          columnas={columnas}
+          valoresUnicos={valoresUnicos}
+          filtros={filtros}
+          setFiltros={setFiltros}
+          handleClearFilters={handleClearFilters}
+          columnasFecha={columnasFecha}
+          columnasNumericas={columnasNumericas}
+        />
+      )}
 
-        <Graficos datos={datosFiltrados} columnas={columnas} />
+      <TablaDatos datos={datosFiltrados} columnas={columnas} />
+      <Graficos datos={datosFiltrados} columnas={columnas} />
+      <ExportButtons onExport={() => exportToExcel(datosFiltrados, columnas)} />
 
-        <ExportButtons onExport={() => exportToExcel(datosFiltrados, columnas)} />
-
-        <Fab
-          color="primary"
-          aria-label="exportar"
-          onClick={() => exportToExcel(datosFiltrados, columnas)}
-          sx={{
-            position: 'fixed',
-            bottom: 24,
-            right: 24,
-            backgroundColor: '#ffcd00',
-            color: '#000',
-            '&:hover': {
-              backgroundColor: '#e6b800',
-            },
-          }}
-        >
-          <SaveAltIcon />
-        </Fab>
-      </Container>
-      <Footer />
-    </Box>
+      <Fab
+        color="primary"
+        aria-label="exportar"
+        onClick={() => exportToExcel(datosFiltrados, columnas)}
+        sx={{
+          position: 'fixed',
+          bottom: 24,
+          right: 24,
+          backgroundColor: '#ffcd00',
+          color: '#000',
+          '&:hover': {
+            backgroundColor: '#e6b800',
+          },
+        }}
+      >
+        <SaveAltIcon />
+      </Fab>
+    </Layout>
   );
 }
 

@@ -18,14 +18,6 @@ const TablaDatos = ({ datos, columnas }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  if (!datos || datos.length === 0) {
-    return (
-      <Typography variant="body1" sx={{ mt: 2 }}>
-        No hay datos para mostrar.
-      </Typography>
-    );
-  }
-
   const handleChangePage = (event, newPage) => setPage(newPage);
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value);
@@ -33,6 +25,14 @@ const TablaDatos = ({ datos, columnas }) => {
   };
 
   const rowsToShow = datos.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
+  if (!datos || datos.length === 0) {
+    return (
+      <Typography variant="body1" sx={{ mt: 2 }}>
+        No hay datos para mostrar.
+      </Typography>
+    );
+  }
 
   return (
     <Box sx={{ mt: 4 }}>

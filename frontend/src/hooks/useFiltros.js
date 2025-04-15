@@ -9,11 +9,12 @@ const useFiltros = (datos, texto, fechaInicio, fechaFin) => {
           )
         : true;
 
-      const fechaColumna = row.Fecha || row.fecha;
+      const fechaColumna = row.Fecha || row.fecha || row.FECHA || row.fechaRegistro || null;
       const fechaValida = fechaColumna ? new Date(fechaColumna) : null;
 
-      const dentroDeRango = (!fechaInicio || !fechaValida || new Date(fechaInicio) <= fechaValida) &&
-                            (!fechaFin || !fechaValida || fechaValida <= new Date(fechaFin));
+      const dentroDeRango =
+        (!fechaInicio || !fechaValida || new Date(fechaInicio) <= fechaValida) &&
+        (!fechaFin || !fechaValida || fechaValida <= new Date(fechaFin));
 
       return contieneTexto && dentroDeRango;
     });
