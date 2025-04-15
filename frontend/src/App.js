@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
-import { Container, Grid, TextField, MenuItem, Typography, Box, Paper, Button, Checkbox, FormControlLabel } from '@mui/material';
+import { Container, Typography, Box, Button, Grid, TextField, Accordion, AccordionSummary, AccordionDetails, MenuItem } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -11,211 +12,190 @@ import Footer from './components/Footer';
 
 function App() {
   const [archivos, setArchivos] = useState([]);
-  const [datosCombinados, setDatosCombinados] = useState([]);
-  const [nombresHojasPorArchivo, setNombresHojasPorArchivo] = useState({});
-  const [hojasSeleccionadas, setHojasSeleccionadas] = useState({});
-  const [columnasUnicas, setColumnasUnicas] = useState([]);
-  const [columnaAgrupar, setColumnaAgrupar] = useState('Dependencia');
-  const [columnaValor, setColumnaValor] = useState('Pago');
-  const [filtros, setFiltros] = useState({ dependencia: '', fechaInicio: null, fechaFin: null });
+  const [datosPorArchivo, setDatosPorArchivo] = useState({});
+  const [archivoSeleccionado, setArchivoSeleccionado] = useState('');
+  const [hojaSeleccionada, setHojaSeleccionada] = useState('');
+  const [datos, setDatos] = useState([]);
+  const [filtrados, setFiltrados] = useState([]);
+  const [filters, setFilters] = useState({
+    search: '',
+    dependencia: '',
+    startDate: null,
+    endDate: null,
+    pagoMin: '',
+    pagoMax: ''
+  });
 
-  const handleArchivos = (e) => {
+  const handleUpload = (e) => {
     const files = Array.from(e.target.files);
-    const hojas = {};
-    const nombres = {};
-    files.forEach(file => {
+    setArchivos(prev => [...prev, ...files]);
+
+    files.forEach((file) => {
       const reader = new FileReader();
-      reader.onload = (event) => {
-        const data = new Uint8Array(event.target.result);
+      reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
-        nombres[file.name] = workbook.SheetNames;
-        hojas[file.name] = workbook.SheetNames.reduce((acc, nombre) => {
-          acc[nombre] = false;
-          return acc;
-        }, {});
-        setNombresHojasPorArchivo(prev => ({ ...prev, ...nombres }));
-        setHojasSeleccionadas(prev => ({ ...prev, ...hojas }));
+
+        const hojas = workbook.SheetNames.map(sheet => ({
+          nombre: sheet,
+          datos: XLSX.utils.sheet_to_json(workbook.Sheets[sheet], { defval: '' })
+        }));
+
+        setDatosPorArchivo(prev => ({
+          ...prev,
+          [file.name]: hojas
+        }));
+
+        if (!archivoSeleccionado) {
+          setArchivoSeleccionado(file.name);
+          setHojaSeleccionada(hojas[0]?.nombre);
+          setDatos(hojas[0]?.datos || []);
+          setFiltrados(hojas[0]?.datos || []);
+        }
       };
       reader.readAsArrayBuffer(file);
     });
-    setArchivos(files);
   };
 
   useEffect(() => {
-    const combinarDatos = async () => {
-      let allData = [];
-      let allColumns = new Set();
+    if (archivoSeleccionado && hojaSeleccionada && datosPorArchivo[archivoSeleccionado]) {
+      const hoja = datosPorArchivo[archivoSeleccionado].find(h => h.nombre === hojaSeleccionada);
+      setDatos(hoja?.datos || []);
+      setFiltrados(hoja?.datos || []);
+    }
+  }, [archivoSeleccionado, hojaSeleccionada, datosPorArchivo]);
 
-      for (let file of archivos) {
-        const reader = new FileReader();
-        await new Promise((resolve) => {
-          reader.onload = (e) => {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const hojas = hojasSeleccionadas[file.name];
-            Object.keys(hojas).forEach(nombre => {
-              if (hojas[nombre]) {
-                const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[nombre]);
-                jsonData.forEach(row => {
-                  allColumns = new Set([...allColumns, ...Object.keys(row)]);
-                });
-                allData = [...allData, ...jsonData];
-              }
-            });
-            resolve();
-          };
-          reader.readAsArrayBuffer(file);
-        });
-      }
-
-      setDatosCombinados(allData);
-      setColumnasUnicas([...allColumns]);
-    };
-
-    if (archivos.length > 0) combinarDatos();
-  }, [hojasSeleccionadas]);
-
-  const cambiarCheckbox = (archivo, hoja) => {
-    setHojasSeleccionadas(prev => ({
-      ...prev,
-      [archivo]: {
-        ...prev[archivo],
-        [hoja]: !prev[archivo][hoja]
-      }
-    }));
+  const handleFilterChange = (field, value) => {
+    setFilters({ ...filters, [field]: value });
   };
 
-  const datosFiltrados = datosCombinados.filter(row => {
-    const dep = filtros.dependencia;
-    const fechaCol = row['Fecha'] ? new Date(row['Fecha']) : null;
-    const cumpleDep = dep ? row['Dependencia'] === dep : true;
-    const cumpleFecha = filtros.fechaInicio && filtros.fechaFin && fechaCol
-      ? (fechaCol >= filtros.fechaInicio && fechaCol <= filtros.fechaFin)
-      : true;
-    return cumpleDep && cumpleFecha;
-  });
+  useEffect(() => {
+    let tempData = [...datos];
 
-  const datosAgrupados = Object.values(datosFiltrados.reduce((acc, row) => {
-    const key = row[columnaAgrupar];
-    const valor = parseFloat(row[columnaValor]) || 0;
-    if (!acc[key]) acc[key] = { [columnaAgrupar]: key, [columnaValor]: 0 };
-    acc[key][columnaValor] += valor;
-    return acc;
-  }, {}));
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      tempData = tempData.filter(row =>
+        Object.values(row).some(val => String(val).toLowerCase().includes(searchLower))
+      );
+    }
+
+    if (filters.dependencia) {
+      tempData = tempData.filter(row =>
+        String(row['Dependencia']).toLowerCase() === filters.dependencia.toLowerCase()
+      );
+    }
+
+    if (filters.startDate && filters.endDate) {
+      tempData = tempData.filter(row => {
+        const fecha = new Date(row['Fecha']);
+        return fecha >= filters.startDate && fecha <= filters.endDate;
+      });
+    }
+
+    if (filters.pagoMin) {
+      tempData = tempData.filter(row => parseFloat(row['Pago']) >= parseFloat(filters.pagoMin));
+    }
+
+    if (filters.pagoMax) {
+      tempData = tempData.filter(row => parseFloat(row['Pago']) <= parseFloat(filters.pagoMax));
+    }
+
+    setFiltrados(tempData);
+  }, [filters, datos]);
 
   const exportarExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(datosFiltrados);
+    const ws = XLSX.utils.json_to_sheet(filtrados);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Filtrados');
-    const blob = new Blob([XLSX.write(wb, { bookType: 'xlsx', type: 'array' })], { type: 'application/octet-stream' });
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
     saveAs(blob, 'datos_filtrados.xlsx');
   };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Header />
-      <Container maxWidth="xl">
+
+      <Container>
         <Box my={2}>
-          <Typography variant="h5" gutterBottom>Visualizador de Datos Municipales</Typography>
-          <input type="file" multiple onChange={handleArchivos} />
+          <input type="file" multiple onChange={handleUpload} />
         </Box>
 
-        {archivos.map((file) => (
-          <Box key={file.name} mb={2}>
-            <Typography variant="subtitle1">{file.name}</Typography>
-            <Grid container spacing={1}>
-              {nombresHojasPorArchivo[file.name]?.map(nombre => (
-                <Grid item key={nombre}>
-                  <FormControlLabel
-                    control={<Checkbox checked={hojasSeleccionadas[file.name]?.[nombre] || false} onChange={() => cambiarCheckbox(file.name, nombre)} />}
-                    label={nombre}
-                  />
-                </Grid>
+        {/* Archivos */}
+        {archivos.length > 0 && (
+          <Accordion defaultExpanded>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography>Archivos cargados</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              {archivos.map(file => (
+                <Button
+                  key={file.name}
+                  variant={file.name === archivoSeleccionado ? 'contained' : 'outlined'}
+                  onClick={() => setArchivoSeleccionado(file.name)}
+                  sx={{ m: 1 }}
+                >
+                  {file.name}
+                </Button>
               ))}
-            </Grid>
-          </Box>
-        ))}
+            </AccordionDetails>
+          </Accordion>
+        )}
 
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
-            <TextField
-              select
-              label="Agrupar por"
-              value={columnaAgrupar}
-              onChange={(e) => setColumnaAgrupar(e.target.value)}
-              fullWidth
-            >
-              {columnasUnicas.map(col => <MenuItem key={col} value={col}>{col}</MenuItem>)}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <TextField
-              select
-              label="Valor a mostrar"
-              value={columnaValor}
-              onChange={(e) => setColumnaValor(e.target.value)}
-              fullWidth
-            >
-              {columnasUnicas.map(col => <MenuItem key={col} value={col}>{col}</MenuItem>)}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <TextField
-              select
-              label="Dependencia"
-              value={filtros.dependencia}
-              onChange={(e) => setFiltros(prev => ({ ...prev, dependencia: e.target.value }))}
-              fullWidth
-            >
-              <MenuItem value="">Todas</MenuItem>
-              {[...new Set(datosCombinados.map(d => d['Dependencia']).filter(Boolean))].map(dep => (
-                <MenuItem key={dep} value={dep}>{dep}</MenuItem>
+        {/* Hojas */}
+        {archivoSeleccionado && datosPorArchivo[archivoSeleccionado] && (
+          <Accordion defaultExpanded>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography>Selecciona una hoja</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              {datosPorArchivo[archivoSeleccionado].map((hoja) => (
+                <Button
+                  key={hoja.nombre}
+                  variant={hoja.nombre === hojaSeleccionada ? 'contained' : 'outlined'}
+                  onClick={() => setHojaSeleccionada(hoja.nombre)}
+                  sx={{ m: 1 }}
+                >
+                  {hoja.nombre}
+                </Button>
               ))}
-            </TextField>
-          </Grid>
+            </AccordionDetails>
+          </Accordion>
+        )}
 
-          <Grid item xs={6} md={4}>
-            <DatePicker
-              label="Desde"
-              value={filtros.fechaInicio}
-              onChange={(date) => setFiltros(prev => ({ ...prev, fechaInicio: date }))}
-              renderInput={(params) => <TextField {...params} fullWidth />}
-            />
-          </Grid>
-
-          <Grid item xs={6} md={4}>
-            <DatePicker
-              label="Hasta"
-              value={filtros.fechaFin}
-              onChange={(date) => setFiltros(prev => ({ ...prev, fechaFin: date }))}
-              renderInput={(params) => <TextField {...params} fullWidth />}
-            />
-          </Grid>
+        {/* Filtros */}
+        <Grid container spacing={2} mt={1}>
+          <Grid item xs={12} md={6}><TextField fullWidth label="Buscar global" value={filters.search} onChange={(e) => handleFilterChange('search', e.target.value)} /></Grid>
+          <Grid item xs={12} md={6}><TextField fullWidth label="Dependencia" value={filters.dependencia} onChange={(e) => handleFilterChange('dependencia', e.target.value)} /></Grid>
+          <Grid item xs={6} md={3}><DatePicker label="Fecha inicio" value={filters.startDate} onChange={(date) => handleFilterChange('startDate', date)} renderInput={(params) => <TextField {...params} fullWidth />} /></Grid>
+          <Grid item xs={6} md={3}><DatePicker label="Fecha fin" value={filters.endDate} onChange={(date) => handleFilterChange('endDate', date)} renderInput={(params) => <TextField {...params} fullWidth />} /></Grid>
+          <Grid item xs={6} md={3}><TextField fullWidth label="Pago mínimo" value={filters.pagoMin} onChange={(e) => handleFilterChange('pagoMin', e.target.value)} /></Grid>
+          <Grid item xs={6} md={3}><TextField fullWidth label="Pago máximo" value={filters.pagoMax} onChange={(e) => handleFilterChange('pagoMax', e.target.value)} /></Grid>
         </Grid>
 
         <Box my={2}>
-          <Button variant="contained" color="primary" onClick={exportarExcel}>Exportar Excel</Button>
+          <Button variant="contained" color="success" onClick={exportarExcel}>Exportar Excel</Button>
         </Box>
 
-        <Paper>
-          <ResponsiveContainer width="100%" height={350}>
-            <BarChart data={datosAgrupados}>
-              <XAxis dataKey={columnaAgrupar} />
+        {/* Gráfico */}
+        {filtrados.length > 0 && (
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={filtrados.slice(0, 10)}>
+              <XAxis dataKey="Dependencia" hide />
               <YAxis />
               <Tooltip />
-              <Bar dataKey={columnaValor} fill="#43a047" />
+              <Bar dataKey="Pago" fill="#4CAF50" />
             </BarChart>
           </ResponsiveContainer>
-        </Paper>
-
+        )}
       </Container>
+
       <Footer />
     </LocalizationProvider>
   );
 }
 
 export default App;
+
 
 
