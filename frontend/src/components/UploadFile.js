@@ -9,10 +9,16 @@ import {
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 const UploadFile = ({ onFilesUploaded }) => {
+  const handleFileChange = (e) => {
+    const archivos = [...e.target.files];
+    if (archivos.length > 0) {
+      onFilesUploaded(archivos);
+    }
+  };
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop: (acceptedFiles) => {
-      onFilesUploaded(acceptedFiles);
-    },
+    onDrop: onFilesUploaded,
+    multiple: true,
     accept: {
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
       'application/vnd.ms-excel': ['.xls'],
@@ -31,7 +37,7 @@ const UploadFile = ({ onFilesUploaded }) => {
         mt: 4,
       }}
     >
-      <Box {...getRootProps()} sx={{ cursor: 'pointer', mb: 4 }}>
+      <Box {...getRootProps()} sx={{ cursor: 'pointer', mb: 5 }}>
         <input {...getInputProps()} />
         <CloudUploadIcon sx={{ fontSize: 60, color: '#888' }} />
         <Typography variant="h6" sx={{ mt: 2 }}>
@@ -53,7 +59,7 @@ const UploadFile = ({ onFilesUploaded }) => {
           type="file"
           hidden
           multiple
-          onChange={(e) => onFilesUploaded([...e.target.files])}
+          onChange={handleFileChange}
           accept=".xlsx,.xls"
         />
       </Button>
