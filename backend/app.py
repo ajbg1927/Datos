@@ -237,11 +237,6 @@ def get_usuarios():
     usuarios = Usuario.query.all()
     return jsonify([{"id": u.id, "nombre": u.nombre, "email": u.email} for u in usuarios])
 
-@app.route("/usuarios", methods=["GET"])
-def get_usuarios():
-    usuarios = Usuario.query.all()
-    return jsonify([{"id": u.id, "nombre": u.nombre, "email": u.email} for u in usuarios])
-
 @app.route("/archivos_detalle", methods=["GET"])
 def listar_archivos_con_hojas():
     try:
