@@ -91,6 +91,18 @@ const Footer = () => {
             </Grid>
           ))}
         </Grid>
+
+        <Typography
+          variant="body2"
+          sx={{
+            mt: 4,
+            fontStyle: 'italic',
+            color: '#777',
+            fontSize: '0.85rem',
+          }}
+        >
+          Desarrollo: Angie Julieth Barreto Guerrero
+        </Typography>
       </Box>
     </>
   );
