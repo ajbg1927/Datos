@@ -5,7 +5,7 @@ import 'jspdf-autotable';
 const useExportaciones = () => {
   const exportToExcel = (data, columns, fileName = 'datos.xlsx') => {
     const exportData = data.map(row =>
-      Object.fromEntries(columns.map(col => [col, row[col]]))
+      Object.fromEntries(columns.map(col => [col, row[col] ?? '']))
     );
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();

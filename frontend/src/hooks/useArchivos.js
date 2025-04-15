@@ -19,8 +19,8 @@ const useArchivos = () => {
 
     try {
       const response = await axios.post(`${API_URL}/cargar`, formData);
-      const archivosCargados = response.data.archivos;
-      const hojas = response.data.hojas;
+      const archivosCargados = response.data.archivos || [];
+      const hojas = response.data.hojas || {};
 
       setArchivos(archivosCargados);
       setHojasPorArchivo(hojas);
@@ -30,19 +30,17 @@ const useArchivos = () => {
   };
 
   const obtenerDatos = async (archivo, hojasSeleccionadas) => {
-    console.log('Enviando a /datos:', { archivo, hojas: hojasSeleccionadas });
+    if (!archivo || hojasSeleccionadas.length === 0) return;
 
     try {
-      const response = await axios.post(`${API_URL}/datos/${archivo}`, {
-        hojas: hojasSeleccionadas
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await axios.post(
+        `${API_URL}/datos/${archivo}`,
+        { hojas: hojasSeleccionadas },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
 
-      const datos = response.data.datos;
-      const columnas = response.data.columnas;
+      const datos = response.data.datos || [];
+      const columnas = response.data.columnas || [];
 
       setDatosPorArchivo(prev => ({ ...prev, [archivo]: datos }));
       setColumnasPorArchivo(prev => ({ ...prev, [archivo]: columnas }));

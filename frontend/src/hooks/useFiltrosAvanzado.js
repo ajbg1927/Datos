@@ -11,6 +11,8 @@ const useFiltrosAvanzado = (
   columnaValor = 'Pagos' 
 ) => {
   const datosFiltrados = useMemo(() => {
+    if (!Array.isArray(datos)) return [];
+
     return datos.filter(row => {
       const contieneTexto = texto
         ? Object.values(row).some(val =>

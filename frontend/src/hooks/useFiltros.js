@@ -10,26 +10,23 @@ const useFiltros = ({
   pagosMax,
 }) => {
   const datosFiltrados = useMemo(() => {
+    if (!Array.isArray(datos)) return [];
+
     return datos.filter(row => {
       const contieneTexto = texto
-        ? Object.values(row).some(val => {
-            if (val === null || val === undefined) return false;
-            try {
-              return val.toString().toLowerCase().includes(texto.toLowerCase());
-            } catch (e) {
-              return false;
-            }
-          })
+        ? Object.values(row).some(val =>
+            val?.toString().toLowerCase().includes(texto.toLowerCase())
+          )
         : true;
 
       const cumpleFiltrosColumna = Object.entries(filtrosColumnas).every(([columna, valorFiltro]) => {
-        if (!valorFiltro) return true; // Si no hay filtro aplicado, pasa
+        if (!valorFiltro) return true;
         const valor = row[columna];
         return valor !== undefined && valor !== null && valor.toString() === valorFiltro;
       });
 
       const posiblesFechas = ['Fecha', 'fecha', 'FECHA', 'fechaRegistro'];
-      const fechaColumna = posiblesFechas.find(key => row[key]) || null;
+      const fechaColumna = posiblesFechas.find(key => row[key]);
       const fechaValor = fechaColumna ? new Date(row[fechaColumna]) : null;
       const esFechaValida = fechaValor instanceof Date && !isNaN(fechaValor);
 
@@ -53,4 +50,3 @@ const useFiltros = ({
 };
 
 export default useFiltros;
-
