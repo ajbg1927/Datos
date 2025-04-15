@@ -24,7 +24,9 @@ const UploadFile = ({ onFilesUploaded }) => {
   const handleFileUpload = (event) => {
     const uploadedFiles = Array.from(event.target.files);
     const validFiles = uploadedFiles.filter(file =>
-      file.type.includes('excel') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')
+      file.type.includes('excel') ||
+      file.name.endsWith('.xlsx') ||
+      file.name.endsWith('.xls')
     );
 
     if (validFiles.length > 0) {
@@ -37,15 +39,7 @@ const UploadFile = ({ onFilesUploaded }) => {
   const handleDrop = (event) => {
     event.preventDefault();
     const droppedFiles = Array.from(event.dataTransfer.files);
-    const validFiles = droppedFiles.filter(file =>
-      file.type.includes('excel') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')
-    );
-
-    if (validFiles.length > 0) {
-      onFilesUploaded(validFiles);
-    } else {
-      alert('Por favor, arrastra archivos Excel válidos (.xlsx, .xls)');
-    }
+    onFilesUploaded(droppedFiles);
   };
 
   return (
@@ -58,21 +52,21 @@ const UploadFile = ({ onFilesUploaded }) => {
         o haz clic para seleccionar manualmente
       </Typography>
       <Button
-      variant="contained"
-      component="label"
-      startIcon={<CloudUploadIcon />}
-      sx={{
-        backgroundColor: '#f5f5f5', 
-        color: '#000',
-        fontWeight: 'bold',
-        paddingX: 4,
-        '&:hover': {
-          backgroundColor: '#e0e0e0', 
-        },
-      }}
+        variant="contained"
+        component="label"
+        startIcon={<CloudUploadIcon />}
+        sx={{
+          backgroundColor: '#f5f5f5', 
+          color: '#000',
+          fontWeight: 'bold',
+          paddingX: 4,
+          '&:hover': {
+            backgroundColor: '#e0e0e0', 
+          },
+        }}
       >
-      Seleccionar archivo
-      <input type="file" hidden multiple onChange={handleFileUpload} />
+        Seleccionar archivo
+        <input type="file" hidden multiple onChange={handleFileUpload} />
       </Button>
     </DragDropArea>
   );

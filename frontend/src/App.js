@@ -13,6 +13,9 @@ import ExportButtons from './components/ExportButtons';
 import useArchivos from './hooks/useArchivos';
 import useFiltros from './hooks/useFiltros';
 import useExportaciones from './hooks/useExportaciones';
+import axios from 'axios';
+
+const API_URL = 'https://backend-flask-0rnq.onrender.com';
 
 function App() {
   const {
@@ -23,7 +26,9 @@ function App() {
     hojaSeleccionada,
     setHojaSeleccionada,
     datos,
-    columnas
+    columnas,
+    setArchivos,
+    setHojaSeleccionada: resetHoja,
   } = useArchivos();
 
   const [filtros, setFiltros] = React.useState({
@@ -40,11 +45,34 @@ function App() {
     setFiltros(prev => ({ ...prev, ...filtro }));
   };
 
+  const handleArchivosSubidos = async (files) => {
+    const formData = new FormData();
+    for (let file of files) {
+      formData.append('file', file);
+    }
+
+    try {
+      await axios.post(`${API_URL}/subir`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      const res = await axios.get(`${API_URL}/archivos`);
+      setArchivoSeleccionado('');
+      resetHoja('');
+      setArchivos(res.data.archivos);
+    } catch (error) {
+      console.error('Error al subir archivos:', error);
+      alert('Error al subir archivos');
+    }
+  };
+
   return (
     <Box sx={{ bgcolor: '#fff', minHeight: '100vh' }}>
       <Header />
       <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-        <UploadFile />
+        <UploadFile onFilesUploaded={handleArchivosSubidos} />
 
         {archivos.length > 0 && (
           <>
