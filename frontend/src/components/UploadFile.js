@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
@@ -23,16 +23,12 @@ const DragDropArea = styled(Box)(({ theme }) => ({
 const UploadFile = ({ onFilesUploaded }) => {
   const handleFileUpload = (event) => {
     const uploadedFiles = Array.from(event.target.files);
-    const validFiles = uploadedFiles.filter(file =>
-      file.type.includes('excel') ||
-      file.name.endsWith('.xlsx') ||
-      file.name.endsWith('.xls')
+    const validFiles = uploadedFiles.filter((file) =>
+      file.type.includes('excel') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')
     );
 
     if (validFiles.length > 0) {
-      if (onFilesUploaded) {
-        onFilesUploaded(validFiles);
-      }
+      onFilesUploaded && onFilesUploaded(validFiles);
     } else {
       alert('Por favor, selecciona archivos Excel válidos (.xlsx, .xls)');
     }
@@ -41,10 +37,39 @@ const UploadFile = ({ onFilesUploaded }) => {
   const handleDrop = (event) => {
     event.preventDefault();
     const droppedFiles = Array.from(event.dataTransfer.files);
-    if (onFilesUploaded) {
-      onFilesUploaded(droppedFiles);
+    const validFiles = droppedFiles.filter((file) =>
+      file.type.includes('excel') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')
+    );
+
+    if (validFiles.length > 0) {
+      onFilesUploaded && onFilesUploaded(validFiles);
+    } else {
+      alert('Por favor, arrastra archivos Excel válidos (.xlsx, .xls)');
     }
   };
+
+  useEffect(() => {
+    const handlePaste = (e) => {
+      const items = e.clipboardData?.items;
+      const files = [];
+      for (const item of items) {
+        if (item.kind === 'file') {
+          files.push(item.getAsFile());
+        }
+      }
+
+      const validFiles = files.filter(
+        (file) => file.name.endsWith('.xlsx') || file.name.endsWith('.xls')
+      );
+
+      if (validFiles.length && onFilesUploaded) {
+        onFilesUploaded(validFiles);
+      }
+    };
+
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [onFilesUploaded]);
 
   return (
     <DragDropArea onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}>
@@ -60,12 +85,12 @@ const UploadFile = ({ onFilesUploaded }) => {
         component="label"
         startIcon={<CloudUploadIcon />}
         sx={{
-          backgroundColor: '#f5f5f5', 
+          backgroundColor: '#f5f5f5',
           color: '#000',
           fontWeight: 'bold',
           paddingX: 4,
           '&:hover': {
-            backgroundColor: '#e0e0e0', 
+            backgroundColor: '#e0e0e0',
           },
         }}
       >
@@ -77,3 +102,4 @@ const UploadFile = ({ onFilesUploaded }) => {
 };
 
 export default UploadFile;
+
