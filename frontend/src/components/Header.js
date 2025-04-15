@@ -7,7 +7,7 @@ const Header = () => {
       <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Box display="flex" alignItems="center">
           <img
-            src="/logo AM.png"
+            src="/logo_am.png"
             alt="Logo Municipio de Mosquera"
             style={{ height: 64, marginRight: 16 }}
           />
