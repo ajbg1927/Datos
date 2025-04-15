@@ -58,21 +58,21 @@ const UploadFile = ({ onFilesUploaded }) => {
         o haz clic para seleccionar manualmente
       </Typography>
       <Button
-        variant="contained"
-        component="label"
-        startIcon={<CloudUploadIcon />}
-        sx={{
-          backgroundColor: '#ffcd00',
-          color: '#000',
-          fontWeight: 'bold',
-          paddingX: 4,
-          '&:hover': {
-            backgroundColor: '#e6b800',
-          },
-        }}
+      variant="contained"
+      component="label"
+      startIcon={<CloudUploadIcon />}
+      sx={{
+        backgroundColor: '#f5f5f5', 
+        color: '#000',
+        fontWeight: 'bold',
+        paddingX: 4,
+        '&:hover': {
+          backgroundColor: '#e0e0e0', 
+        },
+      }}
       >
-        Seleccionar archivo
-        <input type="file" hidden multiple onChange={handleFileUpload} />
+      Seleccionar archivo
+      <input type="file" hidden multiple onChange={handleFileUpload} />
       </Button>
     </DragDropArea>
   );
