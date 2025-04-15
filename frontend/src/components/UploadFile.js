@@ -5,6 +5,7 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 const DragDropArea = styled(Box)(({ theme }) => ({
+  position: 'relative', 
   border: '2px dashed #ccc',
   padding: theme.spacing(6),
   textAlign: 'center',
@@ -18,6 +19,16 @@ const DragDropArea = styled(Box)(({ theme }) => ({
     borderColor: '#00c853',
     backgroundColor: '#f9f9f9',
   },
+}));
+
+const Logo = styled('img')(({ theme }) => ({
+  position: 'absolute',
+  top: theme.spacing(2),
+  right: theme.spacing(2),
+  width: 60,
+  height: 60,
+  zIndex: 10,
+  borderRadius: '50%',
 }));
 
 const UploadFile = ({ onFilesUploaded }) => {
@@ -73,6 +84,8 @@ const UploadFile = ({ onFilesUploaded }) => {
 
   return (
     <DragDropArea onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}>
+      <Logo src="/logo_tic.png" alt="Logo TIC Mosquera" />
+
       <UploadFileIcon sx={{ fontSize: 60, color: '#00c853', mb: 2 }} />
       <Typography variant="h6" gutterBottom sx={{ color: '#333' }}>
         Arrastra o pega un archivo aquí
@@ -102,4 +115,3 @@ const UploadFile = ({ onFilesUploaded }) => {
 };
 
 export default UploadFile;
-
