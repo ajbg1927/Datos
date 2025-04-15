@@ -24,7 +24,7 @@ import {
   CartesianGrid,
 } from 'recharts';
 import html2canvas from 'html2canvas';
-import useGraficos from '../hooks/useGraficos'; // ✅ Asegúrate de que la ruta sea correcta
+import useGraficos from '../hooks/useGraficos'; 
 
 const colores = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00c49f', '#0088fe'];
 
