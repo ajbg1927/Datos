@@ -1,106 +1,130 @@
-import React, { useEffect } from 'react';
-import { Box, Typography, Button } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import React from 'react';
+import {
+  Grid,
+  TextField,
+  MenuItem,
+  Button,
+  Typography,
+  Paper,
+  InputAdornment,
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 
-const DragDropArea = styled(Box)(({ theme }) => ({
-  border: '2px dashed #ccc',
-  padding: theme.spacing(4),
-  textAlign: 'center',
-  cursor: 'pointer',
-  borderRadius: theme.shape.borderRadius * 2,
-  backgroundColor: '#ffffff',
-  color: '#444',
-  transition: 'all 0.3s ease',
-  boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
-  maxWidth: 600,
-  margin: '20px auto',
-  '&:hover': {
-    borderColor: '#00c853',
-    backgroundColor: '#f9f9f9',
-  },
-}));
-
-const UploadFile = ({ onFilesUploaded }) => {
-  const handleFileUpload = (event) => {
-    const uploadedFiles = Array.from(event.target.files);
-    const validFiles = uploadedFiles.filter((file) =>
-      file.type.includes('excel') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')
-    );
-
-    if (validFiles.length > 0) {
-      onFilesUploaded && onFilesUploaded(validFiles);
-    } else {
-      alert('Por favor, selecciona archivos Excel válidos (.xlsx, .xls)');
-    }
-  };
-
-  const handleDrop = (event) => {
-    event.preventDefault();
-    const droppedFiles = Array.from(event.dataTransfer.files);
-    const validFiles = droppedFiles.filter((file) =>
-      file.type.includes('excel') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')
-    );
-
-    if (validFiles.length > 0) {
-      onFilesUploaded && onFilesUploaded(validFiles);
-    } else {
-      alert('Por favor, arrastra archivos Excel válidos (.xlsx, .xls)');
-    }
-  };
-
-  useEffect(() => {
-    const handlePaste = (e) => {
-      const items = e.clipboardData?.items;
-      const files = [];
-      for (const item of items) {
-        if (item.kind === 'file') {
-          files.push(item.getAsFile());
-        }
-      }
-
-      const validFiles = files.filter(
-        (file) => file.name.endsWith('.xlsx') || file.name.endsWith('.xls')
-      );
-
-      if (validFiles.length && onFilesUploaded) {
-        onFilesUploaded(validFiles);
-      }
-    };
-
-    window.addEventListener('paste', handlePaste);
-    return () => window.removeEventListener('paste', handlePaste);
-  }, [onFilesUploaded]);
-
+const Filtros = ({
+  columnas,
+  valoresUnicos,
+  filtros,
+  setFiltros,
+  handleClearFilters,
+  columnasFecha,
+  columnasNumericas,
+}) => {
   return (
-    <DragDropArea onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}>
-      <UploadFileIcon sx={{ fontSize: 48, color: '#00c853', mb: 1 }} />
-      <Typography variant="subtitle1" sx={{ color: '#333', fontWeight: 500 }}>
-        Arrastra o pega un archivo aquí
+    <Paper elevation={2} sx={{ p: 3, mt: 4, mb: 4 }}>
+      <Typography variant="h6" gutterBottom>
+        Filtros de búsqueda
       </Typography>
-      <Typography variant="body2" sx={{ mb: 2, color: '#777' }}>
-        o haz clic para seleccionar manualmente
-      </Typography>
-      <Button
-        variant="contained"
-        component="label"
-        startIcon={<CloudUploadIcon />}
-        sx={{
-          backgroundColor: '#f5f5f5',
-          color: '#000',
-          fontWeight: 'bold',
-          paddingX: 3,
-          '&:hover': {
-            backgroundColor: '#e0e0e0',
-          },
-        }}
-      >
-        Seleccionar archivo
-        <input type="file" hidden multiple onChange={handleFileUpload} />
-      </Button>
-    </DragDropArea>
+
+      <Grid container spacing={2}>
+        <Grid item xs={12} sm={6} md={4}>
+          <TextField
+            label="Búsqueda global"
+            fullWidth
+            variant="outlined"
+            value={filtros.busqueda || ''}
+            onChange={(e) => setFiltros((prev) => ({ ...prev, busqueda: e.target.value }))}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon color="action" />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Grid>
+
+        {columnas.map(
+          (col) =>
+            valoresUnicos[col]?.length < 100 && (
+              <Grid item xs={12} sm={6} md={3} key={col}>
+                <TextField
+                  select
+                  label={col}
+                  value={filtros[col] || ''}
+                  onChange={(e) => setFiltros((prev) => ({ ...prev, [col]: e.target.value }))}
+                  fullWidth
+                >
+                  <MenuItem value="">Todos</MenuItem>
+                  {valoresUnicos[col]?.map((valor, idx) => (
+                    <MenuItem key={idx} value={valor}>
+                      {valor}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+            )
+        )}
+
+        {columnasFecha.map((col) => (
+          <React.Fragment key={col}>
+            <Grid item xs={6} sm={3}>
+              <TextField
+                label={`Desde (${col})`}
+                type="date"
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+                onChange={(e) =>
+                  setFiltros((prev) => ({ ...prev, [`${col}_desde`]: e.target.value }))
+                }
+              />
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <TextField
+                label={`Hasta (${col})`}
+                type="date"
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+                onChange={(e) =>
+                  setFiltros((prev) => ({ ...prev, [`${col}_hasta`]: e.target.value }))
+                }
+              />
+            </Grid>
+          </React.Fragment>
+        ))}
+
+        {columnasNumericas.map((col) => (
+          <React.Fragment key={col}>
+            <Grid item xs={6} sm={3}>
+              <TextField
+                label={`Mín. ${col}`}
+                type="number"
+                fullWidth
+                onChange={(e) =>
+                  setFiltros((prev) => ({ ...prev, [`${col}_min`]: e.target.value }))
+                }
+              />
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <TextField
+                label={`Máx. ${col}`}
+                type="number"
+                fullWidth
+                onChange={(e) =>
+                  setFiltros((prev) => ({ ...prev, [`${col}_max`]: e.target.value }))
+                }
+              />
+            </Grid>
+          </React.Fragment>
+        ))}
+
+        <Grid item xs={12} textAlign="right">
+          <Button variant="outlined" color="error" onClick={handleClearFilters}>
+            Limpiar filtros
+          </Button>
+        </Grid>
+      </Grid>
+    </Paper>
   );
 };
 
-export default UploadFile;
+export default Filtros;

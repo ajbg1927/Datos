@@ -9,6 +9,7 @@ import {
   InputAdornment,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
 
 const Filtros = ({
   columnas,
@@ -20,7 +21,16 @@ const Filtros = ({
   columnasNumericas,
 }) => {
   return (
-    <Paper elevation={2} sx={{ p: 3, mt: 4, mb: 4 }}>
+    <Paper
+      elevation={2}
+      sx={{
+        p: 3,
+        mt: 4,
+        mb: 4,
+        borderLeft: '6px solid #00c853',
+        backgroundColor: '#fafafa',
+      }}
+    >
       <Typography variant="h6" gutterBottom>
         Filtros de búsqueda
       </Typography>
@@ -32,13 +42,23 @@ const Filtros = ({
             fullWidth
             variant="outlined"
             value={filtros.busqueda || ''}
-            onChange={(e) => setFiltros((prev) => ({ ...prev, busqueda: e.target.value }))}
+            onChange={(e) =>
+              setFiltros((prev) => ({ ...prev, busqueda: e.target.value }))
+            }
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
                   <SearchIcon color="action" />
                 </InputAdornment>
               ),
+            }}
+            sx={{
+              '& label.Mui-focused': { color: '#00c853' },
+              '& .MuiOutlinedInput-root': {
+                '&.Mui-focused fieldset': {
+                  borderColor: '#00c853',
+                },
+              },
             }}
           />
         </Grid>
@@ -51,8 +71,18 @@ const Filtros = ({
                   select
                   label={col}
                   value={filtros[col] || ''}
-                  onChange={(e) => setFiltros((prev) => ({ ...prev, [col]: e.target.value }))}
+                  onChange={(e) =>
+                    setFiltros((prev) => ({ ...prev, [col]: e.target.value }))
+                  }
                   fullWidth
+                  sx={{
+                    '& label.Mui-focused': { color: '#00c853' },
+                    '& .MuiOutlinedInput-root': {
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#00c853',
+                      },
+                    },
+                  }}
                 >
                   <MenuItem value="">Todos</MenuItem>
                   {valoresUnicos[col]?.map((valor, idx) => (
@@ -73,9 +103,21 @@ const Filtros = ({
                 type="date"
                 fullWidth
                 InputLabelProps={{ shrink: true }}
+                value={filtros[`${col}_desde`] || ''}
                 onChange={(e) =>
-                  setFiltros((prev) => ({ ...prev, [`${col}_desde`]: e.target.value }))
+                  setFiltros((prev) => ({
+                    ...prev,
+                    [`${col}_desde`]: e.target.value,
+                  }))
                 }
+                sx={{
+                  '& label.Mui-focused': { color: '#00c853' },
+                  '& .MuiOutlinedInput-root': {
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#00c853',
+                    },
+                  },
+                }}
               />
             </Grid>
             <Grid item xs={6} sm={3}>
@@ -84,9 +126,21 @@ const Filtros = ({
                 type="date"
                 fullWidth
                 InputLabelProps={{ shrink: true }}
+                value={filtros[`${col}_hasta`] || ''}
                 onChange={(e) =>
-                  setFiltros((prev) => ({ ...prev, [`${col}_hasta`]: e.target.value }))
+                  setFiltros((prev) => ({
+                    ...prev,
+                    [`${col}_hasta`]: e.target.value,
+                  }))
                 }
+                sx={{
+                  '& label.Mui-focused': { color: '#00c853' },
+                  '& .MuiOutlinedInput-root': {
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#00c853',
+                    },
+                  },
+                }}
               />
             </Grid>
           </React.Fragment>
@@ -99,9 +153,21 @@ const Filtros = ({
                 label={`Mín. ${col}`}
                 type="number"
                 fullWidth
+                value={filtros[`${col}_min`] || ''}
                 onChange={(e) =>
-                  setFiltros((prev) => ({ ...prev, [`${col}_min`]: e.target.value }))
+                  setFiltros((prev) => ({
+                    ...prev,
+                    [`${col}_min`]: e.target.value,
+                  }))
                 }
+                sx={{
+                  '& label.Mui-focused': { color: '#00c853' },
+                  '& .MuiOutlinedInput-root': {
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#00c853',
+                    },
+                  },
+                }}
               />
             </Grid>
             <Grid item xs={6} sm={3}>
@@ -109,16 +175,34 @@ const Filtros = ({
                 label={`Máx. ${col}`}
                 type="number"
                 fullWidth
+                value={filtros[`${col}_max`] || ''}
                 onChange={(e) =>
-                  setFiltros((prev) => ({ ...prev, [`${col}_max`]: e.target.value }))
+                  setFiltros((prev) => ({
+                    ...prev,
+                    [`${col}_max`]: e.target.value,
+                  }))
                 }
+                sx={{
+                  '& label.Mui-focused': { color: '#00c853' },
+                  '& .MuiOutlinedInput-root': {
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#00c853',
+                    },
+                  },
+                }}
               />
             </Grid>
           </React.Fragment>
         ))}
 
         <Grid item xs={12} textAlign="right">
-          <Button variant="outlined" color="error" onClick={handleClearFilters}>
+          <Button
+            variant="outlined"
+            color="error"
+            startIcon={<ClearIcon />}
+            onClick={handleClearFilters}
+            sx={{ mt: 2 }}
+          >
             Limpiar filtros
           </Button>
         </Grid>

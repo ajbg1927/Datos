@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import {
   Box,
   Typography,
@@ -8,6 +8,7 @@ import {
   Select,
   Grid,
   Paper,
+  Button,
 } from '@mui/material';
 import {
   BarChart,
@@ -20,13 +21,16 @@ import {
   Pie,
   Cell,
   Legend,
+  CartesianGrid,
 } from 'recharts';
+import html2canvas from 'html2canvas';
 
 const colores = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00c49f', '#0088fe'];
 
 const Graficos = ({ datos = [] }) => {
   const [campoX, setCampoX] = useState('');
   const [campoY, setCampoY] = useState('');
+  const chartRef = useRef();
 
   const columnasNumericas = useMemo(() => {
     if (!datos || datos.length === 0) return [];
@@ -48,17 +52,27 @@ const Graficos = ({ datos = [] }) => {
     if (!campoX || !campoY || datos.length === 0) return [];
     const agrupados = {};
     datos.forEach(item => {
-      const clave = item[campoX];
+      const clave = item[campoX] || 'Sin dato';
       const valor = parseFloat(item[campoY]) || 0;
-      if (clave) {
-        agrupados[clave] = (agrupados[clave] || 0) + valor;
-      }
+      agrupados[clave] = (agrupados[clave] || 0) + valor;
     });
     return Object.entries(agrupados).map(([key, value]) => ({
       [campoX]: key,
       [campoY]: value,
     }));
   }, [campoX, campoY, datos]);
+
+  const handleDownload = () => {
+    const chart = chartRef.current;
+    if (chart) {
+      html2canvas(chart).then((canvas) => {
+        const link = document.createElement('a');
+        link.download = 'grafico.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    }
+  };
 
   if (!datos || datos.length === 0) {
     return (
@@ -115,44 +129,53 @@ const Graficos = ({ datos = [] }) => {
       </Paper>
 
       {campoX && campoY && datosAgrupados.length > 0 && (
-        <>
-          <Typography variant="h6" gutterBottom>
-            Gráfico de Barras
-          </Typography>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={datosAgrupados}>
-              <XAxis dataKey={campoX} />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey={campoY} fill="#1976d2" />
-            </BarChart>
-          </ResponsiveContainer>
+        <Box>
+          <Box ref={chartRef}>
+            <Typography variant="h6" gutterBottom>
+              Gráfico de Barras
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={datosAgrupados}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey={campoX} />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey={campoY} fill="#1976d2" />
+              </BarChart>
+            </ResponsiveContainer>
 
-          <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
-            Gráfico de Pastel
-          </Typography>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={datosAgrupados}
-                dataKey={campoY}
-                nameKey={campoX}
-                outerRadius={120}
-                label
-              >
-                {datosAgrupados.map((_, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={colores[index % colores.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </>
+            <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+              Gráfico de Pastel
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={datosAgrupados}
+                  dataKey={campoY}
+                  nameKey={campoX}
+                  outerRadius={120}
+                  label
+                >
+                  {datosAgrupados.map((_, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={colores[index % colores.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </Box>
+
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+            <Button variant="outlined" color="secondary" onClick={handleDownload}>
+              Descargar gráfico como PNG
+            </Button>
+          </Box>
+        </Box>
       )}
     </Box>
   );
