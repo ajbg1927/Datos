@@ -5,7 +5,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import UploadFile from './components/UploadFile';
 import TablaArchivos from './components/TablaArchivos';
-import SelectorHojas from './components/SelectorHojas'; 
+import SelectorHojas from './components/SelectorHojas';
 import Filtros from './components/Filtros';
 import TablaDatos from './components/TablaDatos';
 import Graficos from './components/Graficos';
@@ -37,7 +37,6 @@ function App() {
   });
 
   const datosFiltrados = useFiltros(datos, filtros.texto, filtros.fechaInicio, filtros.fechaFin);
-
   const { exportToExcel } = useExportaciones();
 
   const handleCambioFiltros = (filtro) => {
@@ -52,9 +51,7 @@ function App() {
 
     try {
       await axios.post(`${API_URL}/subir`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       const res = await axios.get(`${API_URL}/archivos`);
