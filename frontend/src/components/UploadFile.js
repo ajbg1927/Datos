@@ -5,7 +5,6 @@ import {
   Button,
   Typography,
   Paper,
-  Stack,
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
@@ -32,31 +31,32 @@ const UploadFile = ({ onFilesUploaded }) => {
         mt: 4,
       }}
     >
-      <Box {...getRootProps()} sx={{ cursor: 'pointer' }}>
+      <Box {...getRootProps()} sx={{ cursor: 'pointer', mb: 4 }}>
         <input {...getInputProps()} />
-        <CloudUploadIcon sx={{ fontSize: 50, color: '#888' }} />
+        <CloudUploadIcon sx={{ fontSize: 60, color: '#888' }} />
         <Typography variant="h6" sx={{ mt: 2 }}>
           {isDragActive ? 'Suelta los archivos aquí...' : 'Arrastra o pega un archivo aquí'}
         </Typography>
         <Typography variant="body2" sx={{ mt: 1 }}>
-          o haz clic para seleccionar archivos desde tu equipo
+          o haz clic en el botón de abajo para seleccionar archivos desde tu equipo
         </Typography>
-        <Button
-          variant="contained"
-          component="label"
-          color="primary"
-          sx={{ mt: 3 }}
-        >
-          Elegir archivo
-          <input
-            type="file"
-            hidden
-            multiple
-            onChange={(e) => onFilesUploaded([...e.target.files])}
-            accept=".xlsx,.xls"
-          />
-        </Button>
       </Box>
+
+      <Button
+        variant="contained"
+        component="label"
+        color="primary"
+        sx={{ mt: 2 }}
+      >
+        Elegir archivo
+        <input
+          type="file"
+          hidden
+          multiple
+          onChange={(e) => onFilesUploaded([...e.target.files])}
+          accept=".xlsx,.xls"
+        />
+      </Button>
     </Paper>
   );
 };
