@@ -1,14 +1,18 @@
 import React from 'react';
-import { Box, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { FormControl, InputLabel, Select, MenuItem, Box } from '@mui/material';
 
-const TablaArchivos = ({ archivos, archivoSeleccionado, handleArchivoChange }) => {
+const TablaArchivos = ({ archivos, archivoSeleccionado, onArchivoChange }) => {
   return (
-    <Box m={2} width="300px">
+    <Box sx={{ mb: 2 }}>
       <FormControl fullWidth>
-        <InputLabel>Seleccionar archivo</InputLabel>
-        <Select value={archivoSeleccionado} onChange={handleArchivoChange}>
-          {archivos.map((archivo) => (
-            <MenuItem key={archivo} value={archivo}>
+        <InputLabel>Selecciona un archivo</InputLabel>
+        <Select
+          value={archivoSeleccionado || ''}
+          label="Selecciona un archivo"
+          onChange={(e) => onArchivoChange(e.target.value)}
+        >
+          {archivos.map((archivo, index) => (
+            <MenuItem key={index} value={archivo}>
               {archivo}
             </MenuItem>
           ))}

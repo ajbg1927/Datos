@@ -1,14 +1,18 @@
 import React from 'react';
-import { Box, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { FormControl, InputLabel, Select, MenuItem, Box } from '@mui/material';
 
-const TablaHojas = ({ hojas, hojaSeleccionada, handleHojaChange }) => {
+const TablaHojas = ({ hojas, hojaSeleccionada, onHojaChange }) => {
   return (
-    <Box m={2} width="300px">
+    <Box sx={{ mb: 2 }}>
       <FormControl fullWidth>
-        <InputLabel>Seleccionar hoja</InputLabel>
-        <Select value={hojaSeleccionada} onChange={handleHojaChange}>
-          {hojas.map((hoja) => (
-            <MenuItem key={hoja} value={hoja}>
+        <InputLabel>Selecciona una hoja</InputLabel>
+        <Select
+          value={hojaSeleccionada || ''}
+          label="Selecciona una hoja"
+          onChange={(e) => onHojaChange(e.target.value)}
+        >
+          {hojas.map((hoja, index) => (
+            <MenuItem key={index} value={hoja}>
               {hoja}
             </MenuItem>
           ))}

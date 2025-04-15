@@ -10,46 +10,61 @@ import Filtros from './components/Filtros';
 import TablaDatos from './components/TablaDatos';
 import Graficos from './components/Graficos';
 import ExportButtons from './components/ExportButtons';
-import useArchivos from './hooks/useArchivos'; 
+import useArchivos from './hooks/useArchivos';
 import useFiltros from './hooks/useFiltros';
 import useExportaciones from './hooks/useExportaciones';
 
 function App() {
   const {
-    files, selectedFileIndex, selectedSheet, data, columns,
-    handleFileUpload, handleDrop, handleFileChange, handleSheetChange,
-    setSelectedFileIndex, setSelectedSheet
+    archivos,
+    archivoSeleccionado,
+    setArchivoSeleccionado,
+    hojas,
+    hojaSeleccionada,
+    setHojaSeleccionada,
+    datos,
+    columnas
   } = useArchivos();
 
-  const { filters, handleFilterChange, filteredData } = useFiltros(data, columns);
+  const [filters, setFilters] = React.useState({
+    texto: '',
+    fechaInicio: '',
+    fechaFin: ''
+  });
 
-  const { exportToExcel } = useExportaciones(filteredData, selectedSheet);
+  const filteredData = useFiltros(datos, filters.texto, filters.fechaInicio, filters.fechaFin);
+
+  const { exportToExcel } = useExportaciones();
+
+  const handleFilterChange = (filtro) => {
+    setFilters(prev => ({ ...prev, ...filtro }));
+  };
 
   return (
     <Box sx={{ bgcolor: '#fff', minHeight: '100vh' }}>
       <Header />
       <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
 
-        <UploadFile onDrop={handleDrop} onFileUpload={handleFileUpload} />
+        <UploadFile />
 
-        {files.length > 0 && (
+        {archivos.length > 0 && (
           <>
             <TablaArchivos
-              files={files}
-              selectedFileIndex={selectedFileIndex}
-              onFileChange={handleFileChange}
+              archivos={archivos}
+              archivoSeleccionado={archivoSeleccionado}
+              onArchivoChange={setArchivoSeleccionado}
             />
             <TablaHojas
-              sheets={files[selectedFileIndex]?.workbook?.SheetNames || []}
-              selectedSheet={selectedSheet}
-              onSheetChange={handleSheetChange}
+              hojas={hojas}
+              hojaSeleccionada={hojaSeleccionada}
+              onHojaChange={setHojaSeleccionada}
             />
           </>
         )}
 
-        {columns.length > 0 && (
+        {columnas.length > 0 && (
           <Filtros
-            columns={columns}
+            columns={columnas}
             filters={filters}
             onFilterChange={handleFilterChange}
           />
@@ -57,22 +72,22 @@ function App() {
 
         <TablaDatos
           data={filteredData}
-          columns={columns}
+          columns={columnas}
         />
 
         <Graficos
           data={filteredData}
-          columns={columns}
+          columns={columnas}
         />
 
         <ExportButtons
-          onExport={exportToExcel}
+          onExport={() => exportToExcel(filteredData, columnas)}
         />
 
         <Fab
           color="primary"
           aria-label="exportar"
-          onClick={exportToExcel}
+          onClick={() => exportToExcel(filteredData, columnas)}
           sx={{
             position: 'fixed',
             bottom: 24,
