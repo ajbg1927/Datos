@@ -30,7 +30,9 @@ const UploadFile = ({ onFilesUploaded }) => {
     );
 
     if (validFiles.length > 0) {
-      onFilesUploaded(validFiles);
+      if (onFilesUploaded) {
+        onFilesUploaded(validFiles);
+      }
     } else {
       alert('Por favor, selecciona archivos Excel válidos (.xlsx, .xls)');
     }
@@ -39,7 +41,9 @@ const UploadFile = ({ onFilesUploaded }) => {
   const handleDrop = (event) => {
     event.preventDefault();
     const droppedFiles = Array.from(event.dataTransfer.files);
-    onFilesUploaded(droppedFiles);
+    if (onFilesUploaded) {
+      onFilesUploaded(droppedFiles);
+    }
   };
 
   return (

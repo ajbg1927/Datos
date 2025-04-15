@@ -1,7 +1,7 @@
 import React from 'react';
 import { FormControl, InputLabel, Select, MenuItem, Box } from '@mui/material';
 
-const TablaArchivos = ({ archivos, archivoSeleccionado, onArchivoChange }) => {
+const TablaArchivos = ({ archivos = [], archivoSeleccionado, onArchivoChange }) => {
   return (
     <Box sx={{ mb: 3 }}>
       <FormControl fullWidth variant="outlined" sx={{ backgroundColor: '#fff' }}>
@@ -10,23 +10,24 @@ const TablaArchivos = ({ archivos, archivoSeleccionado, onArchivoChange }) => {
           value={archivoSeleccionado || ''}
           label="Selecciona un archivo"
           onChange={(e) => onArchivoChange(e.target.value)}
+          displayEmpty
           sx={{
-            '& .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#ffcd00',
-            },
-            '&:hover .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#e6b800',
-            },
-            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#00c853',
-            },
+            '& .MuiOutlinedInput-notchedOutline': { borderColor: '#ffcd00' },
+            '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#e6b800' },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#00c853' },
           }}
         >
-          {archivos.map((archivo, index) => (
-            <MenuItem key={index} value={archivo}>
-              {archivo}
+          {archivos.length === 0 ? (
+            <MenuItem disabled value="">
+              No hay archivos disponibles
             </MenuItem>
-          ))}
+          ) : (
+            archivos.map((archivo, index) => (
+              <MenuItem key={index} value={archivo}>
+                {archivo}
+              </MenuItem>
+            ))
+          )}
         </Select>
       </FormControl>
     </Box>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { FormControl, InputLabel, Select, MenuItem, Box } from '@mui/material';
 
-const TablaHojas = ({ hojas, hojaSeleccionada, onHojaChange }) => {
+const TablaHojas = ({ hojas = [], hojaSeleccionada, onHojaChange }) => {
   return (
     <Box sx={{ mb: 3 }}>
       <FormControl fullWidth variant="outlined" sx={{ backgroundColor: '#fff' }}>
@@ -10,23 +10,24 @@ const TablaHojas = ({ hojas, hojaSeleccionada, onHojaChange }) => {
           value={hojaSeleccionada || ''}
           label="Selecciona una hoja"
           onChange={(e) => onHojaChange(e.target.value)}
+          displayEmpty
           sx={{
-            '& .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#ffcd00',
-            },
-            '&:hover .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#e6b800',
-            },
-            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#00c853',
-            },
+            '& .MuiOutlinedInput-notchedOutline': { borderColor: '#ffcd00' },
+            '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#e6b800' },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#00c853' },
           }}
         >
-          {hojas.map((hoja, index) => (
-            <MenuItem key={index} value={hoja}>
-              {hoja}
+          {hojas.length === 0 ? (
+            <MenuItem disabled value="">
+              No hay hojas disponibles
             </MenuItem>
-          ))}
+          ) : (
+            hojas.map((hoja, index) => (
+              <MenuItem key={index} value={hoja}>
+                {hoja}
+              </MenuItem>
+            ))
+          )}
         </Select>
       </FormControl>
     </Box>
