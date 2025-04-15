@@ -5,7 +5,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import UploadFile from './components/UploadFile';
 import TablaArchivos from './components/TablaArchivos';
-import TablaHojas from './components/TablaHojas';
+import SelectorHojas from './components/SelectorHojas'; 
 import Filtros from './components/Filtros';
 import TablaDatos from './components/TablaDatos';
 import Graficos from './components/Graficos';
@@ -23,8 +23,8 @@ function App() {
     archivoSeleccionado,
     setArchivoSeleccionado,
     hojas,
-    hojaSeleccionada,
-    setHojaSeleccionada,
+    hojasSeleccionadas,
+    setHojasSeleccionadas,
     datos,
     columnas,
     setArchivos
@@ -59,7 +59,7 @@ function App() {
 
       const res = await axios.get(`${API_URL}/archivos`);
       setArchivoSeleccionado('');
-      setHojaSeleccionada('');
+      setHojasSeleccionadas([]);
       setArchivos(res.data.archivos);
     } catch (error) {
       console.error('Error al subir archivos:', error);
@@ -80,10 +80,10 @@ function App() {
               archivoSeleccionado={archivoSeleccionado}
               onArchivoChange={setArchivoSeleccionado}
             />
-            <TablaHojas
+            <SelectorHojas
               hojas={hojas}
-              hojaSeleccionada={hojaSeleccionada}
-              onHojaChange={setHojaSeleccionada}
+              hojasSeleccionadas={hojasSeleccionadas}
+              setHojasSeleccionadas={setHojasSeleccionadas}
             />
           </>
         )}
