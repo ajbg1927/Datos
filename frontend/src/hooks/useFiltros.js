@@ -5,7 +5,7 @@ const useFiltros = (datos, texto, fechaInicio, fechaFin) => {
     return datos.filter(row => {
       const contieneTexto = texto
         ? Object.values(row).some(val =>
-            val?.toString().toLowerCase().includes(texto.toLowerCase())
+            String(val ?? '').toLowerCase().includes(texto.toLowerCase())
           )
         : true;
 

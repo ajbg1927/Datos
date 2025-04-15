@@ -41,10 +41,12 @@ const UploadFile = ({ onFilesUploaded }) => {
         <Typography variant="body2" sx={{ mt: 1 }}>
           o haz clic para seleccionar archivos desde tu equipo
         </Typography>
-      </Box>
-
-      <Stack direction="row" justifyContent="center" spacing={2} mt={3}>
-        <Button variant="contained" component="label" color="primary">
+        <Button
+          variant="contained"
+          component="label"
+          color="primary"
+          sx={{ mt: 3 }}
+        >
           Elegir archivo
           <input
             type="file"
@@ -54,7 +56,7 @@ const UploadFile = ({ onFilesUploaded }) => {
             accept=".xlsx,.xls"
           />
         </Button>
-      </Stack>
+      </Box>
     </Paper>
   );
 };
