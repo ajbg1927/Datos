@@ -29,17 +29,13 @@ const useArchivos = () => {
     }
   };
 
-  const obtenerDatos = async (archivo, hojasSeleccionadas) => {
-    if (!archivo || hojasSeleccionadas.length === 0) return;
-
-    if (datosPorArchivo[archivo] && columnasPorArchivo[archivo]) {
-      return;
-    }
+  const obtenerDatos = async (archivo, hojas) => {
+    if (!archivo || hojas.length === 0) return;
 
     try {
       const response = await axios.post(
         `${API_URL}/datos/${archivo}`,
-        { hojas: hojasSeleccionadas },
+        { hojas },
         { headers: { 'Content-Type': 'application/json' } }
       );
 
@@ -55,11 +51,14 @@ const useArchivos = () => {
 
   const datosCombinados = () => {
     if (!archivoSeleccionado || hojasSeleccionadas.length === 0) return [];
-    return datosPorArchivo[archivoSeleccionado] || [];
+
+    const datos = datosPorArchivo[archivoSeleccionado] || [];
+    return datos;
   };
 
   return {
     archivos,
+    setArchivos,
     datosPorArchivo,
     columnasPorArchivo,
     hojasPorArchivo,

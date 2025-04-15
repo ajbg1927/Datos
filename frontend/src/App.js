@@ -41,7 +41,6 @@ function App() {
   const [columnaValor, setColumnaValor] = useState('Pagos');
   const [isLoadingUpload, setIsLoadingUpload] = useState(false);
 
-  // Obtener datos cuando seleccionamos archivo y hojas
   useEffect(() => {
     if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
       obtenerDatos(archivoSeleccionado, hojasSeleccionadas);
@@ -51,7 +50,6 @@ function App() {
   const datos = datosCombinados();
   const columnas = columnasPorArchivo[archivoSeleccionado] || [];
 
-  // Detección automática de columnas
   const columnasFecha = columnas.filter((col) =>
     col.toLowerCase().includes('fecha')
   );
@@ -66,7 +64,6 @@ function App() {
     ];
   });
 
-  // Extraer valores de filtros
   const texto = filtros.busqueda || '';
   const fechaInicio = filtros.Fecha_desde || '';
   const fechaFin = filtros.Fecha_hasta || '';
