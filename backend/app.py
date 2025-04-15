@@ -64,7 +64,7 @@ def subir_archivo():
         return jsonify({"error": "Formato de archivo no permitido"}), 400
 
     filename = secure_filename(file.filename)
-    filepath = os.path.join("/tmp", filename)
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
 
     try:
         file.save(filepath)
@@ -74,13 +74,12 @@ def subir_archivo():
 
 @app.route("/archivos", methods=["GET"])
 def listar_archivos():
-    archivos = os.listdir("/tmp")
+    archivos = os.listdir(UPLOAD_FOLDER)
     return jsonify({"archivos": archivos})
 
 @app.route("/hojas/<filename>", methods=["GET"])
 def obtener_hojas(filename):
-    filepath = os.path.join("/tmp", filename)
-
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
     if not os.path.exists(filepath):
         return jsonify({"error": "Archivo no encontrado"}), 404
 
@@ -92,26 +91,23 @@ def obtener_hojas(filename):
 
 @app.route("/datos/<filename>", methods=["POST"])
 def obtener_datos(filename):
-    filepath = os.path.join("/tmp", filename)
-
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
     if not os.path.exists(filepath):
         return jsonify({"error": "Archivo no encontrado"}), 404
 
     try:
-        data = request.json
-        hojas = data.get("hojas", [])
+        hojas = request.json.get("hojas", [])
         xls = pd.ExcelFile(filepath)
         datos_totales = []
-        id_counter = 1
+        row_id = 1
 
         for hoja in hojas:
             if hoja not in xls.sheet_names:
                 return jsonify({"error": f"La hoja '{hoja}' no existe"}), 400
-
             df = pd.read_excel(xls, sheet_name=hoja, dtype=str)
             df.dropna(how="all", inplace=True)
-            df.insert(0, "id", range(id_counter, id_counter + len(df)))
-            id_counter += len(df)
+            df.insert(0, "id", range(row_id, row_id + len(df)))
+            row_id += len(df)
             df["Hoja"] = hoja
             datos_totales.extend(df.fillna("").to_dict(orient="records"))
 
@@ -163,13 +159,16 @@ def upload_file():
 def procesar_excel_endpoint():
     if 'file' not in request.files:
         return jsonify({"error": "No se envió ningún archivo"}), 400
+
     archivo = request.files['file']
     if archivo.filename == '':
         return jsonify({"error": "Nombre de archivo vacío"}), 400
+
     try:
         excel_data = pd.read_excel(archivo, sheet_name=None, dtype=str)
         datos_hojas = {}
         row_id = 1
+
         for nombre_hoja, df in excel_data.items():
             df.dropna(how='all', inplace=True)
             if df.empty:
@@ -178,6 +177,7 @@ def procesar_excel_endpoint():
             row_id += len(df)
             df["Hoja"] = nombre_hoja
             datos_hojas[nombre_hoja] = df.fillna('').to_dict(orient='records')
+
         return jsonify(datos_hojas), 200
     except Exception as e:
         return jsonify({"error": f"Error procesando el archivo: {str(e)}"}), 500
@@ -197,20 +197,26 @@ def generate_report():
         data = request.json.get("data", [])
         if not data:
             return jsonify({"error": "No hay datos para generar el informe"}), 400
+
         df = pd.DataFrame(data)
+
         excel_path = os.path.join(UPLOAD_FOLDER, "reporte.xlsx")
-        df.to_excel(excel_path, index=False)
         pdf_path = os.path.join(UPLOAD_FOLDER, "reporte.pdf")
+
+        # Guardar Excel
+        df.to_excel(excel_path, index=False)
+
+        # Crear PDF básico
         pdf = FPDF()
-        pdf.set_auto_page_break(auto=True, margin=15)
         pdf.add_page()
         pdf.set_font("Arial", style='B', size=16)
         pdf.cell(200, 10, "Informe de Datos", ln=True, align='C')
-        pdf.ln(10)
         pdf.set_font("Arial", size=12)
+        pdf.ln(10)
         pdf.cell(0, 10, f"Total de registros: {len(df)}", ln=True)
-        pdf.cell(0, 10, f"Columnas disponibles: {', '.join(df.columns)}", ln=True)
+        pdf.cell(0, 10, f"Columnas: {', '.join(df.columns)}", ln=True)
         pdf.output(pdf_path)
+
         return jsonify({
             "mensaje": "Informe generado exitosamente",
             "excel_url": f"/download/reporte.xlsx",
@@ -231,30 +237,33 @@ def get_usuarios():
     usuarios = Usuario.query.all()
     return jsonify([{"id": u.id, "nombre": u.nombre, "email": u.email} for u in usuarios])
 
+@app.route("/usuarios", methods=["GET"])
+def get_usuarios():
+    usuarios = Usuario.query.all()
+    return jsonify([{"id": u.id, "nombre": u.nombre, "email": u.email} for u in usuarios])
+
 @app.route("/archivos_detalle", methods=["GET"])
 def listar_archivos_con_hojas():
     try:
         archivos = Archivo.query.all()
         resultado = []
-
         for archivo in archivos:
             hojas = Hoja.query.filter_by(archivo_id=archivo.id).all()
             resultado.append({
                 "archivo": archivo.nombre,
                 "hojas": [hoja.nombre for hoja in hojas]
             })
-
         return jsonify(resultado)
     except Exception as e:
         return jsonify({"error": f"Error al obtener archivos: {str(e)}"}), 500
 
 def procesar_todos_los_archivos():
-    archivos = os.listdir(app.config["UPLOAD_FOLDER"])
+    archivos = os.listdir(UPLOAD_FOLDER)
     if not archivos:
         print("No hay archivos en la carpeta '/tmp'.")
     else:
         for archivo in archivos:
-            procesar_excel(archivo, app)
+            procesar_excel(os.path.join(UPLOAD_FOLDER, archivo))
 
 def procesar_excel(nombre_archivo, app):
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], nombre_archivo)
