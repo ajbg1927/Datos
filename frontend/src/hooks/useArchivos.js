@@ -32,6 +32,10 @@ const useArchivos = () => {
   const obtenerDatos = async (archivo, hojasSeleccionadas) => {
     if (!archivo || hojasSeleccionadas.length === 0) return;
 
+    if (datosPorArchivo[archivo] && columnasPorArchivo[archivo]) {
+      return;
+    }
+
     try {
       const response = await axios.post(
         `${API_URL}/datos/${archivo}`,
@@ -42,11 +46,16 @@ const useArchivos = () => {
       const datos = response.data.datos || [];
       const columnas = response.data.columnas || [];
 
-      setDatosPorArchivo(prev => ({ ...prev, [archivo]: datos }));
-      setColumnasPorArchivo(prev => ({ ...prev, [archivo]: columnas }));
+      setDatosPorArchivo((prev) => ({ ...prev, [archivo]: datos }));
+      setColumnasPorArchivo((prev) => ({ ...prev, [archivo]: columnas }));
     } catch (error) {
       console.error('Error al obtener datos:', error);
     }
+  };
+
+  const datosCombinados = () => {
+    if (!archivoSeleccionado || hojasSeleccionadas.length === 0) return [];
+    return datosPorArchivo[archivoSeleccionado] || [];
   };
 
   return {
@@ -60,6 +69,7 @@ const useArchivos = () => {
     setHojasSeleccionadas,
     cargarArchivos,
     obtenerDatos,
+    datosCombinados
   };
 };
 

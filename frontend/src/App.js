@@ -1,5 +1,11 @@
 import React from 'react';
-import { Container, Fab, TextField, MenuItem, Typography } from '@mui/material';
+import {
+  Container,
+  Fab,
+  TextField,
+  MenuItem,
+  Typography
+} from '@mui/material';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import Layout from './components/Layout';
 import UploadFile from './components/UploadFile';
@@ -36,6 +42,7 @@ function App() {
   const [columnaValor, setColumnaValor] = React.useState('Pagos');
   const [isLoadingUpload, setIsLoadingUpload] = React.useState(false);
 
+  // Extraer valores de filtros
   const texto = filtros.busqueda || '';
   const fechaInicio = filtros.Fecha_desde || '';
   const fechaFin = filtros.Fecha_hasta || '';
@@ -74,6 +81,7 @@ function App() {
 
     try {
       setIsLoadingUpload(true);
+
       await axios.post(`${API_URL}/subir`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
@@ -147,8 +155,16 @@ function App() {
       )}
 
       <TablaDatos datos={datosFiltrados} columnas={columnas} />
-      <Graficos datos={datosFiltrados} columnas={columnas} columnaValor={columnaValor} />
-      <ExportButtons onExport={() => exportToExcel(datosFiltrados, columnas)} />
+
+      <Graficos
+        datos={datosFiltrados}
+        columnas={columnas}
+        columnaValor={columnaValor}
+      />
+
+      <ExportButtons
+        onExport={() => exportToExcel(datosFiltrados, columnas)}
+      />
 
       <Fab
         color="primary"

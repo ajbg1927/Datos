@@ -53,12 +53,16 @@ const UploadFile = ({ onFilesUploaded }) => {
         cursor: 'pointer',
         '&:hover': { bgcolor: '#f0f0f0' },
       }}
+      onClick={() => fileInputRef.current.click()}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
     >
       <CloudUploadIcon sx={{ fontSize: 50, color: '#777' }} />
       <Typography variant="h6" sx={{ mt: 2 }}>
         Arrastra o pega un archivo aquí
+      </Typography>
+      <Typography variant="body2" sx={{ color: '#666', mb: 2 }}>
+        Archivos permitidos: .xlsx, .xls (puedes subir varios a la vez)
       </Typography>
       <Divider sx={{ my: 2 }} />
       <Button variant="contained" component="label">
@@ -67,6 +71,7 @@ const UploadFile = ({ onFilesUploaded }) => {
           hidden
           type="file"
           multiple
+          onClick={(e) => e.stopPropagation()}
           onChange={handleFileChange}
           accept=".xlsx,.xls"
           ref={fileInputRef}
