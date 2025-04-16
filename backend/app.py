@@ -265,17 +265,25 @@ def get_usuarios():
 @app.route("/archivos_detalle", methods=["GET"])
 def listar_archivos_con_hojas():
     try:
-        archivos = Archivo.query.all()
-        resultado = []
-        for archivo in archivos:
-            hojas = Hoja.query.filter_by(archivo_id=archivo.id).all()
-            resultado.append({
-                "archivo": archivo.nombre,
-                "hojas": [hoja.nombre for hoja in hojas]
-            })
-        return jsonify(resultado)
+        archivos_info = []
+        for archivo in os.listdir(UPLOAD_FOLDER):
+            filepath = os.path.join(UPLOAD_FOLDER, archivo)
+            if os.path.isfile(filepath) and allowed_file(archivo):
+                try:
+                    xls = pd.ExcelFile(filepath)
+                    archivos_info.append({
+                        "archivo": archivo,
+                        "hojas": xls.sheet_names
+                    })
+                except Exception as e:
+                    archivos_info.append({
+                        "archivo": archivo,
+                        "error": f"No se pudo leer: {str(e)}"
+                    })
+
+        return jsonify({"archivos": archivos_info})
     except Exception as e:
-        return jsonify({"error": f"Error al obtener archivos: {str(e)}"}), 500
+        return jsonify({"error": f"Error al listar archivos: {str(e)}"}), 500
 
 def procesar_todos_los_archivos():
     archivos = os.listdir(UPLOAD_FOLDER)
