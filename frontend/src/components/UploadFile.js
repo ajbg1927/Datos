@@ -1,56 +1,59 @@
-import React from 'react';
-import { Box, Typography, Button } from '@mui/material';
+import React, { useRef } from 'react';
+import { Box, Button, Typography, Paper } from '@mui/material';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
-const UploadFile = ({ onFilesUploaded }) => {
-  const handleChange = (e) => {
-    const files = Array.from(e.target.files);
-    if (typeof onFilesUploaded === 'function') {
-      onFilesUploaded(files);
-    }
-  };
+const UploadFile = ({ onUpload }) => {
+  const fileInputRef = useRef(null);
 
   const handleDrop = (e) => {
     e.preventDefault();
-    const files = Array.from(e.dataTransfer.files);
-    if (typeof onFilesUploaded === 'function') {
-      onFilesUploaded(files);
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      onUpload(files[0]);
     }
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      onUpload(file);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
   return (
-    <Box
+    <Paper
+      elevation={3}
       onDrop={handleDrop}
-      onDragOver={(e) => e.preventDefault()}
+      onDragOver={handleDragOver}
       sx={{
+        p: 3,
         border: '2px dashed #ccc',
-        padding: 3,
-        borderRadius: 2,
         textAlign: 'center',
-        mb: 3,
-        backgroundColor: '#fafafa'
+        backgroundColor: '#f9f9f9',
+        mb: 2,
+        cursor: 'pointer'
       }}
+      onClick={() => fileInputRef.current.click()}
     >
+      <CloudUploadIcon sx={{ fontSize: 40, color: '#4caf50' }} />
       <Typography variant="h6" gutterBottom>
-        Arrastra y suelta tus archivos aquí
+        Arrastra o selecciona un archivo Excel aquí
       </Typography>
-      <Typography variant="body2" gutterBottom>
-        o haz clic en el botón para seleccionarlos manualmente
+      <Typography variant="body2" color="text.secondary">
+        Solo se permite un archivo a la vez
       </Typography>
-      <Button
-        variant="contained"
-        component="label"
-        sx={{ mt: 2, backgroundColor: '#33691e', '&:hover': { backgroundColor: '#2e7d32' } }}
-      >
-        Elegir archivo(s)
-        <input
-          type="file"
-          hidden
-          multiple
-          accept=".xls,.xlsx"
-          onChange={handleChange}
-        />
-      </Button>
-    </Box>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".xlsx,.xls"
+        style={{ display: 'none' }}
+        onChange={handleFileChange}
+      />
+    </Paper>
   );
 };
 
