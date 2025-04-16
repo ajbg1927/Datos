@@ -20,10 +20,10 @@ const useArchivos = () => {
     }
   }, [archivoSeleccionado, hojasPorArchivo]);
 
-  const cargarArchivos = async (archivos) => {
+  const cargarArchivos = async (files) => {
     const formData = new FormData();
-    for (let archivo of archivos) {
-      formData.append('files', archivo);
+    for (let file of files) {
+      formData.append('files', file);
     }
 
     try {
