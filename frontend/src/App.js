@@ -34,6 +34,7 @@ const App = () => {
     columnasPorArchivo,
     obtenerDatos,
     datosCombinados,
+    setArchivos,
     cargarArchivos
   } = useArchivos();
 
@@ -113,11 +114,16 @@ const App = () => {
       setIsLoadingUpload(true);
       await axios.post(`${API_URL}/subir`, formData);
 
-      // ✅ PASAR ARCHIVOS ORIGINALES, NO SOLO NOMBRES
-      await cargarArchivos(files);
+      const nombresArchivos = files.map((file) => file.name);
+      await cargarArchivos(nombresArchivos);
 
-      setArchivoSeleccionado('');
-      setHojasSeleccionadas([]);
+      // Selecciona automáticamente el primer archivo y sus hojas si hay archivos nuevos
+      if (nombresArchivos.length > 0) {
+        const primerArchivo = nombresArchivos[0];
+        setArchivoSeleccionado(primerArchivo);
+        const hojas = hojasPorArchivo[primerArchivo] || [];
+        setHojasSeleccionadas(hojas);
+      }
     } catch (error) {
       console.error('Error al subir archivos:', error);
       alert('Error al subir archivos');
