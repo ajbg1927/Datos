@@ -1,3 +1,4 @@
+// App.js
 import React, { useEffect, useState } from 'react';
 import {
   Container,
@@ -39,7 +40,7 @@ const App = () => {
   } = useArchivos();
 
   const [filtros, setFiltros] = useState({});
-  const [columnaValor, setColumnaValor] = useState('Pagos');
+  const [columnaValor, setColumnaValor] = useState('');
   const [isLoadingUpload, setIsLoadingUpload] = useState(false);
 
   useEffect(() => {
@@ -58,7 +59,7 @@ const App = () => {
   }, [archivoSeleccionado, hojasSeleccionadas]);
 
   const datos = datosCombinados();
-  const columnas = columnasPorArchivo[archivoSeleccionado] || [];
+  const columnas = datos.length > 0 ? Object.keys(datos[0]) : [];
 
   const columnasFecha = columnas.filter((col) =>
     col.toLowerCase().includes('fecha')
@@ -66,6 +67,12 @@ const App = () => {
   const columnasNumericas = columnas.filter((col) =>
     col.toLowerCase().match(/pago|valor|deducci|oblig|monto|total|suma|saldo/)
   );
+
+  useEffect(() => {
+    if (columnasNumericas.length > 0 && !columnaValor) {
+      setColumnaValor(columnasNumericas[0]);
+    }
+  }, [columnasNumericas]);
 
   const valoresUnicos = {};
   columnas.forEach((col) => {
@@ -113,16 +120,15 @@ const App = () => {
     try {
       setIsLoadingUpload(true);
       await axios.post(`${API_URL}/subir`, formData);
-
       const nombresArchivos = files.map((file) => file.name);
       await cargarArchivos(nombresArchivos);
-
-      // Selecciona automáticamente el primer archivo y sus hojas si hay archivos nuevos
       if (nombresArchivos.length > 0) {
         const primerArchivo = nombresArchivos[0];
         setArchivoSeleccionado(primerArchivo);
         const hojas = hojasPorArchivo[primerArchivo] || [];
-        setHojasSeleccionadas(hojas);
+        if (hojas.length > 0) {
+          setHojasSeleccionadas([hojas[0]]);
+        }
       }
     } catch (error) {
       console.error('Error al subir archivos:', error);
