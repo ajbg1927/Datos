@@ -191,6 +191,31 @@ def get_datos():
     except Exception as e:
         return jsonify({"error": f"Error al obtener datos: {str(e)}"}), 500
 
+@app.route('/cargar', methods=['POST'])
+def cargar():
+    archivos = request.files.getlist("archivos")
+    data = []
+
+    for archivo in archivos:
+        filename = archivo.filename
+        filepath = os.path.join('/tmp', filename)
+        archivo.save(filepath)
+
+        try:
+            xls = pd.ExcelFile(filepath)
+            hojas = {}
+            for hoja in xls.sheet_names:
+                df = xls.parse(hoja)
+                hojas[hoja] = df.to_dict(orient="records")
+            data.append({
+                "nombre_archivo": filename,
+                "hojas": hojas
+            })
+        except Exception as e:
+            return jsonify({"error": str(e)}), 400
+
+    return jsonify(data)
+
 @app.route("/generate-report", methods=["POST"])
 def generate_report():
     try:
