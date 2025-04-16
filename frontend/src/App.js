@@ -35,6 +35,7 @@ const App = () => {
     obtenerDatos,
     datosCombinados,
     setArchivos
+    cargarArchivos
   } = useArchivos();
 
   const [filtros, setFiltros] = useState({});
@@ -104,29 +105,27 @@ const App = () => {
   };
 
   const handleArchivosSubidos = async (files) => {
-    const formData = new FormData();
-    for (let file of files) {
-      formData.append('file', file);
-    }
+  const formData = new FormData();
+  for (let file of files) {
+    formData.append('file', file);
+  }
 
-    try {
-      setIsLoadingUpload(true);
+  try {
+    setIsLoadingUpload(true);
+    await axios.post(`${API_URL}/subir`, formData);
 
-      await axios.post(`${API_URL}/subir`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+    const nombresArchivos = files.map((file) => file.name);
+    await cargarArchivos(nombresArchivos);  
 
-      const res = await axios.get(`${API_URL}/archivos`);
-      setArchivoSeleccionado('');
-      setHojasSeleccionadas([]);
-      setArchivos(res.data.archivos);
-    } catch (error) {
-      console.error('Error al subir archivos:', error);
-      alert('Error al subir archivos');
-    } finally {
-      setIsLoadingUpload(false);
-    }
-  };
+    setArchivoSeleccionado('');
+    setHojasSeleccionadas([]);
+  } catch (error) {
+    console.error('Error al subir archivos:', error);
+    alert('Error al subir archivos');
+  } finally {
+    setIsLoadingUpload(false);
+  }
+};
 
   return (
     <Layout>

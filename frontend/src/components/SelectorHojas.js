@@ -28,7 +28,7 @@ const SelectorHojas = ({ hojas, hojasSeleccionadas, setHojasSeleccionadas }) => 
     }
   };
 
-  if (hojas.length === 0) return null;
+  if (!hojas || hojas.length === 0) return null;
 
   return (
     <Paper
@@ -63,6 +63,10 @@ const SelectorHojas = ({ hojas, hojasSeleccionadas, setHojasSeleccionadas }) => 
               control={
                 <Checkbox
                   checked={hojasSeleccionadas.length === hojas.length}
+                  indeterminate={
+                    hojasSeleccionadas.length > 0 &&
+                    hojasSeleccionadas.length < hojas.length
+                  }
                   onChange={handleToggleAll}
                   sx={{
                     color: '#2e7d32',
