@@ -34,7 +34,7 @@ const App = () => {
     columnasPorArchivo,
     obtenerDatos,
     datosCombinados,
-    setArchivos
+    setArchivos,
     cargarArchivos
   } = useArchivos();
 
