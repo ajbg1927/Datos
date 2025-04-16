@@ -31,7 +31,7 @@ const UploadFile = ({ onFilesUploaded }) => {
       }}
     >
       <Typography variant="h6" gutterBottom>
-        Arrastra y suelta tus archivos Excel aquí
+        Arrastra y suelta tus archivos aquí
       </Typography>
       <Typography variant="body2" gutterBottom>
         o haz clic en el botón para seleccionarlos manualmente
