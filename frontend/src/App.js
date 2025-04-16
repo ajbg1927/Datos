@@ -41,6 +41,16 @@ function App() {
   const [columnaValor, setColumnaValor] = useState('Pagos');
   const [isLoadingUpload, setIsLoadingUpload] = useState(false);
 
+  // Auto-selección de primera hoja disponible
+  useEffect(() => {
+    if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado]) {
+      const hojas = hojasPorArchivo[archivoSeleccionado];
+      if (hojas.length > 0) {
+        setHojasSeleccionadas([hojas[0]]);
+      }
+    }
+  }, [archivoSeleccionado, hojasPorArchivo]);
+
   useEffect(() => {
     if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
       obtenerDatos(archivoSeleccionado, hojasSeleccionadas);

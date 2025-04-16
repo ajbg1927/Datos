@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const API_URL = 'https://backend-flask-0rnq.onrender.com';
@@ -10,6 +10,15 @@ const useArchivos = () => {
   const [hojasPorArchivo, setHojasPorArchivo] = useState({});
   const [archivoSeleccionado, setArchivoSeleccionado] = useState('');
   const [hojasSeleccionadas, setHojasSeleccionadas] = useState([]);
+
+  useEffect(() => {
+    if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado]) {
+      const hojas = hojasPorArchivo[archivoSeleccionado];
+      if (hojas.length > 0) {
+        setHojasSeleccionadas([hojas[0]]);
+      }
+    }
+  }, [archivoSeleccionado, hojasPorArchivo]);
 
   const cargarArchivos = async (archivos) => {
     const formData = new FormData();
@@ -51,9 +60,7 @@ const useArchivos = () => {
 
   const datosCombinados = () => {
     if (!archivoSeleccionado || hojasSeleccionadas.length === 0) return [];
-
-    const datos = datosPorArchivo[archivoSeleccionado] || [];
-    return datos;
+    return datosPorArchivo[archivoSeleccionado] || [];
   };
 
   return {

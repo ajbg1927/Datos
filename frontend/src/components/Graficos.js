@@ -23,8 +23,9 @@ import {
   Legend,
   CartesianGrid,
 } from 'recharts';
+import DownloadIcon from '@mui/icons-material/Download';
 import html2canvas from 'html2canvas';
-import useGraficos from '../hooks/useGraficos'; 
+import useGraficos from '../hooks/useGraficos';
 
 const colores = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00c49f', '#0088fe'];
 
@@ -49,7 +50,6 @@ const Graficos = ({ datos = [] }) => {
     );
   }, [datos]);
 
-  // ✅ Usamos el hook para agrupar datos
   const datosAgrupados = useGraficos(datos, campoX, campoY);
 
   const handleDownload = () => {
@@ -65,7 +65,7 @@ const Graficos = ({ datos = [] }) => {
 
   if (!datos.length) {
     return (
-      <Box m={4}>
+      <Box sx={{ px: { xs: 2, sm: 4 }, py: 3 }}>
         <Typography variant="h6" color="text.secondary">
           No hay datos disponibles para graficar.
         </Typography>
@@ -74,7 +74,7 @@ const Graficos = ({ datos = [] }) => {
   }
 
   return (
-    <Box m={4}>
+    <Box sx={{ px: { xs: 2, sm: 4 }, py: 3 }}>
       <Typography variant="h5" gutterBottom fontWeight={600}>
         Visualización de Gráficos
       </Typography>
@@ -115,26 +115,44 @@ const Graficos = ({ datos = [] }) => {
             </FormControl>
           </Grid>
         </Grid>
+
+        {(!campoX || !campoY) && (
+          <Typography variant="body2" color="text.secondary" mt={2}>
+            Por favor selecciona una columna de agrupación y una columna de valores para ver los gráficos.
+          </Typography>
+        )}
       </Paper>
 
       {campoX && campoY && datosAgrupados.length > 0 && (
         <Box>
           <Box ref={chartRef}>
-            <Typography variant="h6" gutterBottom>
+            <Typography
+              variant="h6"
+              align="center"
+              fontWeight={600}
+              sx={{ mb: 2 }}
+            >
+              Gráficos de {campoY} por {campoX}
+            </Typography>
+
+            <Typography variant="subtitle1" gutterBottom>
               Gráfico de Barras
             </Typography>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={datosAgrupados} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <BarChart
+                data={datosAgrupados}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="nombre" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="valor" fill="#1976d2" />
+                <Bar dataKey="valor" fill="#1976d2" animationDuration={1000} />
               </BarChart>
             </ResponsiveContainer>
 
-            <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+            <Typography variant="subtitle1" gutterBottom sx={{ mt: 4 }}>
               Gráfico de Pastel
             </Typography>
             <ResponsiveContainer width="100%" height={300}>
@@ -145,6 +163,8 @@ const Graficos = ({ datos = [] }) => {
                   nameKey="nombre"
                   outerRadius={120}
                   label
+                  isAnimationActive={true}
+                  animationDuration={1000}
                 >
                   {datosAgrupados.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={colores[index % colores.length]} />
@@ -157,8 +177,13 @@ const Graficos = ({ datos = [] }) => {
           </Box>
 
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-            <Button variant="outlined" color="secondary" onClick={handleDownload}>
-              Descargar gráfico como PNG
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={handleDownload}
+              startIcon={<DownloadIcon />}
+            >
+              Descargar gráfico
             </Button>
           </Box>
         </Box>
