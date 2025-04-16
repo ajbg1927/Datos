@@ -22,7 +22,7 @@ import axios from 'axios';
 
 const API_URL = 'https://backend-flask-0rnq.onrender.com';
 
-function App() {
+const App = () => {
   const {
     archivos,
     archivoSeleccionado,
@@ -41,7 +41,6 @@ function App() {
   const [columnaValor, setColumnaValor] = useState('Pagos');
   const [isLoadingUpload, setIsLoadingUpload] = useState(false);
 
-  // Auto-selección de primera hoja disponible
   useEffect(() => {
     if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado]) {
       const hojas = hojasPorArchivo[archivoSeleccionado];
@@ -139,7 +138,7 @@ function App() {
 
       <UploadFile onFilesUploaded={handleArchivosSubidos} />
 
-      {Array.isArray(archivos) && archivos.length > 0 && (
+      {archivos?.length > 0 && (
         <>
           <TablaArchivos
             archivos={archivos}
@@ -154,7 +153,7 @@ function App() {
         </>
       )}
 
-      {Array.isArray(columnas) && columnas.length > 0 && (
+      {columnas.length > 0 && (
         <Filtros
           columnas={columnas}
           valoresUnicos={valoresUnicos}
@@ -166,7 +165,7 @@ function App() {
         />
       )}
 
-      {Array.isArray(columnasNumericas) && columnasNumericas.length > 0 && (
+      {columnasNumericas.length > 0 && (
         <Container maxWidth="md">
           <TextField
             select
@@ -217,6 +216,6 @@ function App() {
       </Fab>
     </Layout>
   );
-}
+};
 
 export default App;
