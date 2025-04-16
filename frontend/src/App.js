@@ -43,6 +43,12 @@ const App = () => {
   const [isLoadingUpload, setIsLoadingUpload] = useState(false);
 
   useEffect(() => {
+    if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
+      obtenerDatos(archivoSeleccionado, hojasSeleccionadas);
+    }
+  }, [archivoSeleccionado, hojasSeleccionadas]);
+
+  useEffect(() => {
     if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado]) {
       const hojas = hojasPorArchivo[archivoSeleccionado];
       if (hojas.length > 0) {
@@ -50,12 +56,6 @@ const App = () => {
       }
     }
   }, [archivoSeleccionado, hojasPorArchivo]);
-
-  useEffect(() => {
-    if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
-      obtenerDatos(archivoSeleccionado, hojasSeleccionadas);
-    }
-  }, [archivoSeleccionado, hojasSeleccionadas]);
 
   const datos = datosCombinados();
   const columnas = datos.length > 0 ? Object.keys(datos[0]) : [];
@@ -122,12 +122,7 @@ const App = () => {
       const nombresArchivos = files.map((file) => file.name);
       await cargarArchivos(nombresArchivos);
       if (nombresArchivos.length > 0) {
-        const primerArchivo = nombresArchivos[0];
-        setArchivoSeleccionado(primerArchivo);
-        const hojas = hojasPorArchivo[primerArchivo] || [];
-        if (hojas.length > 0) {
-          setHojasSeleccionadas([hojas[0]]);
-        }
+        setArchivoSeleccionado(nombresArchivos[0]); // 👈 Solo se selecciona el archivo aquí
       }
     } catch (error) {
       console.error('Error al subir archivos:', error);
