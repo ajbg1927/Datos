@@ -7,7 +7,7 @@ const TablaArchivos = ({ archivos = [], archivoSeleccionado, onArchivoChange }) 
       <FormControl fullWidth variant="outlined" sx={{ backgroundColor: '#f5f5f5' }}>
         <InputLabel sx={{ color: '#000' }}>Selecciona un archivo</InputLabel>
         <Select
-          value={archivoSeleccionado?.nombreBackend || ''} 
+          value={archivoSeleccionado?.nombreBackend || ''}
           label="Selecciona un archivo"
           onChange={(e) => {
             const selectedArchivo = archivos.find(
@@ -16,7 +16,7 @@ const TablaArchivos = ({ archivos = [], archivoSeleccionado, onArchivoChange }) 
             onArchivoChange(selectedArchivo);
           }}
           displayEmpty
-          renderValue={(selected) => selected?.nombreOriginal || 'Selecciona un archivo'} 
+          renderValue={(selected) => selected?.nombreOriginal || 'Selecciona un archivo'}
           sx={{
             backgroundColor: '#f5f5f5',
             '& .MuiOutlinedInput-notchedOutline': { borderColor: '#cfd8dc' },
@@ -33,7 +33,7 @@ const TablaArchivos = ({ archivos = [], archivoSeleccionado, onArchivoChange }) 
             archivos.map((archivo, index) => (
               <MenuItem
                 key={index}
-                value={archivo.nombreBackend} 
+                value={archivo.nombreBackend}
                 sx={{
                   color: '#37474f',
                   '&:hover': {
@@ -41,7 +41,7 @@ const TablaArchivos = ({ archivos = [], archivoSeleccionado, onArchivoChange }) 
                   },
                 }}
               >
-                {archivo.nombreOriginal} 
+                {archivo.nombreOriginal}
               </MenuItem>
             ))
           )}

@@ -44,13 +44,13 @@ const App = () => {
 
   useEffect(() => {
     if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
-      obtenerDatos(archivoSeleccionado, hojasSeleccionadas);
+      obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
     }
   }, [archivoSeleccionado, hojasSeleccionadas]);
 
   useEffect(() => {
-    if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado]) {
-      const hojas = hojasPorArchivo[archivoSeleccionado];
+    if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
+      const hojas = hojasPorArchivo[archivoSeleccionado.nombreBackend];
       if (hojas.length > 0 && hojasSeleccionadas.length === 0) {
         setHojasSeleccionadas([hojas[0]]);
       }
@@ -116,26 +116,20 @@ const App = () => {
     setFiltros({});
   };
 
-  const handleArchivosSubidos = async (files) => { 
+  const handleArchivosSubidos = async (files) => {
     const formData = new FormData();
-    for (const file of files) { 
+    for (const file of files) {
       formData.append('archivos', file);
     }
 
     try {
       setIsLoadingUpload(true);
-
       await axios.post(`${API_URL}/subir`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-
       await cargarArchivos(files); 
-
-      if (files.length > 0) {
-        setArchivoSeleccionado(files[0].name); 
-      }
 
     } catch (error) {
       console.error('Error al subir archivos:', error);
@@ -163,7 +157,7 @@ const App = () => {
             onArchivoChange={setArchivoSeleccionado}
           />
           <SelectorHojas
-            hojas={hojasPorArchivo[archivoSeleccionado] || []}
+            hojas={hojasPorArchivo[archivoSeleccionado?.nombreBackend] || []}
             hojasSeleccionadas={hojasSeleccionadas}
             setHojasSeleccionadas={setHojasSeleccionadas}
           />

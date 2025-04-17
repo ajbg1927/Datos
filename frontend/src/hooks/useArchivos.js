@@ -5,7 +5,7 @@ const API_URL = 'https://backend-flask-0rnq.onrender.com';
 
 const useArchivos = () => {
   const [archivos, setArchivos] = useState([]);
-  const [archivoSeleccionado, setArchivoSeleccionado] = useState('');
+  const [archivoSeleccionado, setArchivoSeleccionado] = useState(null); 
   const [hojasSeleccionadas, setHojasSeleccionadas] = useState([]);
   const [hojasPorArchivo, setHojasPorArchivo] = useState({});
   const [datosPorArchivo, setDatosPorArchivo] = useState({});
@@ -19,9 +19,9 @@ const useArchivos = () => {
 
     const formData = new FormData();
 
-    archivosInput.forEach((archivo) => {
+    for (const archivo of archivosInput) {
       formData.append('archivos', archivo);
-    });
+    }
 
     try {
       const subida = await axios.post(`${API_URL}/subir`, formData, {
@@ -37,21 +37,26 @@ const useArchivos = () => {
         const nombreBackend = nombresBackend[i];
 
         const nombreCodificado = encodeURIComponent(nombreBackend);
-        const hojas = await axios.get(`${API_URL}/hojas/${nombreCodificado}`);
+        const hojasResponse = await axios.get(`${API_URL}/hojas/${nombreCodificado}`);
+        const hojas = hojasResponse.data.hojas || [];
 
         nuevosArchivos.push({
           nombreOriginal,
           nombreBackend,
-          hojas: hojas.data.hojas || [],
+          hojas,
         });
 
         setHojasPorArchivo((prev) => ({
           ...prev,
-          [nombreBackend]: hojas.data.hojas || [],
+          [nombreBackend]: hojas,
         }));
       }
 
       setArchivos((prev) => [...prev, ...nuevosArchivos]);
+      if (nuevosArchivos.length > 0) {
+        setArchivoSeleccionado(nuevosArchivos[0]); 
+      }
+
     } catch (error) {
       console.error('Error al subir o leer hojas de los archivos:', error.response || error);
       alert(`Error en la carga: ${error?.response?.data?.error || 'Error inesperado'}`);
@@ -86,7 +91,7 @@ const useArchivos = () => {
 
   const datosCombinados = () => {
     if (!archivoSeleccionado || !hojasSeleccionadas.length) return [];
-    const datosArchivo = datosPorArchivo[archivoSeleccionado] || {};
+    const datosArchivo = datosPorArchivo[archivoSeleccionado?.nombreBackend] || {};
     return datosArchivo.combinado || [];
   };
 
