@@ -4,7 +4,15 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import { CSVLink } from 'react-csv';
 
-const ExportButtons = ({ datos, columnas, onExport }) => {
+const ExportButtons = ({ datos, columnasVisibles, onExport }) => {
+  const tieneDatos = datos?.length > 0;
+  const columnasValidas = columnasVisibles?.length > 0;
+
+  const headersCSV = columnasVisibles?.map((col) => ({
+    label: col,
+    key: col,
+  }));
+
   return (
     <Box
       sx={{
@@ -18,7 +26,8 @@ const ExportButtons = ({ datos, columnas, onExport }) => {
         boxShadow: 4,
         zIndex: 999,
         display: 'flex',
-        gap: 1,
+        gap: 2,
+        alignItems: 'center',
       }}
     >
       <Button
@@ -26,6 +35,7 @@ const ExportButtons = ({ datos, columnas, onExport }) => {
         color="secondary"
         startIcon={<FileDownloadIcon />}
         onClick={onExport}
+        disabled={!tieneDatos}
         sx={{
           borderRadius: 3,
           fontWeight: 'bold',
@@ -36,21 +46,16 @@ const ExportButtons = ({ datos, columnas, onExport }) => {
         Exportar Excel
       </Button>
 
-      {datos?.length > 0 && columnas?.length > 0 && (
-        <Tooltip title="Exportar CSV">
-          <span> {/* Necesario para evitar errores de ref con CSVLink */}
+      {tieneDatos && columnasValidas && (
+        <Tooltip title="Exportar como CSV (filtrado)">
+          <span> {/* evita error con tooltip y botón deshabilitado */}
             <CSVLink
               data={datos}
-              filename="datos_exportados.csv"
-              headers={columnas.map((col) => ({ label: col, key: col }))}
+              filename="datos_filtrados.csv"
+              headers={headersCSV}
               style={{ textDecoration: 'none' }}
             >
-              <Fab
-                component="span"
-                color="secondary"
-                aria-label="export-csv"
-                size="medium"
-              >
+              <Fab color="secondary" size="medium" component="span">
                 <GetAppIcon sx={{ color: '#000' }} />
               </Fab>
             </CSVLink>

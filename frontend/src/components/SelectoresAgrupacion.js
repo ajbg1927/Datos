@@ -7,6 +7,7 @@ import {
   Select,
   Stack,
   Typography,
+  Paper,
 } from '@mui/material';
 
 const SelectoresAgrupacion = ({
@@ -17,17 +18,23 @@ const SelectoresAgrupacion = ({
   setColumnaValor,
 }) => {
   return (
-    <Box sx={{ my: 3 }}>
-      <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
-        Opciones de visualización
+    <Paper elevation={3} sx={{ p: 3, mb: 4, borderRadius: 3 }}>
+      <Typography variant="h6" fontWeight="bold" sx={{ color: '#388E3C', mb: 2 }}>
+        Visualización de Gráficos
       </Typography>
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
+
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        spacing={3}
+        justifyContent="flex-start"
+      >
         <FormControl fullWidth>
-          <InputLabel>Agrupar por</InputLabel>
+          <InputLabel sx={{ color: '#388E3C' }}>Agrupar por</InputLabel>
           <Select
             value={columnaAgrupar}
             label="Agrupar por"
             onChange={(e) => setColumnaAgrupar(e.target.value)}
+            sx={{ bgcolor: 'white' }}
           >
             {columnas.map((col, i) => (
               <MenuItem key={i} value={col}>
@@ -38,11 +45,12 @@ const SelectoresAgrupacion = ({
         </FormControl>
 
         <FormControl fullWidth>
-          <InputLabel>Columna de valor</InputLabel>
+          <InputLabel sx={{ color: '#388E3C' }}>Columna de valor</InputLabel>
           <Select
             value={columnaValor}
             label="Columna de valor"
             onChange={(e) => setColumnaValor(e.target.value)}
+            sx={{ bgcolor: 'white' }}
           >
             {columnas.map((col, i) => (
               <MenuItem key={i} value={col}>
@@ -52,7 +60,7 @@ const SelectoresAgrupacion = ({
           </Select>
         </FormControl>
       </Stack>
-    </Box>
+    </Paper>
   );
 };
 

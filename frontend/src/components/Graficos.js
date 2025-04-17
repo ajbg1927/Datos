@@ -1,138 +1,134 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Card,
-  CardContent,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
   Typography,
-  useTheme,
-  Grid,
 } from '@mui/material';
 import {
   PieChart,
   Pie,
   Cell,
-  Tooltip,
   BarChart,
   Bar,
   XAxis,
   YAxis,
   CartesianGrid,
+  Tooltip,
+  Legend,
   ResponsiveContainer,
 } from 'recharts';
 
-const COLORS = ['#4caf50', '#fdd835', '#ff9800', '#2196f3', '#9c27b0', '#ff5722'];
+const PALETAS = {
+  Institucional: ['#4caf50', '#fdd835', '#ff9800', '#2196f3', '#9c27b0', '#ff5722'],
+  Pastel: ['#ffd1dc', '#bae1ff', '#caffbf', '#fdffb6', '#a0c4ff', '#ffc6ff'],
+  Fuego: ['#ff5722', '#ff7043', '#ff8a65', '#ffab91', '#d84315', '#bf360c'],
+  Frío: ['#00bcd4', '#4dd0e1', '#80deea', '#b2ebf2', '#e0f7fa', '#006064'],
+};
 
-const Graficos = ({ datos, columnaAgrupar, columnaValor }) => {
-  const theme = useTheme();
+const Graficos = ({ datos, columnaAgrupacion, columnaValor }) => {
+  const [tipoGrafico, setTipoGrafico] = useState('Barras');
+  const [paleta, setPaleta] = useState('Institucional');
+  const [dataAgrupada, setDataAgrupada] = useState([]);
 
-  const datosAgrupados = React.useMemo(() => {
-    if (!columnaAgrupar || !columnaValor) return [];
-    const mapa = {};
+  useEffect(() => {
+    if (!datos || !columnaAgrupacion || !columnaValor) return;
+
+    const agrupado = {};
     datos.forEach((fila) => {
-      const clave = fila[columnaAgrupar];
+      const clave = fila[columnaAgrupacion];
       const valor = parseFloat(fila[columnaValor]) || 0;
-      if (!mapa[clave]) {
-        mapa[clave] = valor;
-      } else {
-        mapa[clave] += valor;
-      }
+      agrupado[clave] = (agrupado[clave] || 0) + valor;
     });
-    return Object.entries(mapa).map(([clave, valor]) => ({
-      nombre: clave,
-      valor: valor,
-    }));
-  }, [datos, columnaAgrupar, columnaValor]);
 
-  if (!columnaAgrupar || !columnaValor || datosAgrupados.length === 0)
-    return null;
+    const nuevoData = Object.entries(agrupado).map(([key, value]) => ({
+      name: key,
+      value,
+    }));
+
+    setDataAgrupada(nuevoData);
+  }, [datos, columnaAgrupacion, columnaValor]);
+
+  const coloresUsar = PALETAS[paleta] || PALETAS['Institucional'];
 
   return (
-    <Box sx={{ mt: 4 }}>
-      <Grid container spacing={4}>
-        <Grid item xs={12} md={6}>
-          <Card
-            sx={{
-              height: '100%',
-              p: 2,
-              borderRadius: 3,
-              boxShadow: 3,
-            }}
-          >
-            <CardContent>
-              <Typography
-                variant="h6"
-                fontWeight="bold"
-                color="text.primary"
-                sx={{ mb: 2 }}
-              >
-                Distribución por {columnaAgrupar}
-              </Typography>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={datosAgrupados}
-                    dataKey="valor"
-                    nameKey="nombre"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    label
-                  >
-                    {datosAgrupados.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </Grid>
+    <Box mt={4}>
+      <Typography variant="h5" gutterBottom align="center">
+        Gráfico por {columnaAgrupacion} - Total de {columnaValor}
+      </Typography>
 
-        <Grid item xs={12} md={6}>
-          <Card
-            sx={{
-              height: '100%',
-              p: 2,
-              borderRadius: 3,
-              boxShadow: 3,
-            }}
+      <Box sx={{ mb: 2 }}>
+        <FormControl fullWidth>
+          <InputLabel id="tipo-grafico-label">Tipo de gráfico</InputLabel>
+          <Select
+            labelId="tipo-grafico-label"
+            value={tipoGrafico}
+            label="Tipo de gráfico"
+            onChange={(e) => setTipoGrafico(e.target.value)}
           >
-            <CardContent>
-              <Typography
-                variant="h6"
-                fontWeight="bold"
-                color="text.primary"
-                sx={{ mb: 2 }}
+            <MenuItem value="Barras">Barras</MenuItem>
+            <MenuItem value="Pastel">Pastel</MenuItem>
+            <MenuItem value="Ambos">Ambos</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
+
+      <Box sx={{ mb: 3 }}>
+        <FormControl fullWidth>
+          <InputLabel id="paleta-color-label">Paleta de colores</InputLabel>
+          <Select
+            labelId="paleta-color-label"
+            value={paleta}
+            label="Paleta de colores"
+            onChange={(e) => setPaleta(e.target.value)}
+          >
+            {Object.keys(PALETAS).map((key) => (
+              <MenuItem key={key} value={key}>
+                {key}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
+
+      <Box sx={{ display: 'flex', flexDirection: tipoGrafico === 'Ambos' ? 'row' : 'column', gap: 4, flexWrap: 'wrap', justifyContent: 'center' }}>
+        {(tipoGrafico === 'Barras' || tipoGrafico === 'Ambos') && (
+          <ResponsiveContainer width={tipoGrafico === 'Ambos' ? 500 : '100%'} height={400}>
+            <BarChart data={dataAgrupada}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="value" fill={coloresUsar[0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
+
+        {(tipoGrafico === 'Pastel' || tipoGrafico === 'Ambos') && (
+          <ResponsiveContainer width={tipoGrafico === 'Ambos' ? 400 : '100%'} height={400}>
+            <PieChart>
+              <Pie
+                data={dataAgrupada}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={130}
+                label
               >
-                Gráfico de Barras por {columnaAgrupar}
-              </Typography>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={datosAgrupados}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="nombre"
-                    angle={-30}
-                    textAnchor="end"
-                    interval={0}
-                    height={80}
-                  />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar
-                    dataKey="valor"
-                    fill={theme.palette.success.main}
-                    barSize={30}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+                {dataAgrupada.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={coloresUsar[index % coloresUsar.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        )}
+      </Box>
     </Box>
   );
 };
