@@ -33,26 +33,27 @@ const UploadFile = ({ onFilesUploaded }) => {
         textAlign: 'center',
         my: 4,
         backgroundColor: '#f9f9f9',
+        cursor: 'pointer',
       }}
     >
-      <UploadFileIcon sx={{ fontSize: 40, mb: 2 }} />
+      <UploadFileIcon sx={{ fontSize: 40, mb: 2, color: 'primary.main' }} />
       <Typography variant="h6" gutterBottom>
-        Arrastra o pega un archivo aquí
+        Arrastra o pega archivos Excel aquí
       </Typography>
       <Typography variant="body2" gutterBottom>
-        También puedes seleccionar un archivo manualmente
+        También puedes seleccionarlos manualmente
       </Typography>
+
       <label htmlFor="upload-file">
         <Input
-        id="upload-file"
-        type="file"
-        inputProps={{ multiple: true }}
-        onChange={handleFileChange}
-        sx={{ display: 'none' }}
+          id="upload-file"
+          type="file"
+          inputProps={{ multiple: true, accept: '.xlsx, .xls' }}
+          onChange={handleFileChange}
+          sx={{ display: 'none' }}
         />
-
         <Button variant="contained" component="span" sx={{ mt: 2 }}>
-          Seleccionar archivo
+          Seleccionar archivos
         </Button>
       </label>
     </Box>

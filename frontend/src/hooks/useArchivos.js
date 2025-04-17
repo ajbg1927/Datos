@@ -18,8 +18,9 @@ const useArchivos = () => {
     }
 
     const formData = new FormData();
+
     archivosInput.forEach((archivo) => {
-      formData.append('file', archivo);    
+      formData.append('archivos', archivo);
     });
 
     try {
