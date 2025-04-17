@@ -130,7 +130,6 @@ const App = () => {
         },
       });
       await cargarArchivos(files); 
-
     } catch (error) {
       console.error('Error al subir archivos:', error);
       alert('Error al subir archivos');
@@ -140,7 +139,21 @@ const App = () => {
   };
 
   return (
-    <Layout>
+    <Layout
+      sidebar={
+        columnas.length > 0 && (
+          <Filtros
+            columnas={columnas}
+            valoresUnicos={valoresUnicos}
+            filtros={filtros}
+            setFiltros={setFiltros}
+            handleClearFilters={handleClearFilters}
+            columnasFecha={columnasFecha}
+            columnasNumericas={columnasNumericas}
+          />
+        )
+      }
+    >
       {isLoadingUpload && (
         <Typography align="center" sx={{ mb: 2 }}>
           Subiendo archivo(s)... por favor espera
@@ -162,20 +175,6 @@ const App = () => {
             setHojasSeleccionadas={setHojasSeleccionadas}
           />
         </>
-      )}
-
-      {columnas.length > 0 && (
-        <Filtros
-          columnas={columnas}
-          valoresUnicos={valoresUnicos}
-          filtros={filtros}
-          setFiltros={setFiltros}
-          handleClearFilters={handleClearFilters}
-          columnasFecha={columnasFecha}
-          columnasNumericas={columnasNumericas}
-          columnaValor={columnaValor}
-          setColumnaValor={setColumnaValor}
-        />
       )}
 
       {columnasNumericas.length > 0 && (
@@ -203,7 +202,6 @@ const App = () => {
         datos={datosFiltrados}
         columnas={columnas}
         columnaValor={columnaValor}
-        setColumnaValor={setColumnaValor}
       />
 
       <ExportButtons
