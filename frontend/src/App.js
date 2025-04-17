@@ -186,66 +186,68 @@ const App = () => {
       )}
 
       {datos.length > 0 && (
-          <>
-            <SelectoresAgrupacion
-              columnas={columnas}
-              columnaAgrupar={columnaAgrupar}
-              setColumnaAgrupar={setColumnaAgrupar}
-              columnaValor={columnaValor}
-              setColumnaValor={setColumnaValor}
-            />
+        <>
+          <SelectoresAgrupacion
+            columnas={columnas}
+            columnaAgrupar={columnaAgrupar}
+            setColumnaAgrupar={setColumnaAgrupar}
+            columnaValor={columnaValor}
+            setColumnaValor={setColumnaValor}
+          />
 
-            <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
+          <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
 
-      {columnasNumericas.length > 0 && (
-        <Container maxWidth="md">
-          <TextField
-            select
-            fullWidth
-            label="Columna a analizar (Pagos, Deducciones, etc.)"
-            value={columnaValor}
-            onChange={(e) => setColumnaValor(e.target.value)}
-            sx={{ my: 2 }}
+          {columnasNumericas.length > 0 && (
+            <Container maxWidth="md">
+              <TextField
+                select
+                fullWidth
+                label="Columna a analizar (Pagos, Deducciones, etc.)"
+                value={columnaValor}
+                onChange={(e) => setColumnaValor(e.target.value)}
+                sx={{ my: 2 }}
+              >
+                {columnasNumericas.map((col) => (
+                  <MenuItem key={col} value={col}>
+                    {col}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Container>
+          )}
+
+          <TablaDatos datos={datosFiltrados} columnas={columnas} />
+
+          <Graficos
+            datos={datosFiltrados}
+            columnas={columnas}
+            columnaValor={columnaValor}
+          />
+
+          <ExportButtons
+            onExport={() => exportToExcel(datosFiltrados, columnas)}
+          />
+
+          <Fab
+            color="primary"
+            aria-label="exportar"
+            onClick={() => exportToExcel(datosFiltrados, columnas)}
+            sx={{
+              position: 'fixed',
+              bottom: 24,
+              right: 24,
+              backgroundColor: '#ffcd00',
+              color: '#000',
+              boxShadow: '0px 4px 12px rgba(0,0,0,0.2)',
+              '&:hover': {
+                backgroundColor: '#e6b800',
+              },
+            }}
           >
-            {columnasNumericas.map((col) => (
-              <MenuItem key={col} value={col}>
-                {col}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Container>
+            <SaveAltIcon />
+          </Fab>
+        </>
       )}
-
-      <TablaDatos datos={datosFiltrados} columnas={columnas} />
-
-      <Graficos
-        datos={datosFiltrados}
-        columnas={columnas}
-        columnaValor={columnaValor}
-      />
-
-      <ExportButtons
-        onExport={() => exportToExcel(datosFiltrados, columnas)}
-      />
-
-      <Fab
-        color="primary"
-        aria-label="exportar"
-        onClick={() => exportToExcel(datosFiltrados, columnas)}
-        sx={{
-          position: 'fixed',
-          bottom: 24,
-          right: 24,
-          backgroundColor: '#ffcd00',
-          color: '#000',
-          boxShadow: '0px 4px 12px rgba(0,0,0,0.2)',
-          '&:hover': {
-            backgroundColor: '#e6b800',
-          },
-        }}
-      >
-        <SaveAltIcon />
-      </Fab>
     </Layout>
   );
 };
