@@ -4,7 +4,7 @@ import axios from 'axios';
 const API_URL = 'https://backend-flask-0rnq.onrender.com';
 
 const useArchivos = () => {
-  const [archivos, setArchivos] = useState([]); // [{ nombreOriginal, nombreBackend, hojas }]
+  const [archivos, setArchivos] = useState([]); 
   const [archivoSeleccionado, setArchivoSeleccionado] = useState('');
   const [hojasSeleccionadas, setHojasSeleccionadas] = useState([]);
   const [hojasPorArchivo, setHojasPorArchivo] = useState({});
@@ -12,19 +12,23 @@ const useArchivos = () => {
   const [columnasPorArchivo, setColumnasPorArchivo] = useState({});
 
   const cargarArchivos = async (archivosInput) => {
-    const nuevosArchivos = [];
-
+    const formData = new FormData();
     for (const archivo of archivosInput) {
-      const formData = new FormData();
-      formData.append('archivo', archivo);
+      formData.append('files', archivo); 
+    }
 
-      try {
-        const subida = await axios.post(`${API_URL}/subir`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
+    try {
+      const subida = await axios.post(`${API_URL}/subir`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
 
-        const nombreBackend = subida.data.nombre;
+      const nombresBackend = subida.data.archivos || []; 
+      const nuevosArchivos = [];
+
+      for (let i = 0; i < archivosInput.length; i++) {
+        const archivo = archivosInput[i];
         const nombreOriginal = archivo.name;
+        const nombreBackend = nombresBackend[i];
 
         const nombreCodificado = encodeURIComponent(nombreBackend);
         const hojas = await axios.get(`${API_URL}/hojas/${nombreCodificado}`);
@@ -39,13 +43,12 @@ const useArchivos = () => {
           ...prev,
           [nombreBackend]: hojas.data.hojas || [],
         }));
-
-      } catch (error) {
-        console.error('Error al subir o leer hojas del archivo:', error);
       }
-    }
 
-    setArchivos((prev) => [...prev, ...nuevosArchivos]);
+      setArchivos((prev) => [...prev, ...nuevosArchivos]);
+    } catch (error) {
+      console.error('Error al subir o leer hojas de los archivos:', error);
+    }
   };
 
   const obtenerDatos = async (nombreBackend, hojas) => {
