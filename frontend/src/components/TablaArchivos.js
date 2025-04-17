@@ -7,11 +7,16 @@ const TablaArchivos = ({ archivos = [], archivoSeleccionado, onArchivoChange }) 
       <FormControl fullWidth variant="outlined" sx={{ backgroundColor: '#f5f5f5' }}>
         <InputLabel sx={{ color: '#000' }}>Selecciona un archivo</InputLabel>
         <Select
-          value={archivoSeleccionado || ''}
+          value={archivoSeleccionado?.nombreBackend || ''} {/* Accede a nombreBackend */}
           label="Selecciona un archivo"
-          onChange={(e) => onArchivoChange(e.target.value)}
+          onChange={(e) => {
+            const selectedArchivo = archivos.find(
+              (archivo) => archivo.nombreBackend === e.target.value
+            );
+            onArchivoChange(selectedArchivo);
+          }}
           displayEmpty
-          renderValue={(selected) => selected || 'Selecciona un archivo'}
+          renderValue={(selected) => selected?.nombreOriginal || 'Selecciona un archivo'} 
           sx={{
             backgroundColor: '#f5f5f5',
             '& .MuiOutlinedInput-notchedOutline': { borderColor: '#cfd8dc' },
@@ -28,7 +33,7 @@ const TablaArchivos = ({ archivos = [], archivoSeleccionado, onArchivoChange }) 
             archivos.map((archivo, index) => (
               <MenuItem
                 key={index}
-                value={archivo}
+                value={archivo.nombreBackend} {/* El valor del MenuItem debe ser algo identificable */}
                 sx={{
                   color: '#37474f',
                   '&:hover': {
@@ -36,7 +41,7 @@ const TablaArchivos = ({ archivos = [], archivoSeleccionado, onArchivoChange }) 
                   },
                 }}
               >
-                {archivo}
+                {archivo.nombreOriginal} {/* Muestra el nombre original del archivo */}
               </MenuItem>
             ))
           )}
