@@ -1,81 +1,83 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 
 const API_URL = 'https://backend-flask-0rnq.onrender.com';
 
 const useArchivos = () => {
   const [archivos, setArchivos] = useState([]);
-  const [datosPorArchivo, setDatosPorArchivo] = useState({});
-  const [columnasPorArchivo, setColumnasPorArchivo] = useState({});
-  const [hojasPorArchivo, setHojasPorArchivo] = useState({});
   const [archivoSeleccionado, setArchivoSeleccionado] = useState('');
   const [hojasSeleccionadas, setHojasSeleccionadas] = useState([]);
+  const [hojasPorArchivo, setHojasPorArchivo] = useState({});
+  const [datosPorArchivo, setDatosPorArchivo] = useState({});
+  const [columnasPorArchivo, setColumnasPorArchivo] = useState({});
 
-  useEffect(() => {
-    if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado]) {
-      const hojas = hojasPorArchivo[archivoSeleccionado];
-      if (hojas.length > 0) {
-        setHojasSeleccionadas([hojas[0]]);
-      }
-    }
-  }, [archivoSeleccionado, hojasPorArchivo]);
-
-  const cargarArchivos = async (files) => {
-    const formData = new FormData();
-    for (let file of files) {
-      formData.append('files', file);
-    }
-
+  const cargarArchivos = async (nombresArchivos) => {
     try {
-      const response = await axios.post(`${API_URL}/cargar`, formData);
-      const archivosCargados = response.data.archivos || [];
-      const hojas = response.data.hojas || {};
-
-      setArchivos(archivosCargados);
-      setHojasPorArchivo(hojas);
+      setArchivos(nombresArchivos);
+      const hojasPorArchivoTemp = {};
+      for (let nombre of nombresArchivos) {
+        const response = await axios.get(`${API_URL}/hojas/${nombre}`);
+        hojasPorArchivoTemp[nombre] = response.data.hojas || [];
+      }
+      setHojasPorArchivo(hojasPorArchivoTemp);
     } catch (error) {
-      console.error('Error al cargar archivos:', error);
+      console.error('Error al obtener hojas de archivos:', error);
     }
   };
 
-  const obtenerDatos = async (archivo, hojas) => {
-    if (!archivo || hojas.length === 0) return;
-
+  const obtenerDatos = async (nombreArchivo, hojas) => {
     try {
-      const response = await axios.post(
-        `${API_URL}/datos/${archivo}`,
-        { hojas },
-        { headers: { 'Content-Type': 'application/json' } }
-      );
+      const datosPorHoja = {};
+      for (let hoja of hojas) {
+        const response = await axios.get(`${API_URL}/leer/${nombreArchivo}/${hoja}`);
+        datosPorHoja[hoja] = response.data.datos || [];
+      }
 
-      const datos = response.data.datos || [];
-      const columnas = response.data.columnas || [];
+      setDatosPorArchivo((prev) => ({
+        ...prev,
+        [nombreArchivo]: {
+          ...(prev[nombreArchivo] || {}),
+          ...datosPorHoja
+        }
+      }));
 
-      setDatosPorArchivo((prev) => ({ ...prev, [archivo]: datos }));
-      setColumnasPorArchivo((prev) => ({ ...prev, [archivo]: columnas }));
+      const primeraHoja = hojas[0];
+      if (datosPorHoja[primeraHoja]?.length > 0) {
+        setColumnasPorArchivo((prev) => ({
+          ...prev,
+          [nombreArchivo]: Object.keys(datosPorHoja[primeraHoja][0])
+        }));
+      }
+
     } catch (error) {
-      console.error('Error al obtener datos:', error);
+      console.error('Error al obtener datos del archivo:', error);
     }
   };
 
   const datosCombinados = () => {
-    if (!archivoSeleccionado || hojasSeleccionadas.length === 0) return [];
-    return datosPorArchivo[archivoSeleccionado] || [];
+    if (!archivoSeleccionado || !hojasSeleccionadas.length) return [];
+
+    const datosArchivo = datosPorArchivo[archivoSeleccionado] || {};
+    const datos = hojasSeleccionadas.flatMap(
+      (hoja) => datosArchivo[hoja] || []
+    );
+
+    return datos;
   };
 
   return {
     archivos,
-    setArchivos,
-    datosPorArchivo,
-    columnasPorArchivo,
-    hojasPorArchivo,
     archivoSeleccionado,
     setArchivoSeleccionado,
     hojasSeleccionadas,
     setHojasSeleccionadas,
-    cargarArchivos,
+    hojasPorArchivo,
+    datosPorArchivo,
+    columnasPorArchivo,
     obtenerDatos,
-    datosCombinados
+    datosCombinados,
+    setArchivos,
+    cargarArchivos
   };
 };
 

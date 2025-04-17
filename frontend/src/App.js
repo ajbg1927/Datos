@@ -49,13 +49,13 @@ const App = () => {
   }, [archivoSeleccionado, hojasSeleccionadas]);
 
   useEffect(() => {
-    if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado]) {
-      const hojas = hojasPorArchivo[archivoSeleccionado];
-      if (hojas.length > 0) {
-        setHojasSeleccionadas([hojas[0]]);
-      }
+  if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado]) {
+    const hojas = hojasPorArchivo[archivoSeleccionado];
+    if (hojas.length > 0) {
+      setHojasSeleccionadas([hojas[0]]);
     }
-  }, [archivoSeleccionado, hojasPorArchivo]);
+  }
+}, [archivoSeleccionado, hojasPorArchivo]);
 
   const datos = datosCombinados();
   const columnas = datos.length > 0 ? Object.keys(datos[0]) : [];

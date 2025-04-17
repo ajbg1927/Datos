@@ -12,20 +12,19 @@ import {
 } from '@mui/material';
 
 const SelectorHojas = ({ hojas, hojasSeleccionadas, setHojasSeleccionadas }) => {
+  const todasSeleccionadas = hojasSeleccionadas.length === hojas.length;
+  const algunasSeleccionadas = hojasSeleccionadas.length > 0 && !todasSeleccionadas;
+
   const handleToggle = (hoja) => {
-    if (hojasSeleccionadas.includes(hoja)) {
-      setHojasSeleccionadas(hojasSeleccionadas.filter((h) => h !== hoja));
-    } else {
-      setHojasSeleccionadas([...hojasSeleccionadas, hoja]);
-    }
+    setHojasSeleccionadas((prev) =>
+      prev.includes(hoja)
+        ? prev.filter((h) => h !== hoja)
+        : [...prev, hoja]
+    );
   };
 
   const handleToggleAll = () => {
-    if (hojasSeleccionadas.length === hojas.length) {
-      setHojasSeleccionadas([]);
-    } else {
-      setHojasSeleccionadas(hojas);
-    }
+    setHojasSeleccionadas(todasSeleccionadas ? [] : hojas);
   };
 
   if (!hojas || hojas.length === 0) return null;
@@ -37,7 +36,7 @@ const SelectorHojas = ({ hojas, hojasSeleccionadas, setHojasSeleccionadas }) => 
         p: 3,
         mb: 3,
         borderLeft: '6px solid #2e7d32',
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#fcfcfc',
       }}
     >
       <Box display="flex" flexDirection="column" gap={2}>
@@ -62,15 +61,15 @@ const SelectorHojas = ({ hojas, hojasSeleccionadas, setHojasSeleccionadas }) => 
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={hojasSeleccionadas.length === hojas.length}
-                  indeterminate={
-                    hojasSeleccionadas.length > 0 &&
-                    hojasSeleccionadas.length < hojas.length
-                  }
+                  checked={todasSeleccionadas}
+                  indeterminate={algunasSeleccionadas}
                   onChange={handleToggleAll}
                   sx={{
                     color: '#2e7d32',
                     '&.Mui-checked': { color: '#ffcd00' },
+                    '&.MuiCheckbox-indeterminate': {
+                      color: '#ffcd00',
+                    },
                   }}
                 />
               }
