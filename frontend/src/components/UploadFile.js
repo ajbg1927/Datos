@@ -44,12 +44,13 @@ const UploadFile = ({ onFilesUploaded }) => {
       </Typography>
       <label htmlFor="upload-file">
         <Input
-          id="upload-file"
-          type="file"
-          inputProps={{ multiple: true }}
-          onChange={handleFileChange}
-          sx={{ display: 'none' }}
+        id="upload-file"
+        type="file"
+        inputProps={{ multiple: true }}
+        onChange={handleFileChange}
+        sx={{ display: 'none' }}
         />
+
         <Button variant="contained" component="span" sx={{ mt: 2 }}>
           Seleccionar archivo
         </Button>
