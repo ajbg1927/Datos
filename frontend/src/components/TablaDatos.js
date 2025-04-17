@@ -1,62 +1,65 @@
 import React from 'react';
-import { Box } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
+import { Box, Typography } from '@mui/material';
 import ExportButtons from './ExportButtons';
 
-const TablaDatos = ({ datosFiltrados }) => {
-  if (!datosFiltrados || datosFiltrados.length === 0) {
-    return null;
+const TablaDatos = ({ datos, columnas, onExport }) => {
+  if (!datos || datos.length === 0) {
+    return (
+      <Typography variant="body1" sx={{ mt: 2 }}>
+        No hay datos para mostrar.
+      </Typography>
+    );
   }
 
-  const columnas = Object.keys(datosFiltrados[0]);
-  const columnasFiltradas = columnas.filter((col) => col !== '__rowNum__');
+  const columnasFiltradas = columnas.filter(
+    (col) => col && !col.toLowerCase().includes('unnamed')
+  );
 
   const columnasGrid = columnasFiltradas.map((col) => ({
     field: col,
     headerName: col,
     flex: 1,
-    minWidth: 200, // Aumenta ancho mínimo para columnas legibles
+    minWidth: 200,
   }));
 
-  const filas = datosFiltrados.map((fila, index) => ({
-    id: index,
+  const filas = datos.map((fila, idx) => ({
+    id: idx,
     ...fila,
   }));
 
   return (
-    <Box
-      sx={{
-        height: '80vh',
-        width: '100%',
-        mt: 2,
-        backgroundColor: 'white',
-        borderRadius: 3,
-        overflowX: 'auto', 
-      }}
-    >
-      <DataGrid
-        rows={filas}
-        columns={columnasGrid}
-        pageSize={25}
-        rowsPerPageOptions={[10, 25, 50, 100]}
-        checkboxSelection={false}
-        disableSelectionOnClick
-        autoHeight={false}
-        sx={{
-          minWidth: '1000px',
-          '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: '#388E3C', 
-            color: 'white',
-            fontWeight: 'bold',
-          },
-          '& .MuiDataGrid-row:nth-of-type(even)': {
-            backgroundColor: '#f5f5f5',
-          },
-        }}
-      />
+    <Box sx={{ mt: 4 }}>
+      <ExportButtons datos={datos} columnas={columnasFiltradas} onExport={onExport} />
 
-      {/* Botones de exportación flotantes */}
-      <ExportButtons datos={datosFiltrados} />
+      <Box
+        sx={{
+          height: 600,
+          width: '100%',
+          mt: 2,
+          backgroundColor: 'white',
+          borderRadius: 3,
+        }}
+      >
+        <DataGrid
+          rows={filas}
+          columns={columnasGrid}
+          pageSize={25}
+          rowsPerPageOptions={[10, 25, 50, 100]}
+          checkboxSelection={false}
+          disableSelectionOnClick
+          sx={{
+            '& .MuiDataGrid-columnHeaders': {
+              backgroundColor: '#388E3C',
+              color: 'white',
+              fontWeight: 'bold',
+            },
+            '& .MuiDataGrid-row:nth-of-type(even)': {
+              backgroundColor: '#f5f5f5',
+            },
+          }}
+        />
+      </Box>
     </Box>
   );
 };
