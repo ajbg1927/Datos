@@ -20,7 +20,7 @@ const Filtros = ({
   columnasNumericas = [],
 }) => {
   return (
-    <Paper elevation={3} sx={{ p: 3, mt: 4, mb: 4 }}>
+    <Paper elevation={3} sx={{ p: { xs: 2, md: 3 }, mt: 4, mb: 4, boxShadow: 4 }}>
       <Typography variant="h6" gutterBottom>
         Filtros de búsqueda
       </Typography>

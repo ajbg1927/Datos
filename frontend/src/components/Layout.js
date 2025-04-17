@@ -1,9 +1,9 @@
 import React from 'react';
 import Header from './Header';
 import Footer from './Footer';
-import { Container, Box } from '@mui/material';
+import { Container, Box, Grid, Paper } from '@mui/material';
 
-const Layout = ({ children }) => {
+const Layout = ({ children, sidebar }) => {
   return (
     <Box
       display="flex"
@@ -13,14 +13,20 @@ const Layout = ({ children }) => {
     >
       <Header />
 
-      <Container
-        maxWidth="xl"
-        sx={{
-          flexGrow: 1,
-          py: 3,
-        }}
-      >
-        {children}
+      <Container maxWidth="xl" sx={{ flexGrow: 1, py: 3 }}>
+        <Grid container spacing={2}>
+          {/* Barra lateral de filtros */}
+          <Grid item xs={12} md={3}>
+            <Paper elevation={2} sx={{ p: 2, height: '100%' }}>
+              {sidebar}
+            </Paper>
+          </Grid>
+
+          {/* Contenido principal */}
+          <Grid item xs={12} md={9}>
+            {children}
+          </Grid>
+        </Grid>
       </Container>
 
       <Footer />
