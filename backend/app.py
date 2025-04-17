@@ -64,7 +64,7 @@ def subir_archivo():
         return jsonify({"error": "Formato de archivo no permitido"}), 400
 
     filename = secure_filename(file.filename)
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
 
     try:
         file.save(filepath)
@@ -72,14 +72,28 @@ def subir_archivo():
     except Exception as e:
         return jsonify({"error": f"No se pudo guardar el archivo: {str(e)}"}), 500
 
+@app.route("/upload", methods=["POST"])
+def upload_file():
+    if 'archivo' not in request.files:
+        return jsonify({'error': 'No se envió archivo'}), 400
+    archivo = request.files['archivo']
+    if archivo.filename == '':
+        return jsonify({'error': 'Nombre de archivo vacío'}), 400
+
+    filename = secure_filename(archivo.filename)
+    path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    archivo.save(path)
+
+    return jsonify({'mensaje': 'Archivo subido exitosamente', 'archivo': filename}), 200
+
 @app.route("/archivos", methods=["GET"])
 def listar_archivos():
-    archivos = os.listdir(UPLOAD_FOLDER)
+    archivos = os.listdir(app.config["UPLOAD_FOLDER"])
     return jsonify({"archivos": archivos})
 
 @app.route("/hojas/<filename>", methods=["GET"])
 def obtener_hojas(filename):
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     if not os.path.exists(filepath):
         return jsonify({"error": "Archivo no encontrado"}), 404
 
@@ -91,7 +105,7 @@ def obtener_hojas(filename):
 
 @app.route("/datos/<filename>", methods=["POST"])
 def obtener_datos(filename):
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     if not os.path.exists(filepath):
         return jsonify({"error": "Archivo no encontrado"}), 404
 
@@ -123,7 +137,7 @@ def obtener_datos_archivo():
     if not filename:
         return jsonify({"error": "Archivo no encontrado"}), 400
     try:
-        filepath = os.path.join("/tmp", filename)
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         if not os.path.exists(filepath):
             return jsonify({"error": "Archivo no encontrado"}), 400
         xls = pd.ExcelFile(filepath)
@@ -140,20 +154,6 @@ def obtener_datos_archivo():
         return jsonify({"datos": datos_totales})
     except Exception as e:
         return jsonify({"error": f"Error al procesar el archivo: {str(e)}"}), 500
-
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    if 'archivo' not in request.files:
-        return jsonify({'error': 'No se envió archivo'}), 400
-    archivo = request.files['archivo']
-    if archivo.filename == '':
-        return jsonify({'error': 'Nombre de archivo vacío'}), 400
-
-    filename = secure_filename(archivo.filename)
-    path = os.path.join('/tmp', filename)
-    archivo.save(path)
-
-    return jsonify({'mensaje': 'Archivo subido exitosamente', 'archivo': filename}), 200
 
 @app.route("/datos", methods=["POST"])
 def procesar_excel_endpoint():
@@ -198,7 +198,7 @@ def cargar():
 
     for archivo in archivos:
         filename = archivo.filename
-        filepath = os.path.join('/tmp', filename)
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         archivo.save(filepath)
 
         try:
@@ -225,13 +225,11 @@ def generate_report():
 
         df = pd.DataFrame(data)
 
-        excel_path = os.path.join(UPLOAD_FOLDER, "reporte.xlsx")
-        pdf_path = os.path.join(UPLOAD_FOLDER, "reporte.pdf")
+        excel_path = os.path.join(app.config["UPLOAD_FOLDER"], "reporte.xlsx")
+        pdf_path = os.path.join(app.config["UPLOAD_FOLDER"], "reporte.pdf")
 
-        # Guardar Excel
         df.to_excel(excel_path, index=False)
 
-        # Crear PDF básico
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", style='B', size=16)
@@ -252,7 +250,7 @@ def generate_report():
 
 @app.route("/download/<filename>", methods=["GET"])
 def download_file(filename):
-    file_path = os.path.join(UPLOAD_FOLDER, filename)
+    file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     if os.path.exists(file_path):
         return send_file(file_path, as_attachment=True)
     return jsonify({"error": "Archivo no encontrado"}), 404
