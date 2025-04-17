@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 
-const AgrupacionSeleccion = ({
+const SelectoresAgrupacion = ({
   columnas,
   columnaAgrupar,
   setColumnaAgrupar,
@@ -56,4 +56,4 @@ const AgrupacionSeleccion = ({
   );
 };
 
-export default AgrupacionSeleccion;
+export default SelectoresAgrupacion;
