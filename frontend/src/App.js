@@ -116,11 +116,11 @@ const App = () => {
     setFiltros({});
   };
 
-  const handleArchivosSubidos = async (files) => {
+  const handleArchivosSubidos = async (files) => { // Recibe el FileList directamente
     const formData = new FormData();
-    files.forEach((file) => {
-      formData.append('archivos', file); 
-    });
+    for (const file of files) { // Iterar sobre el FileList
+      formData.append('archivos', file);
+    }
 
     try {
       setIsLoadingUpload(true);
@@ -131,11 +131,11 @@ const App = () => {
         },
       });
 
-      const nombresArchivos = files.map((file) => file.name);
-      await cargarArchivos(nombresArchivos);
+      // Ya no necesitas extraer solo los nombres aquí
+      await cargarArchivos(files); // Pasa el FileList completo
 
-      if (nombresArchivos.length > 0) {
-        setArchivoSeleccionado(nombresArchivos[0]);
+      if (files.length > 0) {
+        setArchivoSeleccionado(files[0].name); // Usa el nombre del primer archivo
       }
 
     } catch (error) {
