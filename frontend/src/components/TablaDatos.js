@@ -36,38 +36,40 @@ const TablaDatos = ({ datos, columnas, onExport }) => {
         elevation={4}
         sx={{
           mt: 3,
-          height: '70vh',
+          height: '70vh', 
           width: '100%',
           borderRadius: 3,
-          overflow: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        <Box sx={{ width: 'max-content', minWidth: '100%' }}>
-          <DataGrid
-            rows={filas}
-            columns={columnasGrid}
-            pageSize={25}
-            rowsPerPageOptions={[10, 25, 50, 100]}
-            disableSelectionOnClick
-            density="compact"
-            autoHeight={false}
-            sx={{
-              border: 'none',
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: '#388E3C',
-                color: '#fff',
-                fontWeight: 'bold',
-                fontSize: 14,
-              },
-              '& .MuiDataGrid-cell': {
-                fontSize: 13,
-                whiteSpace: 'nowrap',
-              },
-              '& .MuiDataGrid-row:nth-of-type(even)': {
-                backgroundColor: '#f9f9f9',
-              },
-            }}
-          />
+        <Box sx={{ flex: 1, width: '100%', overflow: 'auto' }}>
+          <Box sx={{ minWidth: '100%', width: 'max-content' }}>
+            <DataGrid
+              rows={filas}
+              columns={columnasGrid}
+              pageSize={25}
+              rowsPerPageOptions={[10, 25, 50, 100]}
+              disableSelectionOnClick
+              autoHeight={false} // Importante: evitar que dependa del padre
+              sx={{
+                border: 'none',
+                '& .MuiDataGrid-columnHeaders': {
+                  backgroundColor: '#388E3C',
+                  color: '#fff',
+                  fontWeight: 'bold',
+                  fontSize: 14,
+                },
+                '& .MuiDataGrid-cell': {
+                  fontSize: 13,
+                  whiteSpace: 'nowrap',
+                },
+                '& .MuiDataGrid-row:nth-of-type(even)': {
+                  backgroundColor: '#f9f9f9',
+                },
+              }}
+            />
+          </Box>
         </Box>
       </Paper>
     </Box>
