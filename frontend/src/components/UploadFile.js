@@ -1,67 +1,60 @@
-import React, { useRef, useState } from 'react';
-import { Box, Button, Typography, Paper } from '@mui/material';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import React from 'react';
+import { Box, Typography, Button, Input } from '@mui/material';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 
-const UploadFile = ({ onArchivosSeleccionados }) => {
-  const inputRef = useRef();
-  const [arrastrando, setArrastrando] = useState(false);
+const UploadFile = ({ onFilesUploaded }) => {
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      onFilesUploaded(files); 
+    }
+  };
 
   const handleDrop = (e) => {
     e.preventDefault();
-    setArrastrando(false);
-    const archivos = Array.from(e.dataTransfer.files);
-    if (archivos.length) {
-      onArchivosSeleccionados(archivos);
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      onFilesUploaded(files);
     }
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
-    setArrastrando(true);
-  };
-
-  const handleDragLeave = () => {
-    setArrastrando(false);
-  };
-
-  const handleArchivoSeleccionado = (e) => {
-    const archivos = Array.from(e.target.files);
-    if (archivos.length) {
-      onArchivosSeleccionados(archivos);
-    }
   };
 
   return (
-    <Paper
-      elevation={arrastrando ? 6 : 2}
-      sx={{
-        border: arrastrando ? '2px dashed #388e3c' : '2px dashed #ccc',
-        borderRadius: 2,
-        padding: 4,
-        textAlign: 'center',
-        backgroundColor: arrastrando ? '#f1f8e9' : 'inherit',
-        cursor: 'pointer',
-      }}
+    <Box
       onDrop={handleDrop}
       onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onClick={() => inputRef.current.click()}
+      sx={{
+        border: '2px dashed #ccc',
+        borderRadius: 4,
+        p: 4,
+        textAlign: 'center',
+        my: 4,
+        backgroundColor: '#f9f9f9',
+      }}
     >
-      <CloudUploadIcon sx={{ fontSize: 50, color: '#388e3c' }} />
-      <Typography variant="h6" mt={2}>
-        Arrastra y suelta archivos aquí o haz clic para seleccionarlos
+      <UploadFileIcon sx={{ fontSize: 40, mb: 2 }} />
+      <Typography variant="h6" gutterBottom>
+        Arrastra o pega un archivo aquí
       </Typography>
-      <Typography variant="body2" color="textSecondary">
-        Puedes subir múltiples archivos Excel (.xlsx)
+      <Typography variant="body2" gutterBottom>
+        También puedes seleccionar un archivo manualmente
       </Typography>
-      <input
-        ref={inputRef}
-        type="file"
-        hidden
-        multiple
-        onChange={handleArchivoSeleccionado}
-      />
-    </Paper>
+      <label htmlFor="upload-file">
+        <Input
+          id="upload-file"
+          type="file"
+          inputProps={{ multiple: true }}
+          onChange={handleFileChange}
+          sx={{ display: 'none' }}
+        />
+        <Button variant="contained" component="span" sx={{ mt: 2 }}>
+          Seleccionar archivo
+        </Button>
+      </label>
+    </Box>
   );
 };
 
