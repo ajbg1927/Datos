@@ -4,7 +4,7 @@ import {
   Fab,
   TextField,
   MenuItem,
-  Typography
+  Typography,
 } from '@mui/material';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import Layout from './components/Layout';
@@ -35,7 +35,7 @@ const App = () => {
     obtenerDatos,
     datosCombinados,
     setArchivos,
-    cargarArchivos
+    cargarArchivos,
   } = useArchivos();
 
   const [filtros, setFiltros] = useState({});
@@ -49,16 +49,22 @@ const App = () => {
   }, [archivoSeleccionado, hojasSeleccionadas]);
 
   useEffect(() => {
-  if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado]) {
-    const hojas = hojasPorArchivo[archivoSeleccionado];
-    if (hojas.length > 0) {
-      setHojasSeleccionadas([hojas[0]]);
+    if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado]) {
+      const hojas = hojasPorArchivo[archivoSeleccionado];
+      if (hojas.length > 0 && hojasSeleccionadas.length === 0) {
+        setHojasSeleccionadas([hojas[0]]);
+      }
     }
-  }
-}, [archivoSeleccionado, hojasPorArchivo]);
+  }, [archivoSeleccionado, hojasPorArchivo]);
 
   const datos = datosCombinados();
-  const columnas = datos.length > 0 ? Object.keys(datos[0]) : [];
+
+  // Detectar columnas reales sin errores si hay diferencias
+  const columnasSet = new Set();
+  datos.forEach((row) => {
+    Object.keys(row).forEach((key) => columnasSet.add(key));
+  });
+  const columnas = Array.from(columnasSet);
 
   const columnasFecha = columnas.filter((col) =>
     col.toLowerCase().includes('fecha')
@@ -73,11 +79,13 @@ const App = () => {
     }
   }, [columnasNumericas]);
 
+  // Valores únicos para filtros dinámicos
   const valoresUnicos = {};
   columnas.forEach((col) => {
-    valoresUnicos[col] = [
-      ...new Set(datos.map((row) => row[col]).filter((v) => v !== null)),
-    ];
+    const valores = datos
+      .map((row) => row[col])
+      .filter((v) => v !== undefined && v !== null);
+    valoresUnicos[col] = [...new Set(valores)];
   });
 
   const texto = filtros.busqueda || '';
@@ -122,7 +130,7 @@ const App = () => {
       const nombresArchivos = files.map((file) => file.name);
       await cargarArchivos(nombresArchivos);
       if (nombresArchivos.length > 0) {
-        setArchivoSeleccionado(nombresArchivos[0]); // 👈 Solo se selecciona el archivo aquí
+        setArchivoSeleccionado(nombresArchivos[0]);
       }
     } catch (error) {
       console.error('Error al subir archivos:', error);

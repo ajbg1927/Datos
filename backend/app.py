@@ -93,7 +93,12 @@ def listar_archivos():
 
 @app.route("/hojas/<filename>", methods=["GET"])
 def obtener_hojas(filename):
+    filename = secure_filename(filename)  
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    
+    print("→ Solicitando hojas del archivo:", filename)
+    print("→ Archivos disponibles en /tmp:", os.listdir(app.config["UPLOAD_FOLDER"]))
+    
     if not os.path.exists(filepath):
         return jsonify({"error": "Archivo no encontrado"}), 404
 
@@ -105,7 +110,9 @@ def obtener_hojas(filename):
 
 @app.route("/datos/<filename>", methods=["POST"])
 def obtener_datos(filename):
+    filename = secure_filename(filename)
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    
     if not os.path.exists(filepath):
         return jsonify({"error": "Archivo no encontrado"}), 404
 

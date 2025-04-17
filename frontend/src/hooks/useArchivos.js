@@ -4,48 +4,71 @@ import axios from 'axios';
 const API_URL = 'https://backend-flask-0rnq.onrender.com';
 
 const useArchivos = () => {
-  const [archivos, setArchivos] = useState([]);
+  const [archivos, setArchivos] = useState([]); // [{ nombreOriginal, nombreBackend, hojas }]
   const [archivoSeleccionado, setArchivoSeleccionado] = useState('');
   const [hojasSeleccionadas, setHojasSeleccionadas] = useState([]);
   const [hojasPorArchivo, setHojasPorArchivo] = useState({});
   const [datosPorArchivo, setDatosPorArchivo] = useState({});
   const [columnasPorArchivo, setColumnasPorArchivo] = useState({});
 
-  const cargarArchivos = async (nombresArchivos) => {
-    try {
-      setArchivos(nombresArchivos);
-      const hojasPorArchivoTemp = {};
-      for (let nombre of nombresArchivos) {
-        const response = await axios.get(`${API_URL}/hojas/${nombre}`);
-        hojasPorArchivoTemp[nombre] = response.data.hojas || [];
+  const cargarArchivos = async (archivosInput) => {
+    const nuevosArchivos = [];
+
+    for (const archivo of archivosInput) {
+      const formData = new FormData();
+      formData.append('archivo', archivo);
+
+      try {
+        const subida = await axios.post(`${API_URL}/subir`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        const nombreBackend = subida.data.nombre;
+        const nombreOriginal = archivo.name;
+
+        const nombreCodificado = encodeURIComponent(nombreBackend);
+        const hojas = await axios.get(`${API_URL}/hojas/${nombreCodificado}`);
+
+        nuevosArchivos.push({
+          nombreOriginal,
+          nombreBackend,
+          hojas: hojas.data.hojas || [],
+        });
+
+        setHojasPorArchivo((prev) => ({
+          ...prev,
+          [nombreBackend]: hojas.data.hojas || [],
+        }));
+
+      } catch (error) {
+        console.error('Error al subir o leer hojas del archivo:', error);
       }
-      setHojasPorArchivo(hojasPorArchivoTemp);
-    } catch (error) {
-      console.error('Error al obtener hojas de archivos:', error);
     }
+
+    setArchivos((prev) => [...prev, ...nuevosArchivos]);
   };
 
-  const obtenerDatos = async (nombreArchivo, hojas) => {
+  const obtenerDatos = async (nombreBackend, hojas) => {
     try {
-      const datosPorHoja = {};
-      for (let hoja of hojas) {
-        const response = await axios.get(`${API_URL}/leer/${nombreArchivo}/${hoja}`);
-        datosPorHoja[hoja] = response.data.datos || [];
-      }
+      const nombreCodificado = encodeURIComponent(nombreBackend);
+      const response = await axios.post(`${API_URL}/datos/${nombreCodificado}`, {
+        hojas,
+      });
+
+      const datos = response.data.datos || [];
 
       setDatosPorArchivo((prev) => ({
         ...prev,
-        [nombreArchivo]: {
-          ...(prev[nombreArchivo] || {}),
-          ...datosPorHoja
-        }
+        [nombreBackend]: {
+          ...(prev[nombreBackend] || {}),
+          combinado: datos,
+        },
       }));
 
-      const primeraHoja = hojas[0];
-      if (datosPorHoja[primeraHoja]?.length > 0) {
+      if (datos.length > 0) {
         setColumnasPorArchivo((prev) => ({
           ...prev,
-          [nombreArchivo]: Object.keys(datosPorHoja[primeraHoja][0])
+          [nombreBackend]: Object.keys(datos[0]),
         }));
       }
 
@@ -58,11 +81,7 @@ const useArchivos = () => {
     if (!archivoSeleccionado || !hojasSeleccionadas.length) return [];
 
     const datosArchivo = datosPorArchivo[archivoSeleccionado] || {};
-    const datos = hojasSeleccionadas.flatMap(
-      (hoja) => datosArchivo[hoja] || []
-    );
-
-    return datos;
+    return datosArchivo.combinado || [];
   };
 
   return {
@@ -77,7 +96,7 @@ const useArchivos = () => {
     obtenerDatos,
     datosCombinados,
     setArchivos,
-    cargarArchivos
+    cargarArchivos,
   };
 };
 

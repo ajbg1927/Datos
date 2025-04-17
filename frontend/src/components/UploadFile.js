@@ -27,7 +27,7 @@ const UploadFile = ({ onFilesUploaded }) => {
         borderRadius: 2,
         textAlign: 'center',
         mb: 3,
-        backgroundColor: '#fafafa'
+        backgroundColor: '#fafafa',
       }}
     >
       <Typography variant="h6" gutterBottom>
@@ -39,7 +39,11 @@ const UploadFile = ({ onFilesUploaded }) => {
       <Button
         variant="contained"
         component="label"
-        sx={{ mt: 2, backgroundColor: '#33691e', '&:hover': { backgroundColor: '#2e7d32' } }}
+        sx={{
+          mt: 2,
+          backgroundColor: '#33691e',
+          '&:hover': { backgroundColor: '#2e7d32' },
+        }}
       >
         Elegir archivo(s)
         <input
