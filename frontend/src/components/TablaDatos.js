@@ -1,9 +1,31 @@
-import React from 'react';
-import { DataGrid } from '@mui/x-data-grid';
-import { Box, Typography, Paper } from '@mui/material';
-import ExportButtons from './ExportButtons';
+import React, { useState } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Typography,
+  TablePagination,
+  Button,
+  Box,
+} from '@mui/material';
+import { CSVLink } from 'react-csv';
 
-const TablaDatos = ({ datos, columnas, onExport }) => {
+const TablaDatos = ({ datos, columnas }) => {
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const handleChangePage = (event, newPage) => setPage(newPage);
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+
+  const rowsToShow = datos.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
   if (!datos || datos.length === 0) {
     return (
       <Typography variant="body1" sx={{ mt: 2 }}>
@@ -12,66 +34,56 @@ const TablaDatos = ({ datos, columnas, onExport }) => {
     );
   }
 
-  const columnasFiltradas = columnas.filter(
-    (col) => col && !col.toLowerCase().includes('unnamed')
-  );
-
-  const columnasGrid = columnasFiltradas.map((col) => ({
-    field: col,
-    headerName: col,
-    flex: 1,
-    minWidth: 150,
-  }));
-
-  const filas = datos.map((fila, idx) => ({
-    id: idx,
-    ...fila,
-  }));
-
   return (
     <Box sx={{ mt: 4 }}>
-      <ExportButtons datos={datos} columnas={columnasFiltradas} onExport={onExport} />
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <CSVLink
+          data={datos}
+          filename="datos_exportados.csv"
+          headers={columnas.map((col) => ({ label: col, key: col }))}
+          style={{ textDecoration: 'none' }}
+        >
+          <Button variant="contained" color="success">
+            Exportar CSV
+          </Button>
+        </CSVLink>
+      </Box>
 
-      <Paper
-        elevation={4}
-        sx={{
-          mt: 3,
-          height: '70vh', 
-          width: '100%',
-          borderRadius: 3,
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <Box sx={{ flex: 1, width: '100%', overflow: 'auto' }}>
-          <Box sx={{ minWidth: '100%', width: 'max-content' }}>
-            <DataGrid
-              rows={filas}
-              columns={columnasGrid}
-              pageSize={25}
-              rowsPerPageOptions={[10, 25, 50, 100]}
-              disableSelectionOnClick
-              autoHeight={false} // Importante: evitar que dependa del padre
-              sx={{
-                border: 'none',
-                '& .MuiDataGrid-columnHeaders': {
-                  backgroundColor: '#388E3C',
-                  color: '#fff',
-                  fontWeight: 'bold',
-                  fontSize: 14,
-                },
-                '& .MuiDataGrid-cell': {
-                  fontSize: 13,
-                  whiteSpace: 'nowrap',
-                },
-                '& .MuiDataGrid-row:nth-of-type(even)': {
-                  backgroundColor: '#f9f9f9',
-                },
-              }}
-            />
-          </Box>
-        </Box>
-      </Paper>
+      <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
+        <Table size="small" stickyHeader>
+          <TableHead>
+            <TableRow>
+              {columnas.map((columna) => (
+                <TableCell key={columna} sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>
+                  {columna}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {rowsToShow.map((fila, index) => (
+              <TableRow key={index}>
+                {columnas.map((columna) => (
+                  <TableCell key={columna}>
+                    {typeof fila[columna] === 'number'
+                      ? fila[columna].toLocaleString('es-CO')
+                      : fila[columna]}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        <TablePagination
+          component="div"
+          count={datos.length}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          rowsPerPageOptions={[10, 25, 50, 100]}
+        />
+      </TableContainer>
     </Box>
   );
 };
