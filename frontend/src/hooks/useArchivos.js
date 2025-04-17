@@ -4,7 +4,7 @@ import axios from 'axios';
 const API_URL = 'https://backend-flask-0rnq.onrender.com';
 
 const useArchivos = () => {
-  const [archivos, setArchivos] = useState([]); 
+  const [archivos, setArchivos] = useState([]);
   const [archivoSeleccionado, setArchivoSeleccionado] = useState('');
   const [hojasSeleccionadas, setHojasSeleccionadas] = useState([]);
   const [hojasPorArchivo, setHojasPorArchivo] = useState({});
@@ -14,7 +14,11 @@ const useArchivos = () => {
   const cargarArchivos = async (archivosInput) => {
     const formData = new FormData();
     for (const archivo of archivosInput) {
-      formData.append('files', archivo); 
+      formData.append('files', archivo);
+    }
+
+    for (let pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
     }
 
     try {
@@ -22,7 +26,7 @@ const useArchivos = () => {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      const nombresBackend = subida.data.archivos || []; 
+      const nombresBackend = subida.data.archivos || [];
       const nuevosArchivos = [];
 
       for (let i = 0; i < archivosInput.length; i++) {
@@ -47,7 +51,11 @@ const useArchivos = () => {
 
       setArchivos((prev) => [...prev, ...nuevosArchivos]);
     } catch (error) {
-      console.error('Error al subir o leer hojas de los archivos:', error);
+      console.error('Error al subir o leer hojas de los archivos:', error.response || error);
+      if (error.response) {
+        console.log("Detalles del error:", error.response.data);
+        alert(`Error en la solicitud: ${error.response.data.message || 'Error desconocido'}`);
+      }
     }
   };
 

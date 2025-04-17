@@ -38,6 +38,7 @@ ALLOWED_EXTENSIONS = {"xls", "xlsx"}
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
@@ -246,16 +247,17 @@ def generate_report():
         pdf.add_page()
         pdf.set_font("Arial", style='B', size=16)
         pdf.cell(200, 10, "Informe de Datos", ln=True, align='C')
-        pdf.set_font("Arial", size=12)
         pdf.ln(10)
-        pdf.cell(0, 10, f"Total de registros: {len(df)}", ln=True)
-        pdf.cell(0, 10, f"Columnas: {', '.join(df.columns)}", ln=True)
+
+        for index, row in df.iterrows():
+            for col in df.columns:
+                pdf.cell(100, 10, f"{col}: {row[col]}", ln=True)
+
         pdf.output(pdf_path)
 
         return jsonify({
-            "mensaje": "Informe generado exitosamente",
-            "excel_url": f"/download/reporte.xlsx",
-            "pdf_url": f"/download/reporte.pdf"
+            "excel": excel_path,
+            "pdf": pdf_path
         })
     except Exception as e:
         return jsonify({"error": f"Error al generar el informe: {str(e)}"}), 500
