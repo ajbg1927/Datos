@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import {
   Container,
+  Fab,
+  TextField,
+  MenuItem,
+  Typography,
   CssBaseline,
   CircularProgress,
 } from '@mui/material';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import Layout from './components/Layout';
 import UploadFile from './components/UploadFile';
 import TablaArchivos from './components/TablaArchivos';
@@ -11,10 +16,15 @@ import SelectorHojas from './components/SelectorHojas';
 import Filtros from './components/Filtros';
 import TablaDatos from './components/TablaDatos';
 import Graficos from './components/Graficos';
+import ExportButtons from './components/ExportButtons';
 import ResumenGeneral from './components/ResumenGeneral';
+import SelectoresAgrupacion from './components/SelectoresAgrupacion';
 import useArchivos from './hooks/useArchivos';
 import useFiltrosAvanzado from './hooks/useFiltrosAvanzado';
 import useExportaciones from './hooks/useExportaciones';
+import axios from 'axios';
+
+const API_URL = 'https://backend-flask-0rnq.onrender.com';
 
 const App = () => {
   const {
@@ -28,6 +38,7 @@ const App = () => {
     columnasPorArchivo,
     obtenerDatos,
     datosCombinados,
+    setArchivos,
     cargarArchivos,
   } = useArchivos();
 
@@ -53,50 +64,190 @@ const App = () => {
 
   const datos = datosCombinados();
 
-  // Detectar columnas disponibles dinámicamente
-  const columnas = columnasPorArchivo[archivoSeleccionado?.nombreBackend] || [];
-  const columnasValidas = columnas.filter(col => col && !col.toLowerCase().includes('unnamed'));
+  const columnasSet = new Set();
+  datos.forEach((row) => {
+    Object.keys(row).forEach((key) => columnasSet.add(key));
+  });
+  const columnas = Array.from(columnasSet);
 
-  // Columnas automáticas
-  const columnasFecha = columnasValidas.filter(col => /fecha/i.test(col));
-  const columnasNumericas = columnasValidas.filter(col =>
-    datos.some(d => !isNaN(parseFloat(d[col])))
+  const columnasFecha = columnas.filter((col) =>
+    col.toLowerCase().includes('fecha')
+  );
+  const columnasNumericas = columnas.filter((col) =>
+    col.toLowerCase().match(/pago|valor|deducci|oblig|monto|total|suma|saldo/)
   );
 
-  // Obtener valores únicos por columna
+  useEffect(() => {
+    if (columnas.length > 0 && !columnaAgrupar) {
+      setColumnaAgrupar(columnas[0]);
+    }
+    if (columnasNumericas.length > 0 && !columnaValor) {
+      setColumnaValor(columnasNumericas[0]);
+    }
+  }, [columnasNumericas]);
+
   const valoresUnicos = {};
-  columnasValidas.forEach(col => {
-    valoresUnicos[col] = [...new Set(datos.map(row => row[col]))].filter(v => v !== null && v !== undefined && v !== '');
+  columnas.forEach((col) => {
+    const valores = datos
+      .map((row) => row[col])
+      .filter((v) => v !== undefined && v !== null);
+    valoresUnicos[col] = [...new Set(valores)];
   });
 
-  const datosFiltrados = useFiltrosAvanzado(datos, filtros, columnasFecha, columnasNumericas);
+  const texto = filtros.busqueda || '';
+  const fechaInicio = filtros.Fecha_desde || '';
+  const fechaFin = filtros.Fecha_hasta || '';
+  const pagosMin = filtros['Pagos_min'] || '';
+  const pagosMax = filtros['Pagos_max'] || '';
 
-  const { handleExport } = useExportaciones();
+  const filtrosColumnas = Object.fromEntries(
+    Object.entries(filtros).filter(
+      ([key]) =>
+        !['busqueda', 'Fecha_desde', 'Fecha_hasta', 'Pagos_min', 'Pagos_max'].includes(key)
+    )
+  );
+
+  const datosFiltrados = useFiltrosAvanzado(
+    datos,
+    texto,
+    fechaInicio,
+    fechaFin,
+    filtrosColumnas,
+    pagosMin,
+    pagosMax,
+    columnaValor
+  );
+
+  const { exportToExcel } = useExportaciones();
+
+  const handleClearFilters = () => {
+    setFiltros({});
+  };
+
+  const handleArchivosSubidos = async (files) => {
+    const formData = new FormData();
+    for (const file of files) {
+      formData.append('archivos', file);
+    }
+
+    try {
+      setIsLoadingUpload(true);
+      await axios.post(`${API_URL}/subir`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      await cargarArchivos(files); 
+    } catch (error) {
+      console.error('Error al subir archivos:', error);
+      alert('Error al subir archivos');
+    } finally {
+      setIsLoadingUpload(false);
+    }
+  };
 
   return (
-    <Layout>
-      <CssBaseline />
-      <Container maxWidth="xl" sx={{ mt: 4 }}>
-        <UploadFile onUpload={cargarArchivos} isLoading={isLoadingUpload} setIsLoading={setIsLoadingUpload} />
-        <TablaArchivos archivos={archivos} archivoSeleccionado={archivoSeleccionado} setArchivoSeleccionado={setArchivoSeleccionado} />
-        <SelectorHojas hojas={hojasPorArchivo[archivoSeleccionado?.nombreBackend] || []} hojasSeleccionadas={hojasSeleccionadas} setHojasSeleccionadas={setHojasSeleccionadas} />
-        <Filtros
-          columnas={columnasValidas}
-          valoresUnicos={valoresUnicos}
-          filtros={filtros}
-          setFiltros={setFiltros}
-          columnasFecha={columnasFecha}
-          columnasNumericas={columnasNumericas}
-          columnaAgrupacion={columnaAgrupar}
-          setColumnaAgrupacion={setColumnaAgrupar}
-          columnaValor={columnaValor}
-          setColumnaValor={setColumnaValor}
-          handleClearFilters={() => setFiltros({})}
-        />
-        <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
-        <Graficos datos={datosFiltrados} columnaAgrupacion={columnaAgrupar} columnaValor={columnaValor} />
-        <TablaDatos datos={datosFiltrados} columnas={columnasValidas} onExport={() => handleExport(datosFiltrados, columnasValidas)} />
-      </Container>
+    <Layout
+      sidebar={
+        columnas.length > 0 && (
+          <Filtros
+            columnas={columnas}
+            valoresUnicos={valoresUnicos}
+            filtros={filtros}
+            setFiltros={setFiltros}
+            handleClearFilters={handleClearFilters}
+            columnasFecha={columnasFecha}
+            columnasNumericas={columnasNumericas}
+          />
+        )
+      }
+    >
+      {isLoadingUpload && (
+        <Typography align="center" sx={{ mb: 2 }}>
+          Subiendo archivo(s)... por favor espera
+        </Typography>
+      )}
+
+      <UploadFile onFilesUploaded={handleArchivosSubidos} />
+
+      {archivos?.length > 0 && (
+        <>
+          <TablaArchivos
+            archivos={archivos}
+            archivoSeleccionado={archivoSeleccionado}
+            onArchivoChange={setArchivoSeleccionado}
+          />
+          <SelectorHojas
+            hojas={hojasPorArchivo[archivoSeleccionado?.nombreBackend] || []}
+            hojasSeleccionadas={hojasSeleccionadas}
+            setHojasSeleccionadas={setHojasSeleccionadas}
+          />
+        </>
+      )}
+
+      {datos.length > 0 && (
+        <>
+          <SelectoresAgrupacion
+            columnas={columnas}
+            columnaAgrupar={columnaAgrupar}
+            setColumnaAgrupar={setColumnaAgrupar}
+            columnaValor={columnaValor}
+            setColumnaValor={setColumnaValor}
+          />
+
+          <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
+
+          {columnasNumericas.length > 0 && (
+            <Container maxWidth="md">
+              <TextField
+                select
+                fullWidth
+                label="Columna a analizar (Pagos, Deducciones, etc.)"
+                value={columnaValor}
+                onChange={(e) => setColumnaValor(e.target.value)}
+                sx={{ my: 2 }}
+              >
+                {columnasNumericas.map((col) => (
+                  <MenuItem key={col} value={col}>
+                    {col}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Container>
+          )}
+
+          <TablaDatos datos={datosFiltrados} columnas={columnas} />
+
+          <Graficos
+            datos={datosFiltrados}
+            columnas={columnas}
+            columnaValor={columnaValor}
+          />
+
+          <ExportButtons
+            onExport={() => exportToExcel(datosFiltrados, columnas)}
+          />
+
+          <Fab
+            color="primary"
+            aria-label="exportar"
+            onClick={() => exportToExcel(datosFiltrados, columnas)}
+            sx={{
+              position: 'fixed',
+              bottom: 24,
+              right: 24,
+              backgroundColor: '#ffcd00',
+              color: '#000',
+              boxShadow: '0px 4px 12px rgba(0,0,0,0.2)',
+              '&:hover': {
+                backgroundColor: '#e6b800',
+              },
+            }}
+          >
+            <SaveAltIcon />
+          </Fab>
+        </>
+      )}
     </Layout>
   );
 };
