@@ -33,11 +33,10 @@ migrate = Migrate(app, db)
 
 app.register_blueprint(api_bp, url_prefix="/api")
 
-UPLOAD_FOLDER = "/tmp"
+UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
 ALLOWED_EXTENSIONS = {"xls", "xlsx"}
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
 
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -45,7 +44,7 @@ class Usuario(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=True)
 
 def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route("/")
 def home():
@@ -57,14 +56,18 @@ def prueba():
 
 @app.route("/subir", methods=["POST"])
 def subir_archivo():
-    archivos = request.files.getlist("archivos")    
+    archivos = request.files.getlist("archivos")
 
-    if not archivos or archivos == []:
+    if not archivos:
+        print("No llegaron archivos en la solicitud.")
         return jsonify({"error": "No se enviaron archivos"}), 400
 
     nombres_guardados = []
     for file in archivos:
+        print("Recibido:", file.filename)
+
         if file.filename == "" or not allowed_file(file.filename):
+            print("Archivo inválido o formato no permitido:", file.filename)
             return jsonify({"error": f"Formato no permitido para {file.filename}"}), 400
 
         filename = secure_filename(file.filename)
@@ -74,8 +77,10 @@ def subir_archivo():
             file.save(filepath)
             nombres_guardados.append(filename)
         except Exception as e:
+            print("Error al guardar:", str(e))
             return jsonify({"error": f"No se pudo guardar {file.filename}: {str(e)}"}), 500
 
+    print("Archivos guardados:", nombres_guardados)
     return jsonify({"mensaje": "Archivos subidos exitosamente", "archivos": nombres_guardados})
 
 @app.route("/upload", methods=["POST"])
