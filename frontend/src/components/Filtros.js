@@ -4,205 +4,149 @@ import {
   TextField,
   MenuItem,
   Button,
-  Typography,
-  Paper,
-  InputAdornment,
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Typography,
+  InputAdornment,
   Divider,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearAllIcon from '@mui/icons-material/ClearAll';
 import SelectoresAgrupacion from './SelectoresAgrupacion';
 
 const Filtros = ({
   columnas,
-  valoresUnicos,
   filtros,
   setFiltros,
-  handleClearFilters,
-  columnasFecha = [],
-  columnasNumericas = [],
   columnaAgrupacion,
   setColumnaAgrupacion,
   columnaValor,
   setColumnaValor,
+  onLimpiarFiltros,
 }) => {
   return (
-    <Paper elevation={6} sx={{ p: 3, mt: 4, mb: 4, borderRadius: 3 }}>
-      <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#388E3C' }}>
-        Filtros de búsqueda
-      </Typography>
+    <Accordion defaultExpanded sx={{ mb: 3, borderRadius: 2 }}>
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon />}
+        aria-controls="panel1a-content"
+        id="panel1a-header"
+        sx={{ backgroundColor: '#E8F5E9', borderRadius: 2 }}
+      >
+        <Typography variant="h6" sx={{ color: '#388E3C', fontWeight: 'bold' }}>
+          Filtros de búsqueda
+        </Typography>
+      </AccordionSummary>
 
-      <SelectoresAgrupacion
-        columnas={columnas}
-        columnaAgrupacion={columnaAgrupacion}
-        setColumnaAgrupacion={setColumnaAgrupacion}
-        columnaValor={columnaValor}
-        setColumnaValor={setColumnaValor}
-      />
-
-      <Divider sx={{ my: 2 }} />
-
-      {/* Filtro global */}
-      <Grid container spacing={2} mb={2}>
-        <Grid item xs={12} sm={6} md={4}>
-          <TextField
-            label="Búsqueda global"
-            fullWidth
-            variant="outlined"
-            value={filtros.busqueda || ''}
-            onChange={(e) =>
-              setFiltros((prev) => ({ ...prev, busqueda: e.target.value }))
-            }
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon color="action" />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Grid>
-      </Grid>
-
-      {/* Filtros por columnas específicas */}
-      <Accordion defaultExpanded>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="subtitle1" fontWeight="bold">Filtros por categoría</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Grid container spacing={2}>
-            {columnas.map(
-              (col) =>
-                valoresUnicos[col]?.length < 100 && (
-                  <Grid item xs={12} sm={6} md={3} key={col}>
-                    <TextField
-                      select
-                      label={col}
-                      value={filtros[col] || ''}
-                      onChange={(e) =>
-                        setFiltros((prev) => ({ ...prev, [col]: e.target.value }))
-                      }
-                      fullWidth
-                    >
-                      <MenuItem value="">Todos</MenuItem>
-                      {valoresUnicos[col]?.map((valor, idx) => (
-                        <MenuItem key={idx} value={valor}>
-                          {valor}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
-                )
-            )}
+      <AccordionDetails>
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              label="🔎 Búsqueda global"
+              fullWidth
+              variant="outlined"
+              value={filtros.busqueda || ''}
+              onChange={(e) =>
+                setFiltros((prev) => ({ ...prev, busqueda: e.target.value }))
+              }
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon color="action" />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{ bgcolor: 'white', borderRadius: 2 }}
+            />
           </Grid>
-        </AccordionDetails>
-      </Accordion>
 
-      {/* Filtros de fecha */}
-      {columnasFecha.length > 0 && (
-        <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="subtitle1" fontWeight="bold">Filtros por fecha</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Grid container spacing={2}>
-              {columnasFecha.map((col) => (
-                <React.Fragment key={col}>
-                  <Grid item xs={6} sm={3}>
-                    <TextField
-                      label={`Desde (${col})`}
-                      type="date"
-                      fullWidth
-                      InputLabelProps={{ shrink: true }}
-                      value={filtros[`${col}_desde`] || ''}
-                      onChange={(e) =>
-                        setFiltros((prev) => ({
-                          ...prev,
-                          [`${col}_desde`]: e.target.value,
-                        }))
-                      }
-                    />
-                  </Grid>
-                  <Grid item xs={6} sm={3}>
-                    <TextField
-                      label={`Hasta (${col})`}
-                      type="date"
-                      fullWidth
-                      InputLabelProps={{ shrink: true }}
-                      value={filtros[`${col}_hasta`] || ''}
-                      onChange={(e) =>
-                        setFiltros((prev) => ({
-                          ...prev,
-                          [`${col}_hasta`]: e.target.value,
-                        }))
-                      }
-                    />
-                  </Grid>
-                </React.Fragment>
-              ))}
+          {columnas.includes('Dependencia') && (
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                select
+                label="Dependencia"
+                fullWidth
+                variant="outlined"
+                value={filtros.dependencia || ''}
+                onChange={(e) =>
+                  setFiltros((prev) => ({
+                    ...prev,
+                    dependencia: e.target.value,
+                  }))
+                }
+                sx={{ bgcolor: 'white', borderRadius: 2 }}
+              >
+                <MenuItem value="">Todas</MenuItem>
+                {[...new Set(filtros.opcionesDependencia || [])].map(
+                  (dep) => (
+                    <MenuItem key={dep} value={dep}>
+                      {dep}
+                    </MenuItem>
+                  )
+                )}
+              </TextField>
             </Grid>
-          </AccordionDetails>
-        </Accordion>
-      )}
+          )}
 
-      {/* Filtros numéricos */}
-      {columnasNumericas.length > 0 && (
-        <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="subtitle1" fontWeight="bold">Filtros numéricos</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Grid container spacing={2}>
-              {columnasNumericas.map((col) => (
-                <React.Fragment key={col}>
-                  <Grid item xs={6} sm={3}>
-                    <TextField
-                      label={`Mín. ${col}`}
-                      type="number"
-                      fullWidth
-                      value={filtros[`${col}_min`] || ''}
-                      onChange={(e) =>
-                        setFiltros((prev) => ({
-                          ...prev,
-                          [`${col}_min`]: e.target.value,
-                        }))
-                      }
-                    />
-                  </Grid>
-                  <Grid item xs={6} sm={3}>
-                    <TextField
-                      label={`Máx. ${col}`}
-                      type="number"
-                      fullWidth
-                      value={filtros[`${col}_max`] || ''}
-                      onChange={(e) =>
-                        setFiltros((prev) => ({
-                          ...prev,
-                          [`${col}_max`]: e.target.value,
-                        }))
-                      }
-                    />
-                  </Grid>
-                </React.Fragment>
-              ))}
-            </Grid>
-          </AccordionDetails>
-        </Accordion>
-      )}
+          <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              label="Pago mínimo"
+              type="number"
+              fullWidth
+              variant="outlined"
+              value={filtros.pagoMin || ''}
+              onChange={(e) =>
+                setFiltros((prev) => ({
+                  ...prev,
+                  pagoMin: e.target.value,
+                }))
+              }
+              sx={{ bgcolor: 'white', borderRadius: 2 }}
+            />
+          </Grid>
 
-      <Grid container justifyContent="flex-end" mt={2}>
-        <Button
-          variant="outlined"
-          color="error"
-          onClick={handleClearFilters}
-        >
-          Limpiar filtros
-        </Button>
-      </Grid>
-    </Paper>
+          <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              label="Pago máximo"
+              type="number"
+              fullWidth
+              variant="outlined"
+              value={filtros.pagoMax || ''}
+              onChange={(e) =>
+                setFiltros((prev) => ({
+                  ...prev,
+                  pagoMax: e.target.value,
+                }))
+              }
+              sx={{ bgcolor: 'white', borderRadius: 2 }}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <Button
+              variant="outlined"
+              color="error"
+              onClick={onLimpiarFiltros}
+              startIcon={<ClearAllIcon />}
+              sx={{ mt: 1 }}
+            >
+              Limpiar filtros
+            </Button>
+          </Grid>
+        </Grid>
+
+        <Divider sx={{ my: 3 }} />
+
+        <SelectoresAgrupacion
+          columnas={columnas}
+          columnaAgrupar={columnaAgrupacion}
+          setColumnaAgrupar={setColumnaAgrupacion}
+          columnaValor={columnaValor}
+          setColumnaValor={setColumnaValor}
+        />
+      </AccordionDetails>
+    </Accordion>
   );
 };
 
