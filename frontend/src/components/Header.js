@@ -38,18 +38,18 @@ function Header() {
 
           <Box sx={{ flexGrow: 1, textAlign: 'center' }}>
             <Typography
-              variant={isMobile ? 'body1' : 'h6'}
-              sx={{
-                fontWeight: 600,
-                fontSize: { xs: '1rem', sm: '1.2rem' },
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
+            variant={isMobile ? 'h6' : 'h4'}
+            sx={{
+              fontWeight: 700,
+              fontSize: { xs: '1.2rem', sm: '1.8rem', md: '2rem' },
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              color: '#000', 
+            }}
             >
-              Análisis de Datos Excel
+            Análisis de Datos Excel
             </Typography>
-          </Box>
 
           <Box
             component="img"
