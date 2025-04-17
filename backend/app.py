@@ -57,7 +57,7 @@ def prueba():
 
 @app.route("/subir", methods=["POST"])
 def subir_archivo():
-    archivos = request.files.getlist("files")  
+    archivos = request.files.getlist("files")
 
     if not archivos or archivos == []:
         return jsonify({"error": "No se enviaron archivos"}), 400

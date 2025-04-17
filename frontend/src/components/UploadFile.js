@@ -1,81 +1,67 @@
-import React, { useRef } from 'react';
-import { Box, Typography, Button } from '@mui/material';
+import React, { useRef, useState } from 'react';
+import { Box, Button, Typography, Paper } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
-const UploadFile = ({ onFilesUploaded }) => {
-  const inputRef = useRef(null);
-
-  const handleChange = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length && typeof onFilesUploaded === 'function') {
-      onFilesUploaded(files);
-    }
-  };
+const UploadFile = ({ onArchivosSeleccionados }) => {
+  const inputRef = useRef();
+  const [arrastrando, setArrastrando] = useState(false);
 
   const handleDrop = (e) => {
     e.preventDefault();
-    const files = Array.from(e.dataTransfer.files);
-    if (files.length && typeof onFilesUploaded === 'function') {
-      onFilesUploaded(files);
+    setArrastrando(false);
+    const archivos = Array.from(e.dataTransfer.files);
+    if (archivos.length) {
+      onArchivosSeleccionados(archivos);
     }
   };
 
-  const handlePaste = (e) => {
-    const files = Array.from(e.clipboardData.files);
-    if (files.length && typeof onFilesUploaded === 'function') {
-      onFilesUploaded(files);
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setArrastrando(true);
+  };
+
+  const handleDragLeave = () => {
+    setArrastrando(false);
+  };
+
+  const handleArchivoSeleccionado = (e) => {
+    const archivos = Array.from(e.target.files);
+    if (archivos.length) {
+      onArchivosSeleccionados(archivos);
     }
   };
 
   return (
-    <Box
-      onDrop={handleDrop}
-      onDragOver={(e) => e.preventDefault()}
-      onPaste={handlePaste}
+    <Paper
+      elevation={arrastrando ? 6 : 2}
       sx={{
-        border: '2px dashed #cfd8dc',
-        padding: 3,
+        border: arrastrando ? '2px dashed #388e3c' : '2px dashed #ccc',
         borderRadius: 2,
+        padding: 4,
         textAlign: 'center',
-        mb: 3,
-        backgroundColor: '#f1f8e9',
-        color: '#33691e',
+        backgroundColor: arrastrando ? '#f1f8e9' : 'inherit',
         cursor: 'pointer',
-        transition: '0.3s ease',
-        '&:hover': {
-          backgroundColor: '#e6ee9c',
-        },
       }}
-      onClick={() => inputRef.current && inputRef.current.click()}
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onClick={() => inputRef.current.click()}
     >
-      <CloudUploadIcon sx={{ fontSize: 50, mb: 1 }} />
-      <Typography variant="h6" gutterBottom>
-        Arrastra, pega o suelta tus archivos aquí
+      <CloudUploadIcon sx={{ fontSize: 50, color: '#388e3c' }} />
+      <Typography variant="h6" mt={2}>
+        Arrastra y suelta archivos aquí o haz clic para seleccionarlos
       </Typography>
-      <Typography variant="body2" gutterBottom>
-        o haz clic para seleccionar archivo(s) desde tu dispositivo
+      <Typography variant="body2" color="textSecondary">
+        Puedes subir múltiples archivos Excel (.xlsx)
       </Typography>
-
       <input
         ref={inputRef}
         type="file"
         hidden
         multiple
-        accept=".xls,.xlsx"
-        onChange={handleChange}
+        onChange={handleArchivoSeleccionado}
       />
-      <Button
-        variant="contained"
-        sx={{
-          mt: 2,
-          backgroundColor: '#33691e',
-          '&:hover': { backgroundColor: '#2e7d32' },
-        }}
-        onClick={() => inputRef.current && inputRef.current.click()}
-      >
-        Seleccionar archivo(s)
-      </Button>
-    </Box>
+    </Paper>
   );
 };
 

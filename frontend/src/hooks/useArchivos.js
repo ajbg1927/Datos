@@ -19,7 +19,7 @@ const useArchivos = () => {
 
     const formData = new FormData();
     archivosInput.forEach((archivo) => {
-      formData.append('files', archivo);
+      formData.append('files', archivo);  
     });
 
     try {
@@ -60,9 +60,7 @@ const useArchivos = () => {
   const obtenerDatos = async (nombreBackend, hojas) => {
     try {
       const nombreCodificado = encodeURIComponent(nombreBackend);
-      const response = await axios.post(`${API_URL}/datos/${nombreCodificado}`, {
-        hojas,
-      });
+      const response = await axios.post(`${API_URL}/datos/${nombreCodificado}`, { hojas });
 
       const datos = response.data.datos || [];
 
