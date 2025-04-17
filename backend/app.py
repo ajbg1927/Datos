@@ -56,21 +56,13 @@ def prueba():
 
 @app.route("/subir", methods=["POST"])
 def subir_archivo():
-    if "file" not in request.files:
-        return jsonify({"error": "No se envió ningún archivo"}), 400
-
-    file = request.files["file"]
-    if file.filename == "" or not allowed_file(file.filename):
-        return jsonify({"error": "Formato de archivo no permitido"}), 400
-
-    filename = secure_filename(file.filename)
-    filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-
-    try:
-        file.save(filepath)
-        return jsonify({"mensaje": "Archivo subido exitosamente", "archivo": filename})
-    except Exception as e:
-        return jsonify({"error": f"No se pudo guardar el archivo: {str(e)}"}), 500
+    archivo = request.files["archivo"]
+    if archivo:
+        nombre_seguro = secure_filename(archivo.filename)
+        path = os.path.join(app.config["UPLOAD_FOLDER"], nombre_seguro)
+        archivo.save(path)
+        return jsonify({"mensaje": "Archivo subido exitosamente", "nombre": nombre_seguro})
+    return jsonify({"error": "No se envió ningún archivo"}), 400
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
