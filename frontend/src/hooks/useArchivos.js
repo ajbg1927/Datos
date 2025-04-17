@@ -14,7 +14,7 @@ const useArchivos = () => {
   const cargarArchivos = async (archivosInput) => {
     const formData = new FormData();
     for (const archivo of archivosInput) {
-      formData.append('files', archivo);
+      formData.append('files[]', archivo);
     }
 
     for (let pair of formData.entries()) {
