@@ -30,7 +30,7 @@ const Filtros = ({
   setColumnaValor,
 }) => {
   return (
-    <Paper elevation={6} sx={{ p: 3, mt: 4, mb: 4, borderRadius: 3 }}>
+    <Paper elevation={4} sx={{ p: 4, mt: 4, mb: 4, borderRadius: 3 }}>
       <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#388E3C' }}>
         Filtros de búsqueda
       </Typography>
@@ -43,10 +43,9 @@ const Filtros = ({
         setColumnaValor={setColumnaValor}
       />
 
-      <Divider sx={{ my: 2 }} />
+      <Divider sx={{ my: 3 }} />
 
-      {/* Filtro global */}
-      <Grid container spacing={2} mb={2}>
+      <Grid container spacing={2} mb={3}>
         <Grid item xs={12} sm={6} md={4}>
           <TextField
             label="Búsqueda global"
@@ -67,10 +66,10 @@ const Filtros = ({
         </Grid>
       </Grid>
 
-      {/* Filtros por columnas específicas */}
+      {/* Filtros por columna */}
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="subtitle1" fontWeight="bold">Filtros por categoría</Typography>
+          <Typography fontWeight="bold">Filtrar por categoría</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Grid container spacing={2}>
@@ -86,6 +85,7 @@ const Filtros = ({
                         setFiltros((prev) => ({ ...prev, [col]: e.target.value }))
                       }
                       fullWidth
+                      size="small"
                     >
                       <MenuItem value="">Todos</MenuItem>
                       {valoresUnicos[col]?.map((valor, idx) => (
@@ -101,11 +101,11 @@ const Filtros = ({
         </AccordionDetails>
       </Accordion>
 
-      {/* Filtros de fecha */}
+      {/* Fechas */}
       {columnasFecha.length > 0 && (
         <Accordion>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="subtitle1" fontWeight="bold">Filtros por fecha</Typography>
+            <Typography fontWeight="bold">Filtrar por fecha</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Grid container spacing={2}>
@@ -148,11 +148,11 @@ const Filtros = ({
         </Accordion>
       )}
 
-      {/* Filtros numéricos */}
+      {/* Números */}
       {columnasNumericas.length > 0 && (
         <Accordion>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="subtitle1" fontWeight="bold">Filtros numéricos</Typography>
+            <Typography fontWeight="bold">Filtrar por valores numéricos</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Grid container spacing={2}>
@@ -193,11 +193,12 @@ const Filtros = ({
         </Accordion>
       )}
 
-      <Grid container justifyContent="flex-end" mt={2}>
+      <Grid container justifyContent="flex-end" mt={3}>
         <Button
-          variant="outlined"
+          variant="contained"
           color="error"
           onClick={handleClearFilters}
+          sx={{ px: 4, py: 1 }}
         >
           Limpiar filtros
         </Button>

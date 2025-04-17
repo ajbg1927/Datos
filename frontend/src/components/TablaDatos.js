@@ -1,6 +1,6 @@
 import React from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Paper } from '@mui/material';
 import ExportButtons from './ExportButtons';
 
 const TablaDatos = ({ datos, columnas, onExport }) => {
@@ -32,13 +32,14 @@ const TablaDatos = ({ datos, columnas, onExport }) => {
     <Box sx={{ mt: 4 }}>
       <ExportButtons datos={datos} columnas={columnasFiltradas} onExport={onExport} />
 
-      <Box
+      <Paper
+        elevation={4}
         sx={{
-          height: 600,
+          mt: 3,
+          height: '70vh',
           width: '100%',
-          mt: 2,
-          backgroundColor: 'white',
           borderRadius: 3,
+          overflow: 'auto',
         }}
       >
         <DataGrid
@@ -46,20 +47,25 @@ const TablaDatos = ({ datos, columnas, onExport }) => {
           columns={columnasGrid}
           pageSize={25}
           rowsPerPageOptions={[10, 25, 50, 100]}
-          checkboxSelection={false}
           disableSelectionOnClick
+          density="compact"
           sx={{
+            border: 'none',
             '& .MuiDataGrid-columnHeaders': {
               backgroundColor: '#388E3C',
-              color: 'white',
+              color: '#fff',
               fontWeight: 'bold',
+              fontSize: 14,
+            },
+            '& .MuiDataGrid-cell': {
+              fontSize: 13,
             },
             '& .MuiDataGrid-row:nth-of-type(even)': {
-              backgroundColor: '#f5f5f5',
+              backgroundColor: '#f9f9f9',
             },
           }}
         />
-      </Box>
+      </Paper>
     </Box>
   );
 };
