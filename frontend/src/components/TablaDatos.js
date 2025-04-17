@@ -20,7 +20,7 @@ const TablaDatos = ({ datos, columnas, onExport }) => {
     field: col,
     headerName: col,
     flex: 1,
-    minWidth: 200,
+    minWidth: 150,
   }));
 
   const filas = datos.map((fila, idx) => ({
@@ -42,29 +42,33 @@ const TablaDatos = ({ datos, columnas, onExport }) => {
           overflow: 'auto',
         }}
       >
-        <DataGrid
-          rows={filas}
-          columns={columnasGrid}
-          pageSize={25}
-          rowsPerPageOptions={[10, 25, 50, 100]}
-          disableSelectionOnClick
-          density="compact"
-          sx={{
-            border: 'none',
-            '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: '#388E3C',
-              color: '#fff',
-              fontWeight: 'bold',
-              fontSize: 14,
-            },
-            '& .MuiDataGrid-cell': {
-              fontSize: 13,
-            },
-            '& .MuiDataGrid-row:nth-of-type(even)': {
-              backgroundColor: '#f9f9f9',
-            },
-          }}
-        />
+        <Box sx={{ width: 'max-content', minWidth: '100%' }}>
+          <DataGrid
+            rows={filas}
+            columns={columnasGrid}
+            pageSize={25}
+            rowsPerPageOptions={[10, 25, 50, 100]}
+            disableSelectionOnClick
+            density="compact"
+            autoHeight={false}
+            sx={{
+              border: 'none',
+              '& .MuiDataGrid-columnHeaders': {
+                backgroundColor: '#388E3C',
+                color: '#fff',
+                fontWeight: 'bold',
+                fontSize: 14,
+              },
+              '& .MuiDataGrid-cell': {
+                fontSize: 13,
+                whiteSpace: 'nowrap',
+              },
+              '& .MuiDataGrid-row:nth-of-type(even)': {
+                backgroundColor: '#f9f9f9',
+              },
+            }}
+          />
+        </Box>
       </Paper>
     </Box>
   );
