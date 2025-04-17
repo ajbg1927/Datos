@@ -9,6 +9,7 @@ import {
   InputAdornment,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import SelectoresAgrupacion from './SelectoresAgrupacion';
 
 const Filtros = ({
   columnas,
@@ -18,12 +19,24 @@ const Filtros = ({
   handleClearFilters,
   columnasFecha = [],
   columnasNumericas = [],
+  columnaAgrupacion,
+  setColumnaAgrupacion,
+  columnaValor,
+  setColumnaValor,
 }) => {
   return (
     <Paper elevation={3} sx={{ p: { xs: 2, md: 3 }, mt: 4, mb: 4, boxShadow: 4 }}>
       <Typography variant="h6" gutterBottom>
         Filtros de búsqueda
       </Typography>
+
+      <SelectoresAgrupacion
+        columnas={columnas}
+        columnaAgrupacion={columnaAgrupacion}
+        setColumnaAgrupacion={setColumnaAgrupacion}
+        columnaValor={columnaValor}
+        setColumnaValor={setColumnaValor}
+      />
 
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6} md={4}>

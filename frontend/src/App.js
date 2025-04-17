@@ -173,6 +173,8 @@ const App = () => {
           handleClearFilters={handleClearFilters}
           columnasFecha={columnasFecha}
           columnasNumericas={columnasNumericas}
+          columnaValor={columnaValor}
+          setColumnaValor={setColumnaValor}
         />
       )}
 
@@ -201,6 +203,7 @@ const App = () => {
         datos={datosFiltrados}
         columnas={columnas}
         columnaValor={columnaValor}
+        setColumnaValor={setColumnaValor}
       />
 
       <ExportButtons
