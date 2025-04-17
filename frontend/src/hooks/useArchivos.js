@@ -12,14 +12,15 @@ const useArchivos = () => {
   const [columnasPorArchivo, setColumnasPorArchivo] = useState({});
 
   const cargarArchivos = async (archivosInput) => {
-    const formData = new FormData();
-    for (const archivo of archivosInput) {
-      formData.append('files', archivo);
+    if (!archivosInput || archivosInput.length === 0) {
+      alert("No se seleccionaron archivos.");
+      return;
     }
 
-    for (let pair of formData.entries()) {
-      console.log(pair[0], pair[1]);
-    }
+    const formData = new FormData();
+    archivosInput.forEach((archivo) => {
+      formData.append('files[]', archivo);
+    });
 
     try {
       const subida = await axios.post(`${API_URL}/subir`, formData, {
@@ -52,10 +53,7 @@ const useArchivos = () => {
       setArchivos((prev) => [...prev, ...nuevosArchivos]);
     } catch (error) {
       console.error('Error al subir o leer hojas de los archivos:', error.response || error);
-      if (error.response) {
-        console.log("Detalles del error:", error.response.data);
-        alert(`Error en la solicitud: ${error.response.data.message || 'Error desconocido'}`);
-      }
+      alert(`Error en la carga: ${error?.response?.data?.error || 'Error inesperado'}`);
     }
   };
 
@@ -82,7 +80,6 @@ const useArchivos = () => {
           [nombreBackend]: Object.keys(datos[0]),
         }));
       }
-
     } catch (error) {
       console.error('Error al obtener datos del archivo:', error);
     }
@@ -90,7 +87,6 @@ const useArchivos = () => {
 
   const datosCombinados = () => {
     if (!archivoSeleccionado || !hojasSeleccionadas.length) return [];
-
     const datosArchivo = datosPorArchivo[archivoSeleccionado] || {};
     return datosArchivo.combinado || [];
   };
