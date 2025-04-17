@@ -117,31 +117,34 @@ const App = () => {
   };
 
   const handleArchivosSubidos = async (files) => {
-  const formData = new FormData();
-  for (let file of files) {
-    formData.append('files', file); 
-  }
-
-  try {
-    setIsLoadingUpload(true);
-    await axios.post(`${API_URL}/subir`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append('files', file); 
     });
 
-    const nombresArchivos = files.map((file) => file.name);
-    await cargarArchivos(nombresArchivos);
-    if (nombresArchivos.length > 0) {
-      setArchivoSeleccionado(nombresArchivos[0]);
+    try {
+      setIsLoadingUpload(true);
+
+      await axios.post(`${API_URL}/subir`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      const nombresArchivos = files.map((file) => file.name);
+      await cargarArchivos(nombresArchivos);
+
+      if (nombresArchivos.length > 0) {
+        setArchivoSeleccionado(nombresArchivos[0]);
+      }
+
+    } catch (error) {
+      console.error('Error al subir archivos:', error);
+      alert('Error al subir archivos');
+    } finally {
+      setIsLoadingUpload(false);
     }
-  } catch (error) {
-    console.error('Error al subir archivos:', error);
-    alert('Error al subir archivos');
-  } finally {
-    setIsLoadingUpload(false);
-  }
-};
+  };
 
   return (
     <Layout>
