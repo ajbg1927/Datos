@@ -11,7 +11,7 @@ import {
   TablePagination,
   Box,
 } from '@mui/material';
-import ExportButtons from './ExportButtons'; // Asegúrate que esté bien la ruta
+import ExportButtons from './ExportButtons';
 
 const TablaDatos = ({ datos, columnas, onExport }) => {
   const [page, setPage] = useState(0);
@@ -35,45 +35,52 @@ const TablaDatos = ({ datos, columnas, onExport }) => {
 
   return (
     <Box sx={{ mt: 4 }}>
-      {/* ExportButtons con Excel y CSV */}
       <ExportButtons datos={datos} columnas={columnas} onExport={onExport} />
 
-      {/* Tabla de datos */}
-      <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto', mt: 2 }}>
-        <Table size="small" stickyHeader>
+      <TableContainer component={Paper} sx={{ mt: 2, borderRadius: 3, maxHeight: '70vh' }}>
+        <Table stickyHeader size="small">
           <TableHead>
             <TableRow>
               {columnas.map((columna) => (
-                <TableCell key={columna} sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>
+                <TableCell
+                  key={columna}
+                  sx={{
+                    backgroundColor: '#388E3C',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    borderBottom: '1px solid #ccc',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 1,
+                  }}
+                >
                   {columna}
                 </TableCell>
               ))}
             </TableRow>
           </TableHead>
           <TableBody>
-            {rowsToShow.map((fila, index) => (
-              <TableRow key={index}>
-                {columnas.map((columna) => (
-                  <TableCell key={columna}>
-                    {typeof fila[columna] === 'number'
-                      ? fila[columna].toLocaleString('es-CO')
-                      : fila[columna]}
-                  </TableCell>
+            {rowsToShow.map((fila, idx) => (
+              <TableRow key={idx}>
+                {columnas.map((col) => (
+                  <TableCell key={col}>{fila[col]}</TableCell>
                 ))}
               </TableRow>
             ))}
           </TableBody>
         </Table>
-        <TablePagination
-          component="div"
-          count={datos.length}
-          page={page}
-          onPageChange={handleChangePage}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          rowsPerPageOptions={[10, 25, 50, 100]}
-        />
       </TableContainer>
+
+      <TablePagination
+        component="div"
+        count={datos.length}
+        page={page}
+        onPageChange={handleChangePage}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        labelRowsPerPage="Filas por página"
+        sx={{ mt: 2 }}
+      />
     </Box>
   );
 };

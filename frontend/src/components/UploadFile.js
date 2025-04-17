@@ -5,17 +5,13 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 const UploadFile = ({ onFilesUploaded }) => {
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length > 0) {
-      onFilesUploaded(files);
-    }
+    if (files.length > 0) onFilesUploaded(files);
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) {
-      onFilesUploaded(files);
-    }
+    if (files.length > 0) onFilesUploaded(files);
   };
 
   const handleDragOver = (e) => {
@@ -27,22 +23,22 @@ const UploadFile = ({ onFilesUploaded }) => {
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       sx={{
-        border: '2px dashed #A9A9A9',
-        borderRadius: 3,
-        backgroundColor: '#fefefe',
+        border: '2px dashed #388E3C',
+        borderRadius: 4,
+        backgroundColor: '#ffffff',
         p: 6,
         textAlign: 'center',
-        boxShadow: 3,
-        transition: '0.3s ease',
+        boxShadow: 4,
+        transition: '0.3s',
         cursor: 'pointer',
         '&:hover': {
-          backgroundColor: '#F4F4F4',
+          backgroundColor: '#F9FBE7',
           boxShadow: 6,
         },
       }}
     >
-      <CloudUploadIcon sx={{ fontSize: 70, color: '#388E3C', mb: 2 }} />
-      <Typography variant="h6" fontWeight="bold" color="text.primary" gutterBottom>
+      <CloudUploadIcon sx={{ fontSize: 80, color: '#388E3C', mb: 2 }} />
+      <Typography variant="h6" fontWeight="bold" gutterBottom>
         Arrastra y suelta tus archivos Excel aquí
       </Typography>
       <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -60,17 +56,17 @@ const UploadFile = ({ onFilesUploaded }) => {
         <Button
           variant="contained"
           component="span"
-          size="medium"
+          size="large"
           sx={{
             mt: 3,
-            px: 4,
-            py: 1,
+            px: 5,
+            py: 1.5,
             fontWeight: 'bold',
             borderRadius: 2,
-            backgroundColor: '#FFC107',
+            backgroundColor: '#FFEB3B',
             color: '#000',
             '&:hover': {
-              backgroundColor: '#FFB300',
+              backgroundColor: '#FDD835',
             },
           }}
         >

@@ -25,12 +25,8 @@ const Filtros = ({
   setColumnaValor,
 }) => {
   return (
-    <Paper elevation={4} sx={{ p: { xs: 2, md: 4 }, mt: 4, mb: 4, borderRadius: 3 }}>
-      <Typography
-        variant="h6"
-        gutterBottom
-        sx={{ fontWeight: 'bold', color: '#388E3C' }}
-      >
+    <Paper elevation={6} sx={{ p: 4, mt: 4, mb: 4, borderRadius: 3 }}>
+      <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#388E3C' }}>
         Filtros de búsqueda
       </Typography>
 
@@ -42,7 +38,7 @@ const Filtros = ({
         setColumnaValor={setColumnaValor}
       />
 
-      <Grid container spacing={2} mt={1}>
+      <Grid container spacing={3} mt={1}>
         <Grid item xs={12} sm={6} md={4}>
           <TextField
             label="Búsqueda global"
@@ -86,7 +82,7 @@ const Filtros = ({
             )
         )}
 
-        {(columnasFecha || []).map((col) => (
+        {columnasFecha.map((col) => (
           <React.Fragment key={col}>
             <Grid item xs={6} sm={3}>
               <TextField
@@ -121,7 +117,7 @@ const Filtros = ({
           </React.Fragment>
         ))}
 
-        {(columnasNumericas || []).map((col) => (
+        {columnasNumericas.map((col) => (
           <React.Fragment key={col}>
             <Grid item xs={6} sm={3}>
               <TextField

@@ -1,6 +1,24 @@
 import React from 'react';
-import { Box, Card, CardContent, Typography, useTheme, Grid } from '@mui/material';
-import { PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  useTheme,
+  Grid,
+} from '@mui/material';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+} from 'recharts';
 
 const COLORS = ['#4caf50', '#fdd835', '#ff9800', '#2196f3', '#9c27b0', '#ff5722'];
 
@@ -25,16 +43,29 @@ const Graficos = ({ datos, columnaAgrupar, columnaValor }) => {
     }));
   }, [datos, columnaAgrupar, columnaValor]);
 
-  if (!columnaAgrupar || !columnaValor || datosAgrupados.length === 0) return null;
+  if (!columnaAgrupar || !columnaValor || datosAgrupados.length === 0)
+    return null;
 
   return (
     <Box sx={{ mt: 4 }}>
       <Grid container spacing={4}>
         <Grid item xs={12} md={6}>
-          <Card sx={{ height: '100%', p: 2 }}>
+          <Card
+            sx={{
+              height: '100%',
+              p: 2,
+              borderRadius: 3,
+              boxShadow: 3,
+            }}
+          >
             <CardContent>
-              <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-                Gráfico por {columnaAgrupar}
+              <Typography
+                variant="h6"
+                fontWeight="bold"
+                color="text.primary"
+                sx={{ mb: 2 }}
+              >
+                Distribución por {columnaAgrupar}
               </Typography>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
@@ -45,11 +76,13 @@ const Graficos = ({ datos, columnaAgrupar, columnaValor }) => {
                     cx="50%"
                     cy="50%"
                     outerRadius={100}
-                    fill="#8884d8"
                     label
                   >
                     {datosAgrupados.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
                     ))}
                   </Pie>
                   <Tooltip />
@@ -60,18 +93,40 @@ const Graficos = ({ datos, columnaAgrupar, columnaValor }) => {
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <Card sx={{ height: '100%', p: 2 }}>
+          <Card
+            sx={{
+              height: '100%',
+              p: 2,
+              borderRadius: 3,
+              boxShadow: 3,
+            }}
+          >
             <CardContent>
-              <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-                Gráfico de barras
+              <Typography
+                variant="h6"
+                fontWeight="bold"
+                color="text.primary"
+                sx={{ mb: 2 }}
+              >
+                Gráfico de Barras por {columnaAgrupar}
               </Typography>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={datosAgrupados}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="nombre" angle={-30} textAnchor="end" interval={0} height={80} />
+                  <XAxis
+                    dataKey="nombre"
+                    angle={-30}
+                    textAnchor="end"
+                    interval={0}
+                    height={80}
+                  />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="valor" fill={theme.palette.primary.main} />
+                  <Bar
+                    dataKey="valor"
+                    fill={theme.palette.success.main}
+                    barSize={30}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
