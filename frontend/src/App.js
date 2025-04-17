@@ -59,7 +59,6 @@ const App = () => {
 
   const datos = datosCombinados();
 
-  // Detectar columnas reales sin errores si hay diferencias
   const columnasSet = new Set();
   datos.forEach((row) => {
     Object.keys(row).forEach((key) => columnasSet.add(key));
@@ -79,7 +78,6 @@ const App = () => {
     }
   }, [columnasNumericas]);
 
-  // Valores únicos para filtros dinámicos
   const valoresUnicos = {};
   columnas.forEach((col) => {
     const valores = datos
@@ -119,26 +117,31 @@ const App = () => {
   };
 
   const handleArchivosSubidos = async (files) => {
-    const formData = new FormData();
-    for (let file of files) {
-      formData.append('file', file);
-    }
+  const formData = new FormData();
+  for (let file of files) {
+    formData.append('files', file); 
+  }
 
-    try {
-      setIsLoadingUpload(true);
-      await axios.post(`${API_URL}/subir`, formData);
-      const nombresArchivos = files.map((file) => file.name);
-      await cargarArchivos(nombresArchivos);
-      if (nombresArchivos.length > 0) {
-        setArchivoSeleccionado(nombresArchivos[0]);
-      }
-    } catch (error) {
-      console.error('Error al subir archivos:', error);
-      alert('Error al subir archivos');
-    } finally {
-      setIsLoadingUpload(false);
+  try {
+    setIsLoadingUpload(true);
+    await axios.post(`${API_URL}/subir`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    const nombresArchivos = files.map((file) => file.name);
+    await cargarArchivos(nombresArchivos);
+    if (nombresArchivos.length > 0) {
+      setArchivoSeleccionado(nombresArchivos[0]);
     }
-  };
+  } catch (error) {
+    console.error('Error al subir archivos:', error);
+    alert('Error al subir archivos');
+  } finally {
+    setIsLoadingUpload(false);
+  }
+};
 
   return (
     <Layout>
