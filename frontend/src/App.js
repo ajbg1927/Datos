@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import {
   Container,
+  Fab,
+  TextField,
+  MenuItem,
   Typography,
+  CssBaseline,
   CircularProgress,
 } from '@mui/material';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
@@ -158,51 +162,92 @@ const App = () => {
         )
       }
     >
-      <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-        <Typography variant="h4" fontWeight="bold" gutterBottom>
-          Análisis de Datos – Municipio de Mosquera
+      {isLoadingUpload && (
+        <Typography align="center" sx={{ mb: 2 }}>
+          Subiendo archivo(s)... por favor espera
         </Typography>
+      )}
 
-        {isLoadingUpload && (
-          <Typography align="center" sx={{ mb: 2 }}>
-            Subiendo archivo(s)... por favor espera
-          </Typography>
-        )}
+      <UploadFile onFilesUploaded={handleArchivosSubidos} />
 
-        <UploadFile onFilesUploaded={handleArchivosSubidos} />
-
-        {archivos?.length > 0 && <TablaArchivos archivos={archivos} setArchivoSeleccionado={setArchivoSeleccionado} archivoSeleccionado={archivoSeleccionado} />}
-
-        {archivoSeleccionado && (
+      {archivos?.length > 0 && (
+        <>
+          <TablaArchivos
+            archivos={archivos}
+            archivoSeleccionado={archivoSeleccionado}
+            onArchivoChange={setArchivoSeleccionado}
+          />
           <SelectorHojas
-            archivo={archivoSeleccionado}
-            hojas={hojasPorArchivo[archivoSeleccionado.nombreBackend] || []}
+            hojas={hojasPorArchivo[archivoSeleccionado?.nombreBackend] || []}
             hojasSeleccionadas={hojasSeleccionadas}
             setHojasSeleccionadas={setHojasSeleccionadas}
           />
-        )}
+        </>
+      )}
 
-        {datosFiltrados.length > 0 && (
-          <>
-            <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
-            <SelectoresAgrupacion
-              columnas={columnas}
-              columnaAgrupar={columnaAgrupar}
-              setColumnaAgrupar={setColumnaAgrupar}
-              columnaValor={columnaValor}
-              setColumnaValor={setColumnaValor}
-              columnasNumericas={columnasNumericas}
-            />
-            <TablaDatos datos={datosFiltrados} />
-            <Graficos
-              datos={datosFiltrados}
-              columnaAgrupar={columnaAgrupar}
-              columnaValor={columnaValor}
-            />
-            <ExportButtons datos={datosFiltrados} nombreArchivo={`exportacion_${Date.now()}`} />
-          </>
-        )}
-      </Container>
+      {datos.length > 0 && (
+        <>
+          <SelectoresAgrupacion
+            columnas={columnas}
+            columnaAgrupar={columnaAgrupar}
+            setColumnaAgrupar={setColumnaAgrupar}
+            columnaValor={columnaValor}
+            setColumnaValor={setColumnaValor}
+          />
+
+          <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
+
+          {columnasNumericas.length > 0 && (
+            <Container maxWidth="md">
+              <TextField
+                select
+                fullWidth
+                label="Columna a analizar (Pagos, Deducciones, etc.)"
+                value={columnaValor}
+                onChange={(e) => setColumnaValor(e.target.value)}
+                sx={{ my: 2 }}
+              >
+                {columnasNumericas.map((col) => (
+                  <MenuItem key={col} value={col}>
+                    {col}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Container>
+          )}
+
+          <TablaDatos datos={datosFiltrados} columnas={columnas} />
+
+          <Graficos
+            datos={datosFiltrados}
+            columnas={columnas}
+            columnaValor={columnaValor}
+          />
+
+          <ExportButtons
+            onExport={() => exportToExcel(datosFiltrados, columnas)}
+          />
+
+          <Fab
+            color="primary"
+            aria-label="exportar"
+            onClick={() => exportToExcel(datosFiltrados, columnas)}
+            sx={{
+              position: 'fixed',
+              bottom: 24,
+              right: 24,
+              backgroundColor: '#ffcd00',
+              color: '#000',
+              boxShadow: '0px 4px 12px rgba(0,0,0,0.2)',
+              '&:hover': {
+                backgroundColor: '#e6b800',
+              },
+            }}
+          >
+            <SaveAltIcon />
+          </Fab>
+        </>
+      )}
     </Layout>
   );
 };
