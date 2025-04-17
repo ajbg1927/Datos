@@ -15,14 +15,12 @@ const Layout = ({ children, sidebar }) => {
 
       <Container maxWidth="xl" sx={{ flexGrow: 1, py: 3 }}>
         <Grid container spacing={2}>
-          {/* Barra lateral de filtros */}
           <Grid item xs={12} md={3}>
             <Paper elevation={2} sx={{ p: 2, height: '100%' }}>
               {sidebar}
             </Paper>
           </Grid>
 
-          {/* Contenido principal */}
           <Grid item xs={12} md={9}>
             {children}
           </Grid>

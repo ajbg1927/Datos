@@ -68,7 +68,7 @@ const Graficos = ({ datos, columnaAgrupar, columnaValor }) => {
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={datosAgrupados}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="nombre" />
+                  <XAxis dataKey="nombre" angle={-30} textAnchor="end" interval={0} height={80} />
                   <YAxis />
                   <Tooltip />
                   <Bar dataKey="valor" fill={theme.palette.primary.main} />

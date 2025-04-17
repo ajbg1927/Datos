@@ -5,6 +5,8 @@ import {
   TextField,
   MenuItem,
   Typography,
+  CssBaseline,
+  CircularProgress
 } from '@mui/material';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import Layout from './components/Layout';
@@ -15,6 +17,8 @@ import Filtros from './components/Filtros';
 import TablaDatos from './components/TablaDatos';
 import Graficos from './components/Graficos';
 import ExportButtons from './components/ExportButtons';
+import ResumenGeneral from './components/ResumenGeneral';
+import SelectoresAgrupacion from './components/SelectoresAgrupacion';
 import useArchivos from './hooks/useArchivos';
 import useFiltrosAvanzado from './hooks/useFiltrosAvanzado';
 import useExportaciones from './hooks/useExportaciones';
@@ -39,6 +43,7 @@ const App = () => {
   } = useArchivos();
 
   const [filtros, setFiltros] = useState({});
+  const [columnaAgrupar, setColumnaAgrupar] = useState('');
   const [columnaValor, setColumnaValor] = useState('');
   const [isLoadingUpload, setIsLoadingUpload] = useState(false);
 
@@ -73,6 +78,9 @@ const App = () => {
   );
 
   useEffect(() => {
+    if (columnas.length > 0 && !columnaAgrupar) {
+      setColumnaAgrupar(columnas[0]);
+    }
     if (columnasNumericas.length > 0 && !columnaValor) {
       setColumnaValor(columnasNumericas[0]);
     }
@@ -176,6 +184,18 @@ const App = () => {
           />
         </>
       )}
+
+      {datos.length > 0 && (
+          <>
+            <SelectoresAgrupacion
+              columnas={columnas}
+              columnaAgrupar={columnaAgrupar}
+              setColumnaAgrupar={setColumnaAgrupar}
+              columnaValor={columnaValor}
+              setColumnaValor={setColumnaValor}
+            />
+
+            <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
 
       {columnasNumericas.length > 0 && (
         <Container maxWidth="md">

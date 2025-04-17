@@ -27,22 +27,22 @@ const UploadFile = ({ onFilesUploaded }) => {
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       sx={{
-        border: '2px dashed #BDBDBD',
+        border: '2px dashed #A9A9A9',
         borderRadius: 3,
-        backgroundColor: '#FAFAF5',
+        backgroundColor: '#fefefe',
         p: 6,
         textAlign: 'center',
-        boxShadow: 1,
-        transition: '0.3s',
+        boxShadow: 3,
+        transition: '0.3s ease',
         cursor: 'pointer',
         '&:hover': {
-          backgroundColor: '#F5F5F0',
-          boxShadow: 3,
+          backgroundColor: '#F4F4F4',
+          boxShadow: 6,
         },
       }}
     >
-      <CloudUploadIcon sx={{ fontSize: 80, color: '#616161', mb: 2 }} />
-      <Typography variant="h6" fontWeight="bold" color="#333" gutterBottom>
+      <CloudUploadIcon sx={{ fontSize: 70, color: '#388E3C', mb: 2 }} />
+      <Typography variant="h6" fontWeight="bold" color="text.primary" gutterBottom>
         Arrastra y suelta tus archivos Excel aquí
       </Typography>
       <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -67,10 +67,10 @@ const UploadFile = ({ onFilesUploaded }) => {
             py: 1,
             fontWeight: 'bold',
             borderRadius: 2,
-            backgroundColor: '#424242',
-            color: '#fff',
+            backgroundColor: '#FFC107',
+            color: '#000',
             '&:hover': {
-              backgroundColor: '#2E2E2E',
+              backgroundColor: '#FFB300',
             },
           }}
         >

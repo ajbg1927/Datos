@@ -9,12 +9,11 @@ import {
   Paper,
   Typography,
   TablePagination,
-  Button,
   Box,
 } from '@mui/material';
-import { CSVLink } from 'react-csv';
+import ExportButtons from './ExportButtons'; // Asegúrate que esté bien la ruta
 
-const TablaDatos = ({ datos, columnas }) => {
+const TablaDatos = ({ datos, columnas, onExport }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -36,25 +35,18 @@ const TablaDatos = ({ datos, columnas }) => {
 
   return (
     <Box sx={{ mt: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-        <CSVLink
-          data={datos}
-          filename="datos_exportados.csv"
-          headers={columnas.map((col) => ({ label: col, key: col }))}
-          style={{ textDecoration: 'none' }}
-        >
-          <Button variant="contained" color="success">
-            Exportar CSV
-          </Button>
-        </CSVLink>
-      </Box>
+      {/* ExportButtons con Excel y CSV */}
+      <ExportButtons datos={datos} columnas={columnas} onExport={onExport} />
 
-      <TableContainer component={Paper}>
-        <Table size="small">
+      {/* Tabla de datos */}
+      <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto', mt: 2 }}>
+        <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
               {columnas.map((columna) => (
-                <TableCell key={columna}>{columna}</TableCell>
+                <TableCell key={columna} sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>
+                  {columna}
+                </TableCell>
               ))}
             </TableRow>
           </TableHead>

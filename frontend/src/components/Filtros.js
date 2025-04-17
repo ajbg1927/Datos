@@ -25,8 +25,12 @@ const Filtros = ({
   setColumnaValor,
 }) => {
   return (
-    <Paper elevation={3} sx={{ p: { xs: 2, md: 3 }, mt: 4, mb: 4, boxShadow: 4 }}>
-      <Typography variant="h6" gutterBottom>
+    <Paper elevation={4} sx={{ p: { xs: 2, md: 4 }, mt: 4, mb: 4, borderRadius: 3 }}>
+      <Typography
+        variant="h6"
+        gutterBottom
+        sx={{ fontWeight: 'bold', color: '#388E3C' }}
+      >
         Filtros de búsqueda
       </Typography>
 
@@ -38,7 +42,7 @@ const Filtros = ({
         setColumnaValor={setColumnaValor}
       />
 
-      <Grid container spacing={2}>
+      <Grid container spacing={2} mt={1}>
         <Grid item xs={12} sm={6} md={4}>
           <TextField
             label="Búsqueda global"
@@ -151,7 +155,12 @@ const Filtros = ({
         ))}
 
         <Grid item xs={12} textAlign="right">
-          <Button variant="outlined" color="error" onClick={handleClearFilters}>
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={handleClearFilters}
+            sx={{ mt: 2 }}
+          >
             Limpiar filtros
           </Button>
         </Grid>
