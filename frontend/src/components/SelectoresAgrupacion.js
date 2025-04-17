@@ -1,13 +1,10 @@
 import React from 'react';
 import {
-  Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Stack,
-  Typography,
   Paper,
+  Typography,
+  Stack,
+  Autocomplete,
+  TextField,
 } from '@mui/material';
 
 const SelectoresAgrupacion = ({
@@ -28,37 +25,35 @@ const SelectoresAgrupacion = ({
         spacing={3}
         justifyContent="flex-start"
       >
-        <FormControl fullWidth>
-          <InputLabel sx={{ color: '#388E3C' }}>Agrupar por</InputLabel>
-          <Select
-            value={columnaAgrupar}
-            label="Agrupar por"
-            onChange={(e) => setColumnaAgrupar(e.target.value)}
-            sx={{ bgcolor: 'white' }}
-          >
-            {columnas.map((col, i) => (
-              <MenuItem key={i} value={col}>
-                {col}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Autocomplete
+          options={columnas}
+          value={columnaAgrupar}
+          onChange={(e, newValue) => setColumnaAgrupar(newValue || '')}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Agrupar por"
+              variant="outlined"
+              sx={{ bgcolor: 'white' }}
+            />
+          )}
+          fullWidth
+        />
 
-        <FormControl fullWidth>
-          <InputLabel sx={{ color: '#388E3C' }}>Columna de valor</InputLabel>
-          <Select
-            value={columnaValor}
-            label="Columna de valor"
-            onChange={(e) => setColumnaValor(e.target.value)}
-            sx={{ bgcolor: 'white' }}
-          >
-            {columnas.map((col, i) => (
-              <MenuItem key={i} value={col}>
-                {col}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Autocomplete
+          options={columnas}
+          value={columnaValor}
+          onChange={(e, newValue) => setColumnaValor(newValue || '')}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Columna de valor"
+              variant="outlined"
+              sx={{ bgcolor: 'white' }}
+            />
+          )}
+          fullWidth
+        />
       </Stack>
     </Paper>
   );
