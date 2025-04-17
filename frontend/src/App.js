@@ -116,9 +116,9 @@ const App = () => {
     setFiltros({});
   };
 
-  const handleArchivosSubidos = async (files) => { // Recibe el FileList directamente
+  const handleArchivosSubidos = async (files) => { 
     const formData = new FormData();
-    for (const file of files) { // Iterar sobre el FileList
+    for (const file of files) { 
       formData.append('archivos', file);
     }
 
@@ -131,11 +131,10 @@ const App = () => {
         },
       });
 
-      // Ya no necesitas extraer solo los nombres aquí
-      await cargarArchivos(files); // Pasa el FileList completo
+      await cargarArchivos(files); 
 
       if (files.length > 0) {
-        setArchivoSeleccionado(files[0].name); // Usa el nombre del primer archivo
+        setArchivoSeleccionado(files[0].name); 
       }
 
     } catch (error) {
