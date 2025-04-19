@@ -65,7 +65,9 @@ const Filtros = ({
         placeholder="Buscar en todos los campos..."
         value={valorBusqueda || filtros.busqueda || ''}
         onChange={(e) => {
-          setValorBusqueda?.(e.target.value); // si existe
+          if (setValorBusqueda) {
+            setValorBusqueda(e.target.value);
+          }
           handleChange('busqueda', e.target.value);
         }}
         InputProps={{
@@ -78,7 +80,6 @@ const Filtros = ({
         sx={{ mb: 3 }}
       />
 
-      {/* Filtros por fecha */}
       {columnasFecha.length > 0 && (
         <>
           <Divider sx={{ my: 2 }} />
@@ -110,7 +111,6 @@ const Filtros = ({
         </>
       )}
 
-      {/* Rango numérico */}
       {columnasNumericas.length > 0 && (
         <>
           <Divider sx={{ my: 2 }} />
@@ -148,7 +148,6 @@ const Filtros = ({
         </>
       )}
 
-      {/* Agrupamiento y columna de valor */}
       <Divider sx={{ my: 2 }} />
       <Typography variant="subtitle1" sx={{ color: 'green', fontWeight: 'bold', mb: 2 }}>
         📊 Visualización de Gráficos
@@ -202,7 +201,6 @@ const Filtros = ({
         </Grid>
       </Grid>
 
-      {/* Filtros por categoría */}
       <Divider sx={{ my: 2 }} />
       <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2 }}>
         Filtrar por categorías
