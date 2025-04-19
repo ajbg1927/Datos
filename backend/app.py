@@ -160,17 +160,23 @@ def obtener_datos(filename):
 @app.route("/archivos/datos", methods=["POST"])
 def obtener_datos_archivo():
     data = request.json
-    filename = data.get("filename", "")
-    hojas = data.get("hojas", [])
+    filename = data.get("filename", "")   
+    hojas = data.get("hojas", [])         
+
     if not filename:
         return jsonify({"error": "Archivo no encontrado"}), 400
+    if not hojas:
+        return jsonify({"error": "No se especificaron hojas"}), 400
+
     try:
         filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         if not os.path.exists(filepath):
             return jsonify({"error": "Archivo no encontrado"}), 400
+
         xls = pd.ExcelFile(filepath)
         datos_totales = []
         row_id = 1
+
         for hoja in hojas:
             if hoja in xls.sheet_names:
                 df = pd.read_excel(xls, sheet_name=hoja, dtype=str)
@@ -179,7 +185,9 @@ def obtener_datos_archivo():
                 row_id += len(df)
                 df["Hoja"] = hoja
                 datos_totales.extend(df.to_dict(orient="records"))
+        
         return jsonify({"datos": datos_totales})
+
     except Exception as e:
         return jsonify({"error": f"Error al procesar el archivo: {str(e)}"}), 500
 
