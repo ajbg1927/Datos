@@ -6,6 +6,8 @@ import {
   MenuItem,
   Select,
   Typography,
+  TextField,
+  Grid,
 } from '@mui/material';
 import {
   PieChart,
@@ -19,6 +21,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  LabelList,
 } from 'recharts';
 
 const PALETAS = {
@@ -32,6 +35,8 @@ const Graficos = ({ datos, columnaAgrupacion, columnaValor }) => {
   const [tipoGrafico, setTipoGrafico] = useState('Barras');
   const [paleta, setPaleta] = useState('Institucional');
   const [dataAgrupada, setDataAgrupada] = useState([]);
+  const [ordenar, setOrdenar] = useState(true);
+  const [topN, setTopN] = useState(10);
 
   useEffect(() => {
     if (!datos || !columnaAgrupacion || !columnaValor) return;
@@ -40,60 +45,105 @@ const Graficos = ({ datos, columnaAgrupacion, columnaValor }) => {
     datos.forEach((fila) => {
       const clave = fila[columnaAgrupacion];
       const valor = parseFloat(fila[columnaValor]) || 0;
-      agrupado[clave] = (agrupado[clave] || 0) + valor;
+      if (clave) agrupado[clave] = (agrupado[clave] || 0) + valor;
     });
 
-    const nuevoData = Object.entries(agrupado).map(([key, value]) => ({
+    let nuevoData = Object.entries(agrupado).map(([key, value]) => ({
       name: key,
       value,
     }));
 
+    if (ordenar) {
+      nuevoData.sort((a, b) => b.value - a.value);
+    }
+
+    if (topN > 0 && topN < nuevoData.length) {
+      nuevoData = nuevoData.slice(0, topN);
+    }
+
     setDataAgrupada(nuevoData);
-  }, [datos, columnaAgrupacion, columnaValor]);
+  }, [datos, columnaAgrupacion, columnaValor, ordenar, topN]);
 
   const coloresUsar = PALETAS[paleta] || PALETAS['Institucional'];
 
   return (
     <Box mt={4}>
       <Typography variant="h5" gutterBottom align="center">
-        Gráfico por {columnaAgrupacion} - Total de {columnaValor}
+        Gráfico por <strong>{columnaAgrupacion}</strong> - Total de <strong>{columnaValor}</strong>
       </Typography>
 
-      <Box sx={{ mb: 2 }}>
-        <FormControl fullWidth>
-          <InputLabel id="tipo-grafico-label">Tipo de gráfico</InputLabel>
-          <Select
-            labelId="tipo-grafico-label"
-            value={tipoGrafico}
-            label="Tipo de gráfico"
-            onChange={(e) => setTipoGrafico(e.target.value)}
-          >
-            <MenuItem value="Barras">Barras</MenuItem>
-            <MenuItem value="Pastel">Pastel</MenuItem>
-            <MenuItem value="Ambos">Ambos</MenuItem>
-          </Select>
-        </FormControl>
-      </Box>
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={12} sm={4}>
+          <FormControl fullWidth>
+            <InputLabel id="tipo-grafico-label">Tipo de gráfico</InputLabel>
+            <Select
+              labelId="tipo-grafico-label"
+              value={tipoGrafico}
+              label="Tipo de gráfico"
+              onChange={(e) => setTipoGrafico(e.target.value)}
+            >
+              <MenuItem value="Barras">Barras</MenuItem>
+              <MenuItem value="Pastel">Pastel</MenuItem>
+              <MenuItem value="Ambos">Ambos</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
 
-      <Box sx={{ mb: 3 }}>
-        <FormControl fullWidth>
-          <InputLabel id="paleta-color-label">Paleta de colores</InputLabel>
-          <Select
-            labelId="paleta-color-label"
-            value={paleta}
-            label="Paleta de colores"
-            onChange={(e) => setPaleta(e.target.value)}
-          >
-            {Object.keys(PALETAS).map((key) => (
-              <MenuItem key={key} value={key}>
-                {key}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
+        <Grid item xs={12} sm={4}>
+          <FormControl fullWidth>
+            <InputLabel id="paleta-color-label">Paleta de colores</InputLabel>
+            <Select
+              labelId="paleta-color-label"
+              value={paleta}
+              label="Paleta de colores"
+              onChange={(e) => setPaleta(e.target.value)}
+            >
+              {Object.keys(PALETAS).map((key) => (
+                <MenuItem key={key} value={key}>
+                  {key}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
 
-      <Box sx={{ display: 'flex', flexDirection: tipoGrafico === 'Ambos' ? 'row' : 'column', gap: 4, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <Grid item xs={6} sm={2}>
+          <TextField
+            fullWidth
+            type="number"
+            label="Top N"
+            value={topN}
+            onChange={(e) => setTopN(parseInt(e.target.value) || 0)}
+            inputProps={{ min: 1 }}
+          />
+        </Grid>
+
+        <Grid item xs={6} sm={2}>
+          <FormControl fullWidth>
+            <InputLabel id="ordenar-label">Ordenar</InputLabel>
+            <Select
+              labelId="ordenar-label"
+              value={ordenar ? 'Sí' : 'No'}
+              label="Ordenar"
+              onChange={(e) => setOrdenar(e.target.value === 'Sí')}
+            >
+              <MenuItem value="Sí">Sí</MenuItem>
+              <MenuItem value="No">No</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+      </Grid>
+
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: tipoGrafico === 'Ambos' ? 'row' : 'column' },
+          gap: 4,
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
         {(tipoGrafico === 'Barras' || tipoGrafico === 'Ambos') && (
           <ResponsiveContainer width={tipoGrafico === 'Ambos' ? 500 : '100%'} height={400}>
             <BarChart data={dataAgrupada}>
@@ -102,7 +152,9 @@ const Graficos = ({ datos, columnaAgrupacion, columnaValor }) => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="value" fill={coloresUsar[0]} />
+              <Bar dataKey="value" fill={coloresUsar[0]}>
+                <LabelList dataKey="value" position="top" />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         )}
@@ -117,7 +169,7 @@ const Graficos = ({ datos, columnaAgrupacion, columnaValor }) => {
                 cx="50%"
                 cy="50%"
                 outerRadius={130}
-                label
+                label={({ name, percent }) => `${name} (${(percent * 100).toFixed(1)}%)`}
               >
                 {dataAgrupada.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={coloresUsar[index % coloresUsar.length]} />

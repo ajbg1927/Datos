@@ -57,7 +57,6 @@ const Filtros = ({
 
       <Divider sx={{ my: 2 }} />
 
-      {/* Visualización de Gráficos */}
       <Typography variant="subtitle1" sx={{ color: 'green', fontWeight: 'bold', mb: 2 }}>
         Visualización de Gráficos
       </Typography>
@@ -111,7 +110,6 @@ const Filtros = ({
 
       <Divider sx={{ my: 2 }} />
 
-      {/* Filtros por Categorías */}
       <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
         Filtrar por categorías
       </Typography>
@@ -132,7 +130,6 @@ const Filtros = ({
         ))}
       </Grid>
 
-      {/* Botón Limpiar Filtros */}
       <Box mt={4} textAlign="center">
         <Button
           variant="contained"
