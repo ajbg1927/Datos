@@ -119,6 +119,11 @@ def obtener_hojas(filename):
     except Exception as e:
         return jsonify({"error": f"Error al leer el archivo: {str(e)}"}), 500
 
+from flask import request, jsonify
+import pandas as pd
+import os
+from werkzeug.utils import secure_filename
+
 @app.route("/datos/<filename>", methods=["POST"])
 def obtener_datos(filename):
     filename = secure_filename(filename)
@@ -128,14 +133,19 @@ def obtener_datos(filename):
         return jsonify({"error": "Archivo no encontrado"}), 404
 
     try:
+        print(f"Datos recibidos: {request.json}")  
+        
         hojas = request.json.get("hojas", [])
+        if not hojas:
+            return jsonify({"error": "No se especificaron hojas"}), 400
+
         xls = pd.ExcelFile(filepath)
         datos_totales = []
         row_id = 1
 
         for hoja in hojas:
             if hoja not in xls.sheet_names:
-                return jsonify({"error": f"La hoja '{hoja}' no existe"}), 400
+                return jsonify({"error": f"La hoja '{hoja}' no existe en el archivo"}), 400
             df = pd.read_excel(xls, sheet_name=hoja, dtype=str)
             df.dropna(how="all", inplace=True)
             df.insert(0, "id", range(row_id, row_id + len(df)))

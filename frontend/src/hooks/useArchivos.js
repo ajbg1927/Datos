@@ -11,7 +11,6 @@ const useArchivos = () => {
   const [datosPorArchivo, setDatosPorArchivo] = useState({});
   const [columnasPorArchivo, setColumnasPorArchivo] = useState({});
 
-  // Función para cargar los archivos
   const cargarArchivos = async (archivosInput) => {
     if (!archivosInput || archivosInput.length === 0) {
       alert("No se seleccionaron archivos.");
