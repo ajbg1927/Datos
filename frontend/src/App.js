@@ -130,6 +130,10 @@ const App = () => {
     setFiltros({});
   };
 
+  const handleExportar = () => {
+    exportToExcel(datosFiltrados, columnas);
+  };
+
   const handleArchivosSubidos = async (files) => {
     const formData = new FormData();
     for (const file of files) {
@@ -248,7 +252,9 @@ const App = () => {
 
           <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
             <ExportButtons
-              onExport={() => exportToExcel(datosFiltrados, columnas)}
+              datos={datosFiltrados}
+              columnas={columnas || []}
+              onExport={handleExportar}
             />
           </Paper>
         </>
