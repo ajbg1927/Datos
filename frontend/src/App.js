@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ThemeProvider,
-  CssBaseline,
   Container,
   Fab,
   TextField,
   MenuItem,
   Typography,
+  CssBaseline,
   CircularProgress,
 } from '@mui/material';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
-import customTheme from './theme/customTheme';
-import Header from './components/Header';
 import Layout from './components/Layout';
 import UploadFile from './components/UploadFile';
 import TablaArchivos from './components/TablaArchivos';
@@ -29,7 +26,7 @@ import axios from 'axios';
 
 const API_URL = 'https://backend-flask-0rnq.onrender.com';
 
-function App() {
+const App = () => {
   const {
     archivos,
     archivoSeleccionado,
@@ -150,114 +147,109 @@ function App() {
   };
 
   return (
-    <ThemeProvider theme={customTheme}>
-      <CssBaseline />
-      <Header />
+    <Layout
+      sidebar={
+        columnas.length > 0 && (
+          <Filtros
+            columnas={columnas}
+            valoresUnicos={valoresUnicos}
+            filtros={filtros}
+            setFiltros={setFiltros}
+            handleClearFilters={handleClearFilters}
+            columnasFecha={columnasFecha}
+            columnasNumericas={columnasNumericas}
+          />
+        )
+      }
+    >
+      {isLoadingUpload && (
+        <Typography align="center" sx={{ mb: 2 }}>
+          Subiendo archivo(s)... por favor espera
+        </Typography>
+      )}
 
-      <Layout
-        sidebar={
-          columnas.length > 0 && (
-            <Filtros
-              columnas={columnas}
-              valoresUnicos={valoresUnicos}
-              filtros={filtros}
-              setFiltros={setFiltros}
-              handleClearFilters={handleClearFilters}
-              columnasFecha={columnasFecha}
-              columnasNumericas={columnasNumericas}
-            />
-          )
-        }
-      >
-        {isLoadingUpload && (
-          <Typography align="center" sx={{ mb: 2 }}>
-            Subiendo archivo(s)... por favor espera
-          </Typography>
-        )}
+      <UploadFile onFilesUploaded={handleArchivosSubidos} />
 
-        <UploadFile onFilesUploaded={handleArchivosSubidos} />
+      {archivos?.length > 0 && (
+        <>
+          <TablaArchivos
+            archivos={archivos}
+            archivoSeleccionado={archivoSeleccionado}
+            onArchivoChange={setArchivoSeleccionado}
+          />
+          <SelectorHojas
+            hojas={hojasPorArchivo[archivoSeleccionado?.nombreBackend] || []}
+            hojasSeleccionadas={hojasSeleccionadas}
+            setHojasSeleccionadas={setHojasSeleccionadas}
+          />
+        </>
+      )}
 
-        {archivos?.length > 0 && (
-          <>
-            <TablaArchivos
-              archivos={archivos}
-              archivoSeleccionado={archivoSeleccionado}
-              onArchivoChange={setArchivoSeleccionado}
-            />
-            <SelectorHojas
-              hojas={hojasPorArchivo[archivoSeleccionado?.nombreBackend] || []}
-              hojasSeleccionadas={hojasSeleccionadas}
-              setHojasSeleccionadas={setHojasSeleccionadas}
-            />
-          </>
-        )}
+      {datos.length > 0 && (
+        <>
+          <SelectoresAgrupacion
+            columnas={columnas}
+            columnaAgrupar={columnaAgrupar}
+            setColumnaAgrupar={setColumnaAgrupar}
+            columnaValor={columnaValor}
+            setColumnaValor={setColumnaValor}
+          />
 
-        {datos.length > 0 && (
-          <>
-            <SelectoresAgrupacion
-              columnas={columnas}
-              columnaAgrupar={columnaAgrupar}
-              setColumnaAgrupar={setColumnaAgrupar}
-              columnaValor={columnaValor}
-              setColumnaValor={setColumnaValor}
-            />
+          <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
 
-            <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
+          {columnasNumericas.length > 0 && (
+            <Container maxWidth="md">
+              <TextField
+                select
+                fullWidth
+                label="Columna a analizar (Pagos, Deducciones, etc.)"
+                value={columnaValor}
+                onChange={(e) => setColumnaValor(e.target.value)}
+                sx={{ my: 2 }}
+              >
+                {columnasNumericas.map((col) => (
+                  <MenuItem key={col} value={col}>
+                    {col}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Container>
+          )}
 
-            {columnasNumericas.length > 0 && (
-              <Container maxWidth="md">
-                <TextField
-                  select
-                  fullWidth
-                  label="Columna a analizar (Pagos, Deducciones, etc.)"
-                  value={columnaValor}
-                  onChange={(e) => setColumnaValor(e.target.value)}
-                  sx={{ my: 2 }}
-                >
-                  {columnasNumericas.map((col) => (
-                    <MenuItem key={col} value={col}>
-                      {col}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Container>
-            )}
+          <TablaDatos datos={datosFiltrados} columnas={columnas} />
 
-            <TablaDatos datos={datosFiltrados} columnas={columnas} />
+          <Graficos
+            datos={datosFiltrados}
+            columnas={columnas}
+            columnaValor={columnaValor}
+          />
 
-            <Graficos
-              datos={datosFiltrados}
-              columnas={columnas}
-              columnaValor={columnaValor}
-            />
+          <ExportButtons
+            onExport={() => exportToExcel(datosFiltrados, columnas)}
+          />
 
-            <ExportButtons
-              onExport={() => exportToExcel(datosFiltrados, columnas)}
-            />
-
-            <Fab
-              color="primary"
-              aria-label="exportar"
-              onClick={() => exportToExcel(datosFiltrados, columnas)}
-              sx={{
-                position: 'fixed',
-                bottom: 24,
-                right: 24,
-                backgroundColor: '#ffcd00',
-                color: '#000',
-                boxShadow: '0px 4px 12px rgba(0,0,0,0.2)',
-                '&:hover': {
-                  backgroundColor: '#e6b800',
-                },
-              }}
-            >
-              <SaveAltIcon />
-            </Fab>
-          </>
-        )}
-      </Layout>
-    </ThemeProvider>
+          <Fab
+            color="primary"
+            aria-label="exportar"
+            onClick={() => exportToExcel(datosFiltrados, columnas)}
+            sx={{
+              position: 'fixed',
+              bottom: 24,
+              right: 24,
+              backgroundColor: '#ffcd00',
+              color: '#000',
+              boxShadow: '0px 4px 12px rgba(0,0,0,0.2)',
+              '&:hover': {
+                backgroundColor: '#e6b800',
+              },
+            }}
+          >
+            <SaveAltIcon />
+          </Fab>
+        </>
+      )}
+    </Layout>
   );
-}
+};
 
 export default App;
