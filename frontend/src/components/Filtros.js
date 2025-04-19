@@ -16,25 +16,29 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import ClearAllIcon from '@mui/icons-material/ClearAll';
 
 const Filtros = ({
-  columnas,
+  columnas = [],
   valoresUnicos = {},
-  filtros,
-  setFiltros,
-  handleClearFilters,
+  filtros = {},
+  setFiltros = () => {}, 
+  handleClearFilters = () => {},
   columnasFecha = [],
   columnasNumericas = [],
-  valorBusqueda,
-  setValorBusqueda,
-  columnaAgrupar,
-  setColumnaAgrupar,
-  columnaValor,
-  setColumnaValor,
+  valorBusqueda = '',
+  setValorBusqueda = () => {},
+  columnaAgrupar = '',
+  setColumnaAgrupar = () => {},
+  columnaValor = '',
+  setColumnaValor = () => {},
 }) => {
   const handleChange = (columna, valor) => {
-    setFiltros((prev) => ({
-      ...prev,
-      [columna]: valor,
-    }));
+    if (typeof setFiltros === 'function') {
+      setFiltros((prev) => ({
+        ...prev,
+        [columna]: valor,
+      }));
+    } else {
+      console.warn('setFiltros no es una función');
+    }
   };
 
   const columnasFiltrables = columnas.filter(
@@ -65,7 +69,7 @@ const Filtros = ({
         placeholder="Buscar en todos los campos..."
         value={valorBusqueda || filtros.busqueda || ''}
         onChange={(e) => {
-          if (setValorBusqueda) {
+          if (typeof setValorBusqueda === 'function') {
             setValorBusqueda(e.target.value);
           }
           handleChange('busqueda', e.target.value);
@@ -126,9 +130,7 @@ const Filtros = ({
                     type="number"
                     label={`${col} mínimo`}
                     value={filtros[`${col}_min`] || ''}
-                    onChange={(e) =>
-                      handleChange(`${col}_min`, e.target.value)
-                    }
+                    onChange={(e) => handleChange(`${col}_min`, e.target.value)}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
@@ -137,9 +139,7 @@ const Filtros = ({
                     type="number"
                     label={`${col} máximo`}
                     value={filtros[`${col}_max`] || ''}
-                    onChange={(e) =>
-                      handleChange(`${col}_max`, e.target.value)
-                    }
+                    onChange={(e) => handleChange(`${col}_max`, e.target.value)}
                   />
                 </Grid>
               </React.Fragment>

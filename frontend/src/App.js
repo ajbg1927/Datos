@@ -8,7 +8,6 @@ import {
   CircularProgress,
   Box,
   Paper,
-  Divider,
   Tooltip,
 } from '@mui/material';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
@@ -90,7 +89,7 @@ const App = () => {
     if (columnasNumericas.length > 0 && !columnaValor) {
       setColumnaValor(columnasNumericas[0]);
     }
-  }, [columnasNumericas]);
+  }, [columnas, columnasNumericas]);
 
   const valoresUnicos = {};
   columnas.forEach((col) => {
@@ -103,15 +102,16 @@ const App = () => {
   const texto = filtros.busqueda || '';
   const fechaInicio = filtros.Fecha_desde || '';
   const fechaFin = filtros.Fecha_hasta || '';
-  const pagosMin = filtros['Pagos_min'] || '';
-  const pagosMax = filtros['Pagos_max'] || '';
 
   const filtrosColumnas = Object.fromEntries(
     Object.entries(filtros).filter(
       ([key]) =>
-        !['busqueda', 'Fecha_desde', 'Fecha_hasta', 'Pagos_min', 'Pagos_max'].includes(key)
+        !['busqueda', 'Fecha_desde', 'Fecha_hasta'].includes(key)
     )
   );
+
+  const pagosMin = filtros[`${columnaValor}_min`] || '';
+  const pagosMax = filtros[`${columnaValor}_max`] || '';
 
   const datosFiltrados = useFiltrosAvanzado(
     datos,
@@ -162,6 +162,14 @@ const App = () => {
             handleClearFilters={handleClearFilters}
             columnasFecha={columnasFecha}
             columnasNumericas={columnasNumericas}
+            valorBusqueda={filtros.busqueda || ''}
+            setValorBusqueda={(valor) =>
+              setFiltros((prev) => ({ ...prev, busqueda: valor }))
+            }
+            columnaAgrupar={columnaAgrupar}
+            setColumnaAgrupar={setColumnaAgrupar}
+            columnaValor={columnaValor}
+            setColumnaValor={setColumnaValor}
           />
         )
       }
@@ -193,12 +201,12 @@ const App = () => {
         </Paper>
       )}
 
-          <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h6" gutterBottom>📄 Datos Filtrados</Typography>
-            <TablaDatos datos={datosFiltrados} columnas={columnas} />
-          </Paper>
+      <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" gutterBottom>📄 Datos Filtrados</Typography>
+        <TablaDatos datos={datosFiltrados} columnas={columnas} />
+      </Paper>
 
-          {datos.length > 0 && (
+      {datos.length > 0 && (
         <>
           <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
             <Typography variant="h6" gutterBottom>🎛️ Agrupación y Métricas</Typography>
@@ -209,9 +217,7 @@ const App = () => {
               columnaValor={columnaValor}
               setColumnaValor={setColumnaValor}
             />
-
             <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
-
             {columnasNumericas.length > 0 && (
               <Container maxWidth="md" sx={{ my: 3 }}>
                 <TextField
