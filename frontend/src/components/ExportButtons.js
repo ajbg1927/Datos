@@ -1,50 +1,48 @@
 import React from 'react';
-import { Box, Button, Tooltip } from '@mui/material';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import { CSVLink } from 'react-csv';
+import { Button, Menu, MenuItem } from '@mui/material';
+import { FileDownload as FileDownloadIcon } from '@mui/icons-material';
 
-const ExportButtons = ({ datos, columnasVisibles, onExport }) => {
-  const tieneDatos = datos?.length > 0 && columnasVisibles?.length > 0;
+const ExportButtons = ({ datos, columnas = [], onExport }) => {
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
-  const headersCSV = columnasVisibles.map((col) => ({
-    label: col,
-    key: col,
-  }));
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = (formato) => {
+    setAnchorEl(null);
+    if (formato) {
+      onExport(formato);
+    }
+  };
 
   return (
-    <Box display="flex" gap={2} flexWrap="wrap" justifyContent="center">
-      {tieneDatos && (
-        <Tooltip title="Exportar como CSV">
-          <CSVLink
-            data={datos}
-            headers={headersCSV}
-            filename="datos_exportados.csv"
-            style={{ textDecoration: 'none' }}
-          >
-            <Button
-              variant="outlined"
-              color="primary"
-              startIcon={<FileDownloadIcon />}
-            >
-              Exportar CSV
-            </Button>
-          </CSVLink>
-        </Tooltip>
-      )}
-
-      {tieneDatos && (
-        <Tooltip title="Exportar como Excel">
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<FileDownloadIcon />}
-            onClick={onExport}
-          >
-            Exportar Excel
-          </Button>
-        </Tooltip>
-      )}
-    </Box>
+    <>
+      <Button
+        variant="contained"
+        color="success"
+        startIcon={<FileDownloadIcon />}
+        onClick={handleClick}
+      >
+        Exportar Excel
+      </Button>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => handleClose(null)}
+      >
+        {columnas && columnas.length > 0 ? (
+          <>
+            <MenuItem onClick={() => handleClose('excel')}>Exportar a Excel</MenuItem>
+            <MenuItem onClick={() => handleClose('csv')}>Exportar a CSV</MenuItem>
+            <MenuItem onClick={() => handleClose('pdf')}>Exportar a PDF</MenuItem>
+            <MenuItem onClick={() => handleClose('txt')}>Exportar a TXT</MenuItem>
+          </>
+        ) : (
+          <MenuItem disabled>No hay columnas para exportar</MenuItem>
+        )}
+      </Menu>
+    </>
   );
 };
 
