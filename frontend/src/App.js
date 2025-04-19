@@ -5,10 +5,14 @@ import {
   TextField,
   MenuItem,
   Typography,
-  CssBaseline,
   CircularProgress,
+  Box,
+  Paper,
+  Divider,
+  Tooltip,
 } from '@mui/material';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
+
 import Layout from './components/Layout';
 import UploadFile from './components/UploadFile';
 import TablaArchivos from './components/TablaArchivos';
@@ -19,9 +23,11 @@ import Graficos from './components/Graficos';
 import ExportButtons from './components/ExportButtons';
 import ResumenGeneral from './components/ResumenGeneral';
 import SelectoresAgrupacion from './components/SelectoresAgrupacion';
+
 import useArchivos from './hooks/useArchivos';
 import useFiltrosAvanzado from './hooks/useFiltrosAvanzado';
 import useExportaciones from './hooks/useExportaciones';
+
 import axios from 'axios';
 
 const API_URL = 'https://backend-flask-0rnq.onrender.com';
@@ -133,11 +139,9 @@ const App = () => {
     try {
       setIsLoadingUpload(true);
       await axios.post(`${API_URL}/subir`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
-      await cargarArchivos(files); 
+      await cargarArchivos(files);
     } catch (error) {
       console.error('Error al subir archivos:', error);
       alert('Error al subir archivos');
@@ -163,15 +167,19 @@ const App = () => {
       }
     >
       {isLoadingUpload && (
-        <Typography align="center" sx={{ mb: 2 }}>
-          Subiendo archivo(s)... por favor espera
-        </Typography>
+        <Box display="flex" justifyContent="center" alignItems="center" my={2}>
+          <CircularProgress sx={{ mr: 2 }} />
+          <Typography>Subiendo archivo(s)... por favor espera</Typography>
+        </Box>
       )}
 
-      <UploadFile onFilesUploaded={handleArchivosSubidos} />
+      <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
+        <UploadFile onFilesUploaded={handleArchivosSubidos} />
+      </Paper>
 
       {archivos?.length > 0 && (
-        <>
+        <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
+          <Typography variant="h6" gutterBottom>📁 Archivos Cargados</Typography>
           <TablaArchivos
             archivos={archivos}
             archivoSeleccionado={archivoSeleccionado}
@@ -182,70 +190,82 @@ const App = () => {
             hojasSeleccionadas={hojasSeleccionadas}
             setHojasSeleccionadas={setHojasSeleccionadas}
           />
-        </>
+        </Paper>
       )}
 
       {datos.length > 0 && (
         <>
-          <SelectoresAgrupacion
-            columnas={columnas}
-            columnaAgrupar={columnaAgrupar}
-            setColumnaAgrupar={setColumnaAgrupar}
-            columnaValor={columnaValor}
-            setColumnaValor={setColumnaValor}
-          />
+          <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+            <Typography variant="h6" gutterBottom>🎛️ Agrupación y Métricas</Typography>
+            <SelectoresAgrupacion
+              columnas={columnas}
+              columnaAgrupar={columnaAgrupar}
+              setColumnaAgrupar={setColumnaAgrupar}
+              columnaValor={columnaValor}
+              setColumnaValor={setColumnaValor}
+            />
 
-          <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
+            <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
 
-          {columnasNumericas.length > 0 && (
-            <Container maxWidth="md">
-              <TextField
-                select
-                fullWidth
-                label="Columna a analizar (Pagos, Deducciones, etc.)"
-                value={columnaValor}
-                onChange={(e) => setColumnaValor(e.target.value)}
-                sx={{ my: 2 }}
-              >
-                {columnasNumericas.map((col) => (
-                  <MenuItem key={col} value={col}>
-                    {col}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Container>
-          )}
+            {columnasNumericas.length > 0 && (
+              <Container maxWidth="md" sx={{ my: 3 }}>
+                <TextField
+                  select
+                  fullWidth
+                  label="Columna a analizar (Pagos, Deducciones, etc.)"
+                  value={columnaValor}
+                  onChange={(e) => setColumnaValor(e.target.value)}
+                >
+                  {columnasNumericas.map((col) => (
+                    <MenuItem key={col} value={col}>
+                      {col}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Container>
+            )}
+          </Paper>
 
-          <TablaDatos datos={datosFiltrados} columnas={columnas} />
+          <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+            <Typography variant="h6" gutterBottom>📄 Datos Filtrados</Typography>
+            <TablaDatos datos={datosFiltrados} columnas={columnas} />
+          </Paper>
 
-          <Graficos
-            datos={datosFiltrados}
-            columnas={columnas}
-            columnaValor={columnaValor}
-          />
+          <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+            <Typography variant="h6" gutterBottom>📊 Visualización Gráfica</Typography>
+            <Graficos
+              datos={datosFiltrados}
+              columnas={columnas}
+              columnaValor={columnaValor}
+            />
+          </Paper>
 
-          <ExportButtons
-            onExport={() => exportToExcel(datosFiltrados, columnas)}
-          />
+          <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
+            <ExportButtons
+              onExport={() => exportToExcel(datosFiltrados, columnas)}
+            />
+          </Paper>
 
-          <Fab
-            color="primary"
-            aria-label="exportar"
-            onClick={() => exportToExcel(datosFiltrados, columnas)}
-            sx={{
-              position: 'fixed',
-              bottom: 24,
-              right: 24,
-              backgroundColor: '#ffcd00',
-              color: '#000',
-              boxShadow: '0px 4px 12px rgba(0,0,0,0.2)',
-              '&:hover': {
-                backgroundColor: '#e6b800',
-              },
-            }}
-          >
-            <SaveAltIcon />
-          </Fab>
+          <Tooltip title="Exportar a Excel">
+            <Fab
+              color="primary"
+              aria-label="exportar"
+              onClick={() => exportToExcel(datosFiltrados, columnas)}
+              sx={{
+                position: 'fixed',
+                bottom: 24,
+                right: 24,
+                backgroundColor: '#ffcd00',
+                color: '#000',
+                boxShadow: '0px 4px 12px rgba(0,0,0,0.2)',
+                '&:hover': {
+                  backgroundColor: '#e6b800',
+                },
+              }}
+            >
+              <SaveAltIcon />
+            </Fab>
+          </Tooltip>
         </>
       )}
     </Layout>
