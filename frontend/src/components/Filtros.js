@@ -9,7 +9,6 @@ import {
   Button,
   InputAdornment,
   Grid,
-  IconButton,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import GroupIcon from '@mui/icons-material/Group';
@@ -33,16 +32,23 @@ const Filtros = ({
   );
 
   return (
-    <Paper elevation={3} sx={{ p: 3, borderRadius: 3 }}>
-      <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'green', mb: 2 }}>
+    <Paper
+      elevation={1}
+      sx={{
+        p: 3,
+        borderRadius: 3,
+        bgcolor: '#fdfdfd',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+      }}
+    >
+      <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'green', mb: 2 }}>
         Filtros de análisis
       </Typography>
 
-      {/* Buscador Global */}
       <TextField
         fullWidth
         variant="outlined"
-        placeholder="Buscar..."
+        placeholder="Buscar en todos los campos..."
         value={valorBusqueda}
         onChange={(e) => setValorBusqueda(e.target.value)}
         InputProps={{
@@ -58,10 +64,11 @@ const Filtros = ({
       <Divider sx={{ my: 2 }} />
 
       <Typography variant="subtitle1" sx={{ color: 'green', fontWeight: 'bold', mb: 2 }}>
-        Visualización de Gráficos
+        📊 Visualización de Gráficos
       </Typography>
+
       <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid item xs={6}>
+        <Grid item xs={12} md={6}>
           <TextField
             fullWidth
             select
@@ -84,7 +91,7 @@ const Filtros = ({
           </TextField>
         </Grid>
 
-        <Grid item xs={6}>
+        <Grid item xs={12} md={6}>
           <TextField
             fullWidth
             select
@@ -110,7 +117,7 @@ const Filtros = ({
 
       <Divider sx={{ my: 2 }} />
 
-      <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
+      <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2 }}>
         Filtrar por categorías
       </Typography>
       <Grid container spacing={2}>
@@ -121,10 +128,11 @@ const Filtros = ({
               select
               label={col}
               value={filtros[col] || ''}
-              onChange={(e) => setFiltros((prev) => ({ ...prev, [col]: e.target.value }))}
+              onChange={(e) =>
+                setFiltros((prev) => ({ ...prev, [col]: e.target.value }))
+              }
             >
               <MenuItem value="">Todos</MenuItem>
-              {/* Opcionalmente puedes pasar aquí los valores únicos por columna */}
             </TextField>
           </Grid>
         ))}
