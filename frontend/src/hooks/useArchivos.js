@@ -11,6 +11,7 @@ const useArchivos = () => {
   const [datosPorArchivo, setDatosPorArchivo] = useState({});
   const [columnasPorArchivo, setColumnasPorArchivo] = useState({});
 
+  // Función para cargar los archivos
   const cargarArchivos = async (archivosInput) => {
     if (!archivosInput || archivosInput.length === 0) {
       alert("No se seleccionaron archivos.");
@@ -65,8 +66,27 @@ const useArchivos = () => {
 
   const obtenerDatos = async (nombreBackend, hojas) => {
     try {
+      if (!nombreBackend || !hojas || !hojas.length) {
+        console.warn('Falta nombre del archivo o lista de hojas');
+        return;
+      }
+
       const nombreCodificado = encodeURIComponent(nombreBackend);
-      const response = await axios.post(`${API_URL}/datos/${nombreCodificado}`, { hojas });
+      
+      console.log('Solicitando datos a backend:', {
+        url: `${API_URL}/datos/${nombreCodificado}`,
+        hojas
+      });
+
+      const response = await axios.post(
+        `${API_URL}/datos/${nombreCodificado}`,
+        { hojas },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       const datos = response.data.datos || [];
 
@@ -84,8 +104,10 @@ const useArchivos = () => {
           [nombreBackend]: Object.keys(datos[0]),
         }));
       }
+
     } catch (error) {
       console.error('Error al obtener datos del archivo:', error);
+      alert(`Error al obtener datos: ${error?.response?.data?.error || 'Error inesperado'}`);
     }
   };
 
