@@ -11,9 +11,11 @@ import {
   AccordionSummary,
   AccordionDetails,
   Divider,
+  Box,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ClearAllIcon from '@mui/icons-material/ClearAll';
 import SelectoresAgrupacion from './SelectoresAgrupacion';
 
 const Filtros = ({
@@ -31,30 +33,31 @@ const Filtros = ({
 }) => {
   return (
     <Paper elevation={4} sx={{ p: 4, mt: 4, mb: 4, borderRadius: 3 }}>
-      <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#388E3C' }}>
-        Filtros de búsqueda
+      <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', color: '#388E3C' }}>
+        Filtros de análisis
       </Typography>
 
-      <SelectoresAgrupacion
-        columnas={columnas}
-        columnaAgrupacion={columnaAgrupacion}
-        setColumnaAgrupacion={setColumnaAgrupacion}
-        columnaValor={columnaValor}
-        setColumnaValor={setColumnaValor}
-      />
+      <Box sx={{ mb: 3 }}>
+        <SelectoresAgrupacion
+          columnas={columnas}
+          columnaAgrupacion={columnaAgrupacion}
+          setColumnaAgrupacion={setColumnaAgrupacion}
+          columnaValor={columnaValor}
+          setColumnaValor={setColumnaValor}
+        />
+      </Box>
 
-      <Divider sx={{ my: 3 }} />
+      <Divider sx={{ mb: 3 }} />
 
-      <Grid container spacing={2} mb={3}>
+      {/* Búsqueda global */}
+      <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
         <Grid item xs={12} sm={6} md={4}>
           <TextField
-            label="Búsqueda global"
+            label="Buscar en todos los campos"
             fullWidth
             variant="outlined"
             value={filtros.busqueda || ''}
-            onChange={(e) =>
-              setFiltros((prev) => ({ ...prev, busqueda: e.target.value }))
-            }
+            onChange={(e) => setFiltros((prev) => ({ ...prev, busqueda: e.target.value }))}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -66,17 +69,17 @@ const Filtros = ({
         </Grid>
       </Grid>
 
-      {/* Filtros por columna */}
+      {/* Filtros por categoría */}
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography fontWeight="bold">Filtrar por categoría</Typography>
+          <Typography fontWeight="bold">Filtrar por categorías</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Grid container spacing={2}>
             {columnas.map(
               (col) =>
                 valoresUnicos[col]?.length < 100 && (
-                  <Grid item xs={12} sm={6} md={3} key={col}>
+                  <Grid item xs={12} sm={6} md={4} lg={3} key={col}>
                     <TextField
                       select
                       label={col}
@@ -101,17 +104,17 @@ const Filtros = ({
         </AccordionDetails>
       </Accordion>
 
-      {/* Fechas */}
+      {/* Filtro por fecha */}
       {columnasFecha.length > 0 && (
         <Accordion>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography fontWeight="bold">Filtrar por fecha</Typography>
+            <Typography fontWeight="bold">Filtrar por fechas</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Grid container spacing={2}>
               {columnasFecha.map((col) => (
                 <React.Fragment key={col}>
-                  <Grid item xs={6} sm={3}>
+                  <Grid item xs={12} sm={6} md={3}>
                     <TextField
                       label={`Desde (${col})`}
                       type="date"
@@ -126,7 +129,7 @@ const Filtros = ({
                       }
                     />
                   </Grid>
-                  <Grid item xs={6} sm={3}>
+                  <Grid item xs={12} sm={6} md={3}>
                     <TextField
                       label={`Hasta (${col})`}
                       type="date"
@@ -148,7 +151,7 @@ const Filtros = ({
         </Accordion>
       )}
 
-      {/* Números */}
+      {/* Filtro por valores numéricos */}
       {columnasNumericas.length > 0 && (
         <Accordion>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -158,7 +161,7 @@ const Filtros = ({
             <Grid container spacing={2}>
               {columnasNumericas.map((col) => (
                 <React.Fragment key={col}>
-                  <Grid item xs={6} sm={3}>
+                  <Grid item xs={12} sm={6} md={3}>
                     <TextField
                       label={`Mín. ${col}`}
                       type="number"
@@ -172,7 +175,7 @@ const Filtros = ({
                       }
                     />
                   </Grid>
-                  <Grid item xs={6} sm={3}>
+                  <Grid item xs={12} sm={6} md={3}>
                     <TextField
                       label={`Máx. ${col}`}
                       type="number"
@@ -193,16 +196,18 @@ const Filtros = ({
         </Accordion>
       )}
 
-      <Grid container justifyContent="flex-end" mt={3}>
+      {/* Botón limpiar filtros */}
+      <Box display="flex" justifyContent="flex-end" mt={4}>
         <Button
-          variant="contained"
+          variant="outlined"
           color="error"
           onClick={handleClearFilters}
-          sx={{ px: 4, py: 1 }}
+          startIcon={<ClearAllIcon />}
+          sx={{ px: 3, py: 1 }}
         >
           Limpiar filtros
         </Button>
-      </Grid>
+      </Box>
     </Paper>
   );
 };
