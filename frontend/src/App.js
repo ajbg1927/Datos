@@ -251,27 +251,6 @@ const App = () => {
               onExport={() => exportToExcel(datosFiltrados, columnas)}
             />
           </Paper>
-
-          <Tooltip title="Exportar a Excel">
-            <Fab
-              color="primary"
-              aria-label="exportar"
-              onClick={() => exportToExcel(datosFiltrados, columnas)}
-              sx={{
-                position: 'fixed',
-                bottom: 24,
-                right: 24,
-                backgroundColor: '#ffcd00',
-                color: '#000',
-                boxShadow: '0px 4px 12px rgba(0,0,0,0.2)',
-                '&:hover': {
-                  backgroundColor: '#e6b800',
-                },
-              }}
-            >
-              <SaveAltIcon />
-            </Fab>
-          </Tooltip>
         </>
       )}
     </Layout>
