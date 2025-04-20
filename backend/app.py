@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from fpdf import FPDF
 from database.db import db
 from database.models import Archivo, Hoja, Datos, DatosExcel
-from database.procesar_excel import procesar_excel 
+from database.procesar_excel import procesar_excel
 from config import Config
 from routes import api_bp
 import pandas as pd
@@ -46,6 +46,18 @@ class Usuario(db.Model):
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def limpiar_directorio_uploads(app):
+    upload_folder = app.config["UPLOAD_FOLDER"]
+    for filename in os.listdir(upload_folder):
+        filepath = os.path.join(upload_folder, filename)
+        try:
+            if os.path.isfile(filepath):
+                os.remove(filepath)
+                print(f"Archivo eliminado: {filepath}")
+        except Exception as e:
+            print(f"Error al eliminar {filepath}: {e}")
+    print("Directorio de uploads limpiado.")
+
 @app.route("/")
 def home():
     return "Flask en Render funcionando"
@@ -56,6 +68,8 @@ def prueba():
 
 @app.route("/subir", methods=["POST"])
 def subir_archivo():
+    limpiar_directorio_uploads(app)  
+
     archivos = request.files.getlist("archivos")
 
     if not archivos:
@@ -85,6 +99,7 @@ def subir_archivo():
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
+    limpiar_directorio_uploads(app) 
     if 'archivo' not in request.files:
         return jsonify({'error': 'No se envió archivo'}), 400
     archivo = request.files['archivo']
@@ -104,12 +119,12 @@ def listar_archivos():
 
 @app.route("/hojas/<filename>", methods=["GET"])
 def obtener_hojas(filename):
-    filename = secure_filename(filename)  
+    filename = secure_filename(filename)
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    
+
     print("→ Solicitando hojas del archivo:", filename)
     print("→ Archivos disponibles en /tmp:", os.listdir(app.config["UPLOAD_FOLDER"]))
-    
+
     if not os.path.exists(filepath):
         return jsonify({"error": "Archivo no encontrado"}), 404
 
@@ -128,13 +143,13 @@ from werkzeug.utils import secure_filename
 def obtener_datos(filename):
     filename = secure_filename(filename)
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    
+
     if not os.path.exists(filepath):
         return jsonify({"error": "Archivo no encontrado"}), 404
 
     try:
-        print(f"Datos recibidos: {request.json}")  
-        
+        print(f"Datos recibidos: {request.json}")
+
         hojas = request.json.get("hojas", [])
         if not hojas:
             return jsonify({"error": "No se especificaron hojas"}), 400
@@ -160,8 +175,8 @@ def obtener_datos(filename):
 @app.route("/archivos/datos", methods=["POST"])
 def obtener_datos_archivo():
     data = request.json
-    filename = data.get("filename", "")   
-    hojas = data.get("hojas", [])         
+    filename = data.get("filename", "")
+    hojas = data.get("hojas", [])
 
     if not filename:
         return jsonify({"error": "Archivo no encontrado"}), 400
@@ -185,7 +200,7 @@ def obtener_datos_archivo():
                 row_id += len(df)
                 df["Hoja"] = hoja
                 datos_totales.extend(df.to_dict(orient="records"))
-        
+
         return jsonify({"datos": datos_totales})
 
     except Exception as e:
@@ -193,6 +208,7 @@ def obtener_datos_archivo():
 
 @app.route("/datos", methods=["POST"])
 def procesar_excel_endpoint():
+    limpiar_directorio_uploads(app) 
     if 'file' not in request.files:
         return jsonify({"error": "No se envió ningún archivo"}), 400
 
@@ -229,6 +245,7 @@ def get_datos():
 
 @app.route('/cargar', methods=['POST'])
 def cargar():
+    limpiar_directorio_uploads(app) 
     archivos = request.files.getlist("archivos")
     data = []
 
@@ -350,8 +367,12 @@ def procesar_excel(nombre_archivo, app):
     except Exception as e:
         print(f"Error al procesar {nombre_archivo}: {e}")
 
+@app.route("/limpiar_archivos", methods=["POST"])
+def limpiar_archivos_endpoint():
+    limpiar_directorio_uploads(app)
+    return jsonify({"mensaje": "Directorio de archivos limpiado exitosamente."}), 200
 
-if __name__ == "__main__":  
+if __name__ == "__main__":
     with app.app_context():
         db.create_all()
         procesar_todos_los_archivos()
