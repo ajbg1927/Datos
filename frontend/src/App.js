@@ -8,7 +8,6 @@ import {
   CircularProgress,
   Box,
   Paper,
-  Tooltip,
 } from '@mui/material';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 
@@ -205,13 +204,13 @@ const App = () => {
         </Paper>
       )}
 
-      <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>📄 Datos Filtrados</Typography>
-        <TablaDatos datos={datosFiltrados} columnas={columnas} />
-      </Paper>
-
       {datos.length > 0 && (
         <>
+          <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+            <Typography variant="h6" gutterBottom>📄 Datos Filtrados</Typography>
+            <TablaDatos datos={datosFiltrados} columnas={columnas} />
+          </Paper>
+
           <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
             <Typography variant="h6" gutterBottom>🎛️ Agrupación y Métricas</Typography>
             <SelectoresAgrupacion
