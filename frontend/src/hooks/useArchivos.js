@@ -78,6 +78,8 @@ const useArchivos = () => {
 
       const nombreCodificado = encodeURIComponent(nombreBackend);
 
+      console.log('Hojas a enviar:', hojas); // <--- AGREGAR ESTA LÍNEA
+
       console.log('Solicitando datos a backend:', {
         url: `${API_URL}/archivos/datos`,
         filename: nombreBackend,
@@ -87,7 +89,7 @@ const useArchivos = () => {
       const response = await axios.post(
         `${API_URL}/archivos/datos`,
         {
-          filename: nombreBackend, 
+          filename: nombreBackend,
           hojas
         },
         {
