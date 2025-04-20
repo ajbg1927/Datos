@@ -156,25 +156,31 @@ const App = () => {
   return (
     <Layout
       sidebar={
-        columnas.length > 0 && (
-          <Filtros
-            columnas={columnas}
-            valoresUnicos={valoresUnicos}
-            filtros={filtros}
-            setFiltros={setFiltros}
-            handleClearFilters={handleClearFilters}
-            columnasFecha={columnasFecha}
-            columnasNumericas={columnasNumericas}
-            valorBusqueda={filtros.busqueda || ''}
-            setValorBusqueda={(valor) =>
-              setFiltros((prev) => ({ ...prev, busqueda: valor }))
-            }
-            columnaAgrupar={columnaAgrupar}
-            setColumnaAgrupar={setColumnaAgrupar}
-            columnaValor={columnaValor}
-            setColumnaValor={setColumnaValor}
-          />
-        )
+        <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
+          {columnas.length > 0 ? (
+            <Filtros
+              columnas={columnas}
+              valoresUnicos={valoresUnicos}
+              filtros={filtros}
+              setFiltros={setFiltros}
+              handleClearFilters={handleClearFilters}
+              columnasFecha={columnasFecha}
+              columnasNumericas={columnasNumericas}
+              valorBusqueda={filtros.busqueda || ''}
+              setValorBusqueda={(valor) =>
+                setFiltros((prev) => ({ ...prev, busqueda: valor }))
+              }
+              columnaAgrupar={columnaAgrupar}
+              setColumnaAgrupar={setColumnaAgrupar}
+              columnaValor={columnaValor}
+              setColumnaValor={setColumnaValor}
+            />
+          ) : (
+            <Typography variant="body2" color="textSecondary">
+              Selecciona un archivo para ver los filtros.
+            </Typography>
+          )}
+        </Paper>
       }
     >
       {isLoadingUpload && (
@@ -204,60 +210,56 @@ const App = () => {
         </Paper>
       )}
 
-      {datos.length > 0 && (
-        <>
-          <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h6" gutterBottom>📄 Datos Filtrados</Typography>
+      <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" gutterBottom>📄 Datos</Typography>
+        {datos.length > 0 ? (
+          <>
             <TablaDatos datos={datosFiltrados} columnas={columnas} />
-          </Paper>
-
-          <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h6" gutterBottom>🎛️ Agrupación y Métricas</Typography>
-            <SelectoresAgrupacion
-              columnas={columnas}
-              columnaAgrupar={columnaAgrupar}
-              setColumnaAgrupar={setColumnaAgrupar}
-              columnaValor={columnaValor}
-              setColumnaValor={setColumnaValor}
-            />
-            <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
-            {columnasNumericas.length > 0 && (
-              <Container maxWidth="md" sx={{ my: 3 }}>
-                <TextField
-                  select
-                  fullWidth
-                  label="Columna a analizar (Pagos, Deducciones, etc.)"
-                  value={columnaValor}
-                  onChange={(e) => setColumnaValor(e.target.value)}
-                >
-                  {columnasNumericas.map((col) => (
-                    <MenuItem key={col} value={col}>
-                      {col}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Container>
-            )}
-          </Paper>
-
-          <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h6" gutterBottom>📊 Visualización Gráfica</Typography>
-            <Graficos
-              datos={datosFiltrados}
-              columnas={columnas}
-              columnaValor={columnaValor}
-            />
-          </Paper>
-
-          <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
+            <Box sx={{ mt: 3 }}>
+              <Typography variant="h6" gutterBottom>📊 Análisis</Typography>
+              <SelectoresAgrupacion
+                columnas={columnas}
+                columnaAgrupar={columnaAgrupar}
+                setColumnaAgrupar={setColumnaAgrupar}
+                columnaValor={columnaValor}
+                setColumnaValor={setColumnaValor}
+              />
+              <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
+              {columnasNumericas.length > 0 && (
+                <Container maxWidth="md" sx={{ my: 3 }}>
+                  <TextField
+                    select
+                    fullWidth
+                    label="Columna a analizar (Pagos, Deducciones, etc.)"
+                    value={columnaValor}
+                    onChange={(e) => setColumnaValor(e.target.value)}
+                  >
+                    {columnasNumericas.map((col) => (
+                      <MenuItem key={col} value={col}>
+                        {col}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Container>
+              )}
+              <Graficos
+                datos={datosFiltrados}
+                columnas={columnas}
+                columnaValor={columnaValor}
+              />
+            </Box>
             <ExportButtons
               datos={datosFiltrados}
               columnas={columnas || []}
               onExport={handleExportar}
             />
-          </Paper>
-        </>
-      )}
+          </>
+        ) : (
+          <Typography variant="body1" color="textSecondary">
+            Carga un archivo y selecciona una hoja para ver los datos.
+          </Typography>
+        )}
+      </Paper>
     </Layout>
   );
 };
