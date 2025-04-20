@@ -47,6 +47,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def limpiar_directorio_uploads(app):
+    """Elimina todos los archivos del directorio de uploads."""
     upload_folder = app.config["UPLOAD_FOLDER"]
     for filename in os.listdir(upload_folder):
         filepath = os.path.join(upload_folder, filename)
@@ -68,6 +69,8 @@ def prueba():
 
 @app.route("/subir", methods=["POST"])
 def subir_archivo():
+    limpiar_directorio_uploads(app)  # Limpiar el directorio antes de subir nuevos archivos
+
     archivos = request.files.getlist("archivos")
 
     if not archivos:
@@ -97,6 +100,7 @@ def subir_archivo():
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
+    limpiar_directorio_uploads(app) # Limpiar antes de una carga individual
     if 'archivo' not in request.files:
         return jsonify({'error': 'No se envió archivo'}), 400
     archivo = request.files['archivo']
@@ -205,6 +209,7 @@ def obtener_datos_archivo():
 
 @app.route("/datos", methods=["POST"])
 def procesar_excel_endpoint():
+    limpiar_directorio_uploads(app) 
     if 'file' not in request.files:
         return jsonify({"error": "No se envió ningún archivo"}), 400
 
@@ -241,6 +246,7 @@ def get_datos():
 
 @app.route('/cargar', methods=['POST'])
 def cargar():
+    limpiar_directorio_uploads(app) # Limpiar antes de cargar múltiples archivos
     archivos = request.files.getlist("archivos")
     data = []
 
@@ -266,6 +272,7 @@ def cargar():
 
 @app.route("/generate-report", methods=["POST"])
 def generate_report():
+    # No limpiamos aquí, ya que los archivos cargados podrían ser parte del reporte
     try:
         data = request.json.get("data", [])
         if not data:
@@ -370,6 +377,8 @@ def limpiar_archivos_endpoint():
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
+        # No limpiamos al inicio para permitir la descarga y el reporte
+        # limpiar_directorio_uploads(app)
         procesar_todos_los_archivos()
         procesar_excel("mi_archivo.xlsx", app)
         datos = DatosExcel.query.all()
