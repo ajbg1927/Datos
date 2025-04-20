@@ -5,7 +5,7 @@ const API_URL = 'https://backend-flask-0rnq.onrender.com';
 
 const useArchivos = () => {
   const [archivos, setArchivos] = useState([]);
-  const [archivoSeleccionado, setArchivoSeleccionado] = useState(null); 
+  const [archivoSeleccionado, setArchivoSeleccionado] = useState(null);
   const [hojasSeleccionadas, setHojasSeleccionadas] = useState([]);
   const [hojasPorArchivo, setHojasPorArchivo] = useState({});
   const [datosPorArchivo, setDatosPorArchivo] = useState({});
@@ -54,7 +54,7 @@ const useArchivos = () => {
 
       setArchivos((prev) => [...prev, ...nuevosArchivos]);
       if (nuevosArchivos.length > 0) {
-        setArchivoSeleccionado(nuevosArchivos[0]); 
+        setArchivoSeleccionado(nuevosArchivos[0]);
       }
 
     } catch (error) {
@@ -64,61 +64,61 @@ const useArchivos = () => {
   };
 
   const obtenerDatos = async (nombreBackend, hojas) => {
-  try {
-    if (!nombreBackend || !hojas || hojas.length === 0) {
-      console.warn('Falta nombre del archivo o lista de hojas');
-      alert('Por favor, seleccione un archivo y las hojas correspondientes.');
-      return;
-    }
-
-    if (!Array.isArray(hojas) || hojas.length === 0) {
-      alert('No se especificaron hojas válidas.');
-      return;
-    }
-
-    const nombreCodificado = encodeURIComponent(nombreBackend);
-    
-    console.log('Solicitando datos a backend:', {
-      url: `${API_URL}/archivos/datos`, 
-      filename: nombreBackend,          
-      hojas
-    });
-
-    const response = await axios.post(
-      `${API_URL}/archivos/datos`,       
-      { 
-        filename: nombreBackend,         
-        hojas
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+    try {
+      if (!nombreBackend || !hojas || hojas.length === 0) {
+        console.warn('Falta nombre del archivo o lista de hojas');
+        alert('Por favor, seleccione un archivo y las hojas correspondientes.');
+        return;
       }
-    );
 
-    const datos = response.data.datos || [];
+      if (!Array.isArray(hojas) || hojas.length === 0) {
+        alert('No se especificaron hojas válidas.');
+        return;
+      }
 
-    setDatosPorArchivo((prev) => ({
-      ...prev,
-      [nombreBackend]: {
-        ...(prev[nombreBackend] || {}),
-        combinado: datos,
-      },
-    }));
+      const nombreCodificado = encodeURIComponent(nombreBackend);
 
-    if (datos.length > 0) {
-      setColumnasPorArchivo((prev) => ({
+      console.log('Solicitando datos a backend:', {
+        url: `${API_URL}/archivos/datos`,
+        filename: nombreBackend,
+        hojas
+      });
+
+      const response = await axios.post(
+        `${API_URL}/archivos/datos`,
+        {
+          filename: nombreBackend, 
+          hojas
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      const datos = response.data.datos || [];
+
+      setDatosPorArchivo((prev) => ({
         ...prev,
-        [nombreBackend]: Object.keys(datos[0]),
+        [nombreBackend]: {
+          ...(prev[nombreBackend] || {}),
+          combinado: datos,
+        },
       }));
-    }
 
-  } catch (error) {
-    console.error('Error al obtener datos del archivo:', error);
-    alert(`Error al obtener datos: ${error?.response?.data?.error || 'Error inesperado'}`);
-  }
-};
+      if (datos.length > 0) {
+        setColumnasPorArchivo((prev) => ({
+          ...prev,
+          [nombreBackend]: Object.keys(datos[0]),
+        }));
+      }
+
+    } catch (error) {
+      console.error('Error al obtener datos del archivo:', error);
+      alert(`Error al obtener datos: ${error?.response?.data?.error || 'Error inesperado'}`);
+    }
+  };
 
   const datosCombinados = () => {
     if (!archivoSeleccionado || !hojasSeleccionadas.length) return [];
