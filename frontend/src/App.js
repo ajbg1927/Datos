@@ -210,56 +210,56 @@ const App = () => {
         </Paper>
       )}
 
-      <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>📄 Datos</Typography>
-        {datos.length > 0 ? (
-          <>
+      {datos.length > 0 && (
+        <Box display="flex" flexDirection="column" gap={3}> {/* Envolvemos los Paper con un Box y gap */}
+          <Paper elevation={2} sx={{ p: 3 }}>
+            <Typography variant="h6" gutterBottom>📄 Datos</Typography>
             <TablaDatos datos={datosFiltrados} columnas={columnas} />
-            <Box sx={{ mt: 3 }}>
-              <Typography variant="h6" gutterBottom>📊 Análisis</Typography>
-              <SelectoresAgrupacion
-                columnas={columnas}
-                columnaAgrupar={columnaAgrupar}
-                setColumnaAgrupar={setColumnaAgrupar}
-                columnaValor={columnaValor}
-                setColumnaValor={setColumnaValor}
-              />
-              <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
-              {columnasNumericas.length > 0 && (
-                <Container maxWidth="md" sx={{ my: 3 }}>
-                  <TextField
-                    select
-                    fullWidth
-                    label="Columna a analizar (Pagos, Deducciones, etc.)"
-                    value={columnaValor}
-                    onChange={(e) => setColumnaValor(e.target.value)}
-                  >
-                    {columnasNumericas.map((col) => (
-                      <MenuItem key={col} value={col}>
-                        {col}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Container>
-              )}
-              <Graficos
-                datos={datosFiltrados}
-                columnas={columnas}
-                columnaValor={columnaValor}
-              />
-            </Box>
+          </Paper>
+
+          <Paper elevation={2} sx={{ p: 3 }}>
+            <Typography variant="h6" gutterBottom>📊 Análisis</Typography>
+            <SelectoresAgrupacion
+              columnas={columnas}
+              columnaAgrupar={columnaAgrupar}
+              setColumnaAgrupar={setColumnaAgrupar}
+              columnaValor={columnaValor}
+              setColumnaValor={setColumnaValor}
+            />
+            <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
+            {columnasNumericas.length > 0 && (
+              <Container maxWidth="md" sx={{ my: 3 }}>
+                <TextField
+                  select
+                  fullWidth
+                  label="Columna a analizar (Pagos, Deducciones, etc.)"
+                  value={columnaValor}
+                  onChange={(e) => setColumnaValor(e.target.value)}
+                >
+                  {columnasNumericas.map((col) => (
+                    <MenuItem key={col} value={col}>
+                      {col}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Container>
+            )}
+            <Graficos
+              datos={datosFiltrados}
+              columnas={columnas}
+              columnaValor={columnaValor}
+            />
+          </Paper>
+
+          <Paper elevation={2} sx={{ p: 2 }}> {/* El botón de exportar también dentro de un Paper */}
             <ExportButtons
               datos={datosFiltrados}
               columnas={columnas || []}
               onExport={handleExportar}
             />
-          </>
-        ) : (
-          <Typography variant="body1" color="textSecondary">
-            Carga un archivo y selecciona una hoja para ver los datos.
-          </Typography>
-        )}
-      </Paper>
+          </Paper>
+        </Box>
+      )}
     </Layout>
   );
 };
