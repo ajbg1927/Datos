@@ -19,7 +19,7 @@ const Filtros = ({
   columnas = [],
   valoresUnicos = {},
   filtros = {},
-  setFiltros = () => {}, 
+  setFiltros = () => {},
   handleClearFilters = () => {},
   columnasFecha = [],
   columnasNumericas = [],

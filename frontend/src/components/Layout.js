@@ -9,7 +9,7 @@ const Layout = ({ children, sidebar }) => {
       display="flex"
       flexDirection="column"
       minHeight="100vh"
-      bgcolor="#f0f2f5" 
+      bgcolor="#f0f2f5"
     >
       <Header />
 
@@ -20,7 +20,6 @@ const Layout = ({ children, sidebar }) => {
               elevation={1}
               sx={{
                 p: 3,
-                height: '100%',
                 borderRadius: 3,
                 backgroundColor: 'white',
               }}

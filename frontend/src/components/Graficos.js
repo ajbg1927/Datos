@@ -86,7 +86,6 @@ const Graficos = ({ datos, columnaAgrupacion, columnaValor }) => {
         Análisis por <strong>&nbsp;{columnaAgrupacion}</strong> — Total de <strong>&nbsp;{columnaValor}</strong>
       </Typography>
 
-      {/* Panel de controles */}
       <Box
         sx={{
           mb: 3,
@@ -163,7 +162,6 @@ const Graficos = ({ datos, columnaAgrupacion, columnaValor }) => {
         </Grid>
       </Box>
 
-      {/* Contenedor de gráficos */}
       {dataAgrupada.length === 0 ? (
         <Typography variant="body1" color="text.secondary" align="center" mt={5}>
           No hay datos suficientes para mostrar el gráfico.
