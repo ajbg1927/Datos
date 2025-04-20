@@ -119,6 +119,11 @@ def obtener_hojas(filename):
     except Exception as e:
         return jsonify({"error": f"Error al leer el archivo: {str(e)}"}), 500
 
+from flask import request, jsonify
+import pandas as pd
+import os
+from werkzeug.utils import secure_filename
+
 @app.route("/datos/<filename>", methods=["POST"])
 def obtener_datos(filename):
     filename = secure_filename(filename)
@@ -163,9 +168,8 @@ def obtener_datos_archivo():
     if not hojas:
         return jsonify({"error": "No se especificaron hojas"}), 400
 
-    filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-
     try:
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         if not os.path.exists(filepath):
             return jsonify({"error": "Archivo no encontrado"}), 400
 
@@ -182,13 +186,9 @@ def obtener_datos_archivo():
                 df["Hoja"] = hoja
                 datos_totales.extend(df.to_dict(orient="records"))
 
-        os.remove(filepath)
-        print(f"Archivo {filename} eliminado después de procesar los datos.")
-
         return jsonify({"datos": datos_totales})
 
     except Exception as e:
-        print(f"Error al procesar el archivo: {str(e)}")
         return jsonify({"error": f"Error al procesar el archivo: {str(e)}"}), 500
 
 @app.route("/datos", methods=["POST"])
@@ -349,6 +349,7 @@ def procesar_excel(nombre_archivo, app):
         print(f"Archivo {nombre_archivo} procesado correctamente.")
     except Exception as e:
         print(f"Error al procesar {nombre_archivo}: {e}")
+
 
 if __name__ == "__main__":
     with app.app_context():
