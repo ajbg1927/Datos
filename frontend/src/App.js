@@ -123,14 +123,30 @@ const App = () => {
     columnaValor
   );
 
-  const { exportToExcel } = useExportaciones();
+  const { exportToExcel, exportToCSV, exportToPDF, exportToTXT } = useExportaciones();
 
   const handleClearFilters = () => {
     setFiltros({});
   };
 
-  const handleExportar = () => {
-    exportToExcel(datosFiltrados, columnas);
+  const handleExportar = (formato) => {
+    switch (formato) {
+      case 'excel':
+        exportToExcel(datosFiltrados, columnas);
+        break;
+      case 'csv':
+        exportToCSV(datosFiltrados, columnas);
+        break;
+      case 'pdf':
+        exportToPDF(datosFiltrados, columnas);
+        break;
+      case 'txt':
+        exportToTXT(datosFiltrados, columnas);
+        break;
+      default:
+        exportToExcel(datosFiltrados, columnas); 
+        break;
+    }
   };
 
   const handleArchivosSubidos = async (files) => {
@@ -251,11 +267,11 @@ const App = () => {
             />
           </Paper>
 
-          <Paper elevation={2} sx={{ p: 2 }}> {/* El botón de exportar también dentro de un Paper */}
+          <Paper elevation={2} sx={{ p: 2 }}> 
             <ExportButtons
               datos={datosFiltrados}
               columnas={columnas || []}
-              onExport={handleExportar}
+              onExport={handleExportar} 
             />
           </Paper>
         </Box>
