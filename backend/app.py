@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from fpdf import FPDF
 from database.db import db
 from database.models import Archivo, Hoja, Datos, DatosExcel
-from database.procesar_excel import procesar_excel 
+from database.procesar_excel import procesar_excel
 from config import Config
 from routes import api_bp
 import pandas as pd
@@ -104,12 +104,12 @@ def listar_archivos():
 
 @app.route("/hojas/<filename>", methods=["GET"])
 def obtener_hojas(filename):
-    filename = secure_filename(filename)  
+    filename = secure_filename(filename)
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    
+
     print("→ Solicitando hojas del archivo:", filename)
     print("→ Archivos disponibles en /tmp:", os.listdir(app.config["UPLOAD_FOLDER"]))
-    
+
     if not os.path.exists(filepath):
         return jsonify({"error": "Archivo no encontrado"}), 404
 
@@ -123,13 +123,13 @@ def obtener_hojas(filename):
 def obtener_datos(filename):
     filename = secure_filename(filename)
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    
+
     if not os.path.exists(filepath):
         return jsonify({"error": "Archivo no encontrado"}), 404
 
     try:
-        print(f"Datos recibidos: {request.json}")  
-        
+        print(f"Datos recibidos: {request.json}")
+
         hojas = request.json.get("hojas", [])
         if not hojas:
             return jsonify({"error": "No se especificaron hojas"}), 400
@@ -155,16 +155,17 @@ def obtener_datos(filename):
 @app.route("/archivos/datos", methods=["POST"])
 def obtener_datos_archivo():
     data = request.json
-    filename = data.get("filename", "")   
-    hojas = data.get("hojas", [])         
+    filename = data.get("filename", "")
+    hojas = data.get("hojas", [])
 
     if not filename:
         return jsonify({"error": "Archivo no encontrado"}), 400
     if not hojas:
         return jsonify({"error": "No se especificaron hojas"}), 400
 
+    filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+
     try:
-        filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         if not os.path.exists(filepath):
             return jsonify({"error": "Archivo no encontrado"}), 400
 
@@ -180,10 +181,14 @@ def obtener_datos_archivo():
                 row_id += len(df)
                 df["Hoja"] = hoja
                 datos_totales.extend(df.to_dict(orient="records"))
-        
+
+        os.remove(filepath)
+        print(f"Archivo {filename} eliminado después de procesar los datos.")
+
         return jsonify({"datos": datos_totales})
 
     except Exception as e:
+        print(f"Error al procesar el archivo: {str(e)}")
         return jsonify({"error": f"Error al procesar el archivo: {str(e)}"}), 500
 
 @app.route("/datos", methods=["POST"])
@@ -345,7 +350,7 @@ def procesar_excel(nombre_archivo, app):
     except Exception as e:
         print(f"Error al procesar {nombre_archivo}: {e}")
 
-if __name__ == "__main__":  
+if __name__ == "__main__":
     with app.app_context():
         db.create_all()
         procesar_todos_los_archivos()
