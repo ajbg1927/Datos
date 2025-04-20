@@ -40,7 +40,17 @@ const Graficos = ({ datos, columnaAgrupacion, columnaValor }) => {
   const [topN, setTopN] = useState(10);
 
   useEffect(() => {
-    if (!datos || !columnaAgrupacion || !columnaValor) return;
+    if (!datos || !columnaAgrupacion || !columnaValor || datos.length === 0) {
+      setDataAgrupada([]);
+      return;
+    }
+
+    const primerDato = datos[0];
+    if (!primerDato || !(columnaAgrupacion in primerDato) || !(columnaValor in primerDato)) {
+      console.error('Las columnas de agrupación o valor no existen en los datos.');
+      setDataAgrupada([]);
+      return;
+    }
 
     const agrupado = {};
     datos.forEach((fila) => {

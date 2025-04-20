@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
   Container,
-  Fab,
   TextField,
   MenuItem,
   Typography,
@@ -9,7 +8,6 @@ import {
   Box,
   Paper,
 } from '@mui/material';
-import SaveAltIcon from '@mui/icons-material/SaveAlt';
 
 import Layout from './components/Layout';
 import UploadFile from './components/UploadFile';
@@ -29,6 +27,7 @@ import useExportaciones from './hooks/useExportaciones';
 import axios from 'axios';
 
 const API_URL = 'https://backend-flask-0rnq.onrender.com';
+const LOCAL_STORAGE_KEY = 'dataAnalysisAppState';
 
 const App = () => {
   const {
@@ -50,12 +49,49 @@ const App = () => {
   const [columnaAgrupar, setColumnaAgrupar] = useState('');
   const [columnaValor, setColumnaValor] = useState('');
   const [isLoadingUpload, setIsLoadingUpload] = useState(false);
+  const [tipoGrafico, setTipoGrafico] = useState('Barras');
+  const [paleta, setPaleta] = useState('Institucional');
+  const [ordenarGrafico, setOrdenarGrafico] = useState(true);
+  const [topNGrafico, setTopNGrafico] = useState(10);
+
+  useEffect(() => {
+    const storedState = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (storedState) {
+      const parsedState = JSON.parse(storedState);
+      if (parsedState.archivos) setArchivos(parsedState.archivos);
+      if (parsedState.archivoSeleccionado) setArchivoSeleccionado(parsedState.archivoSeleccionado);
+      if (parsedState.hojasSeleccionadas) setHojasSeleccionadas(parsedState.hojasSeleccionadas);
+      if (parsedState.filtros) setFiltros(parsedState.filtros);
+      if (parsedState.columnaAgrupar) setColumnaAgrupar(parsedState.columnaAgrupar);
+      if (parsedState.columnaValor) setColumnaValor(parsedState.columnaValor);
+      if (parsedState.tipoGrafico) setTipoGrafico(parsedState.tipoGrafico);
+      if (parsedState.paleta) setPaleta(parsedState.paleta);
+      if (parsedState.ordenarGrafico) setOrdenarGrafico(parsedState.ordenarGrafico);
+      if (parsedState.topNGrafico) setTopNGrafico(parsedState.topNGrafico);
+    }
+  }, [setArchivos, setArchivoSeleccionado, setHojasSeleccionadas, setFiltros, setColumnaAgrupar, setColumnaValor, setTipoGrafico, setPaleta, setOrdenarGrafico, setTopNGrafico]);
+
+  useEffect(() => {
+    const stateToSave = {
+      archivos,
+      archivoSeleccionado,
+      hojasSeleccionadas,
+      filtros,
+      columnaAgrupar,
+      columnaValor,
+      tipoGrafico,
+      paleta,
+      ordenarGrafico,
+      topNGrafico,
+    };
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateToSave));
+  }, [archivos, archivoSeleccionado, hojasSeleccionadas, filtros, columnaAgrupar, columnaValor, tipoGrafico, paleta, ordenarGrafico, topNGrafico]);
 
   useEffect(() => {
     if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
       obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
     }
-  }, [archivoSeleccionado, hojasSeleccionadas]);
+  }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
 
   useEffect(() => {
     if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
@@ -64,7 +100,7 @@ const App = () => {
         setHojasSeleccionadas([hojas[0]]);
       }
     }
-  }, [archivoSeleccionado, hojasPorArchivo]);
+  }, [archivoSeleccionado, hojasPorArchivo, setHojasSeleccionadas]);
 
   const datos = datosCombinados();
 
@@ -88,7 +124,7 @@ const App = () => {
     if (columnasNumericas.length > 0 && !columnaValor) {
       setColumnaValor(columnasNumericas[0]);
     }
-  }, [columnas, columnasNumericas]);
+  }, [columnas, columnasNumericas, columnaAgrupar, setColumnaAgrupar, columnaValor, setColumnaValor]);
 
   const valoresUnicos = {};
   columnas.forEach((col) => {
@@ -227,20 +263,32 @@ const App = () => {
       )}
 
       {datos.length > 0 && (
-        <Box display="flex" flexDirection="column" gap={3}> {/* Envolvemos los Paper con un Box y gap */}
+        <Box display="flex" flexDirection="column" gap={3}>
           <Paper elevation={2} sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>📄 Datos</Typography>
+            <Typography variant="h6" gutterBottom>
+              📄 Datos
+            </Typography>
             <TablaDatos datos={datosFiltrados} columnas={columnas} />
           </Paper>
 
           <Paper elevation={2} sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>📊 Análisis</Typography>
+            <Typography variant="h6" gutterBottom>
+              📊 Análisis
+            </Typography>
             <SelectoresAgrupacion
               columnas={columnas}
               columnaAgrupar={columnaAgrupar}
               setColumnaAgrupar={setColumnaAgrupar}
               columnaValor={columnaValor}
               setColumnaValor={setColumnaValor}
+              tipoGrafico={tipoGrafico}
+              setTipoGrafico={setTipoGrafico}
+              paleta={paleta}
+              setPaleta={setPaleta}
+              ordenar={ordenarGrafico}
+              setOrdenar={setOrdenarGrafico}
+              topN={topNGrafico}
+              setTopN={setTopNGrafico}
             />
             <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
             {columnasNumericas.length > 0 && (
@@ -262,16 +310,20 @@ const App = () => {
             )}
             <Graficos
               datos={datosFiltrados}
-              columnas={columnas}
-              columnaValor={columnaValor}
+              columnaAgrupacion={columnaAgrupar} 
+              columnaValor={columnaValor} 
+              tipoGrafico={tipoGrafico} 
+              paleta={paleta} 
+              ordenar={ordenarGrafico} 
+              topN={topNGrafico} 
             />
           </Paper>
 
-          <Paper elevation={2} sx={{ p: 2 }}> 
+          <Paper elevation={2} sx={{ p: 2 }}>
             <ExportButtons
               datos={datosFiltrados}
               columnas={columnas || []}
-              onExport={handleExportar} 
+              onExport={handleExportar}
             />
           </Paper>
         </Box>
