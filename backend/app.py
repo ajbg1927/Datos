@@ -68,8 +68,6 @@ def prueba():
 
 @app.route("/subir", methods=["POST"])
 def subir_archivo():
-    limpiar_directorio_uploads(app)  
-
     archivos = request.files.getlist("archivos")
 
     if not archivos:
@@ -99,7 +97,6 @@ def subir_archivo():
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
-    limpiar_directorio_uploads(app) 
     if 'archivo' not in request.files:
         return jsonify({'error': 'No se envió archivo'}), 400
     archivo = request.files['archivo']
@@ -178,53 +175,36 @@ def obtener_datos_archivo():
     filename = data.get("filename", "")
     hojas = data.get("hojas", [])
 
-    print(f"→ Recibida solicitud /archivos/datos con filename: '{filename}' y hojas: {hojas}") 
-
     if not filename:
-        print("→ Error: Filename no proporcionado") 
         return jsonify({"error": "Archivo no encontrado"}), 400
     if not hojas:
-        print("→ Error: No se especificaron hojas") 
         return jsonify({"error": "No se especificaron hojas"}), 400
 
     try:
         filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-        print(f"→ Intentando acceder al archivo en: '{filepath}'") 
         if not os.path.exists(filepath):
-            print("→ Error: Archivo no encontrado en el servidor") 
             return jsonify({"error": "Archivo no encontrado"}), 400
 
-        print(f"→ Archivo encontrado. Intentando leer hojas: {hojas}") 
         xls = pd.ExcelFile(filepath)
-        print(f"→ Hojas disponibles en el archivo: {xls.sheet_names}") 
         datos_totales = []
         row_id = 1
 
         for hoja in hojas:
-            print(f"→ Intentando leer la hoja: '{hoja}'") 
             if hoja in xls.sheet_names:
-                print(f"→ Hoja '{hoja}' encontrada. Leyendo datos...") 
                 df = pd.read_excel(xls, sheet_name=hoja, dtype=str)
                 df.fillna("", inplace=True)
                 df.insert(0, "id", range(row_id, row_id + len(df)))
                 row_id += len(df)
                 df["Hoja"] = hoja
                 datos_totales.extend(df.to_dict(orient="records"))
-                print(f"→ Datos de la hoja '{hoja}' leídos exitosamente. Filas: {len(df)}") 
-            else:
-                print(f"→ Error: La hoja '{hoja}' no existe en el archivo (según pandas)") 
-                return jsonify({"error": f"La hoja '{hoja}' no existe en el archivo"}), 400
 
-        print("→ Datos totales procesados. Enviando respuesta.") 
         return jsonify({"datos": datos_totales})
 
     except Exception as e:
-        print(f"→ Error general al procesar el archivo: {str(e)}") 
         return jsonify({"error": f"Error al procesar el archivo: {str(e)}"}), 500
 
 @app.route("/datos", methods=["POST"])
 def procesar_excel_endpoint():
-    limpiar_directorio_uploads(app) 
     if 'file' not in request.files:
         return jsonify({"error": "No se envió ningún archivo"}), 400
 
@@ -261,7 +241,6 @@ def get_datos():
 
 @app.route('/cargar', methods=['POST'])
 def cargar():
-    limpiar_directorio_uploads(app) 
     archivos = request.files.getlist("archivos")
     data = []
 
