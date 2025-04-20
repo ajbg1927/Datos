@@ -119,11 +119,6 @@ def obtener_hojas(filename):
     except Exception as e:
         return jsonify({"error": f"Error al leer el archivo: {str(e)}"}), 500
 
-from flask import request, jsonify
-import pandas as pd
-import os
-from werkzeug.utils import secure_filename
-
 @app.route("/datos/<filename>", methods=["POST"])
 def obtener_datos(filename):
     filename = secure_filename(filename)
@@ -349,7 +344,6 @@ def procesar_excel(nombre_archivo, app):
         print(f"Archivo {nombre_archivo} procesado correctamente.")
     except Exception as e:
         print(f"Error al procesar {nombre_archivo}: {e}")
-
 
 if __name__ == "__main__":  
     with app.app_context():
