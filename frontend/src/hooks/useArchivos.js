@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const API_URL = 'https://backend-flask-u76y.onrender.com';
@@ -10,6 +10,15 @@ const useArchivos = () => {
   const [hojasPorArchivo, setHojasPorArchivo] = useState({});
   const [datosPorArchivo, setDatosPorArchivo] = useState({});
   const [columnasPorArchivo, setColumnasPorArchivo] = useState({});
+
+  useEffect(() => {
+    setArchivos([]);
+    setArchivoSeleccionado(null);
+    setHojasSeleccionadas([]);
+    setHojasPorArchivo({});
+    setDatosPorArchivo({});
+    setColumnasPorArchivo({});
+  }, []); 
 
   const cargarArchivos = async (archivosInput) => {
     if (!archivosInput || archivosInput.length === 0) {
