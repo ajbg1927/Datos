@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Menu, MenuItem } from '@mui/material';
 import { FileDownload as FileDownloadIcon } from '@mui/icons-material';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
 const ExportButtons = ({ datos, columnas = [] }) => {
@@ -58,16 +58,10 @@ const ExportButtons = ({ datos, columnas = [] }) => {
   const exportToPDF = (datos, columnas) => {
     const doc = new jsPDF();
 
-    const headers = columnas.map((col) => col.Header || col);
-    const rows = datos.map((row) =>
-      columnas.map((col) => row[col.accessor || col] ?? '')
-    );
-
-    doc.text('Datos Exportados', 14, 15);
-    doc.autoTable({
+    autoTable(doc, {
       startY: 20,
-      head: [headers],
-      body: rows,
+      head: [columnas.map(col => col.Header || col)],
+      body: datos.map((row) => columnas.map((col) => row[col.accessor || col] ?? '')),
     });
 
     doc.save('datos.pdf');
