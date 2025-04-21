@@ -32,6 +32,7 @@ const LOCAL_STORAGE_KEY = 'dataAnalysisAppState';
 const App = () => {
   const {
     archivos,
+    setArchivos,
     archivoSeleccionado,
     setArchivoSeleccionado,
     hojasSeleccionadas,
@@ -41,7 +42,6 @@ const App = () => {
     columnasPorArchivo,
     obtenerDatos,
     datosCombinados,
-    setArchivos,
     cargarArchivos,
   } = useArchivos();
 
@@ -101,6 +101,12 @@ const App = () => {
       }
     }
   }, [archivoSeleccionado, hojasPorArchivo, setHojasSeleccionadas]);
+
+  useEffect(() => {
+    return () => {
+      setArchivos([]);
+    };
+  }, [setArchivos]); 
 
   const datos = datosCombinados();
 
@@ -180,7 +186,7 @@ const App = () => {
         exportToTXT(datosFiltrados, columnas);
         break;
       default:
-        exportToExcel(datosFiltrados, columnas); 
+        exportToExcel(datosFiltrados, columnas);
         break;
     }
   };
@@ -310,12 +316,12 @@ const App = () => {
             )}
             <Graficos
               datos={datosFiltrados}
-              columnaAgrupacion={columnaAgrupar} 
-              columnaValor={columnaValor} 
-              tipoGrafico={tipoGrafico} 
-              paleta={paleta} 
-              ordenar={ordenarGrafico} 
-              topN={topNGrafico} 
+              columnaAgrupacion={columnaAgrupar}
+              columnaValor={columnaValor}
+              tipoGrafico={tipoGrafico}
+              paleta={paleta}
+              ordenar={ordenarGrafico}
+              topN={topNGrafico}
             />
           </Paper>
 

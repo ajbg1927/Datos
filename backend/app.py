@@ -119,11 +119,6 @@ def obtener_hojas(filename):
     except Exception as e:
         return jsonify({"error": f"Error al leer el archivo: {str(e)}"}), 500
 
-from flask import request, jsonify
-import pandas as pd
-import os
-from werkzeug.utils import secure_filename
-
 @app.route("/datos/<filename>", methods=["POST"])
 def obtener_datos(filename):
     filename = secure_filename(filename)
@@ -159,19 +154,22 @@ def obtener_datos(filename):
 
 @app.route("/archivos/datos", methods=["POST"])
 def obtener_datos_archivo():
-    data = request.json
-    filename = data.get("filename", "")
-    hojas = data.get("hojas", [])
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No se recibieron datos en la solicitud"}), 400
+
+    filename = data.get("filename")
+    hojas = data.get("hojas")
 
     if not filename:
-        return jsonify({"error": "Archivo no encontrado"}), 400
-    if not hojas:
-        return jsonify({"error": "No se especificaron hojas"}), 400
+        return jsonify({"error": "Nombre de archivo no proporcionado"}), 400
+    if not hojas or not isinstance(hojas, list):
+        return jsonify({"error": "Lista de hojas no proporcionada o inválida"}), 400
 
     try:
         filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         if not os.path.exists(filepath):
-            return jsonify({"error": "Archivo no encontrado"}), 400
+            return jsonify({"error": f"Archivo '{filename}' no encontrado"}), 400
 
         xls = pd.ExcelFile(filepath)
         datos_totales = []
@@ -185,11 +183,15 @@ def obtener_datos_archivo():
                 row_id += len(df)
                 df["Hoja"] = hoja
                 datos_totales.extend(df.to_dict(orient="records"))
+            else:
+                print(f"Advertencia: La hoja '{hoja}' no existe en el archivo '{filename}'.")
 
         return jsonify({"datos": datos_totales})
 
+    except FileNotFoundError:
+        return jsonify({"error": f"Archivo '{filename}' no encontrado"}), 404
     except Exception as e:
-        return jsonify({"error": f"Error al procesar el archivo: {str(e)}"}), 500
+        return jsonify({"error": f"Error al procesar el archivo '{filename}': {str(e)}"}), 500
 
 @app.route("/datos", methods=["POST"])
 def procesar_excel_endpoint():
@@ -349,7 +351,6 @@ def procesar_excel(nombre_archivo, app):
         print(f"Archivo {nombre_archivo} procesado correctamente.")
     except Exception as e:
         print(f"Error al procesar {nombre_archivo}: {e}")
-
 
 if __name__ == "__main__":
     with app.app_context():
