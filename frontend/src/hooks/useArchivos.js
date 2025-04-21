@@ -32,13 +32,8 @@ const useArchivos = () => {
   };
 
   useEffect(() => {
-    setArchivos([]);
-    setArchivoSeleccionado(null);
-    setHojasSeleccionadas([]);
-    setHojasPorArchivo({});
-    setDatosPorArchivo({});
-    setColumnasPorArchivo({});
-  }, []); 
+    reset(); 
+  }, []);
 
   const cargarArchivos = async (archivosInput) => {
     if (!archivosInput || archivosInput.length === 0) {
@@ -47,7 +42,6 @@ const useArchivos = () => {
     }
 
     const formData = new FormData();
-
     for (const archivo of archivosInput) {
       formData.append('archivos', archivo);
     }
@@ -87,28 +81,20 @@ const useArchivos = () => {
       }
 
     } catch (error) {
-      console.error('Error al subir o leer hojas de los archivos:', error.response || error);
-      alert(`Error en la carga: ${error?.response?.data?.error || 'Error inesperado'}`);
+      manejarError('Error al subir o leer hojas de los archivos:', error.response || error);
     }
   };
 
   const obtenerDatos = async (nombreBackend, hojas) => {
     try {
-      if (!nombreBackend || !hojas || hojas.length === 0) {
-        console.warn('Falta nombre del archivo o lista de hojas');
+      if (!nombreBackend || !Array.isArray(hojas) || hojas.length === 0) {
         alert('Por favor, seleccione un archivo y las hojas correspondientes.');
-        return;
-      }
-
-      if (!Array.isArray(hojas) || hojas.length === 0) {
-        alert('No se especificaron hojas válidas.');
         return;
       }
 
       const hojasLimpias = hojas.map((hoja) => hoja.trim());
 
-      console.log('Solicitando datos a backend:', {
-        url: `${API_URL}/archivos/datos`,
+      console.log('Solicitando datos al backend:', {
         filename: nombreBackend,
         hojas: hojasLimpias,
       });
@@ -120,9 +106,7 @@ const useArchivos = () => {
           hojas: hojasLimpias,
         },
         {
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
         }
       );
 
@@ -144,10 +128,24 @@ const useArchivos = () => {
       }
 
     } catch (error) {
-      console.error('Error al obtener datos del archivo:', error);
-      alert(`Error al obtener datos: ${error?.response?.data?.error || 'Error inesperado'}`);
+      manejarError('Error al obtener datos del archivo:', error);
     }
   };
+
+  useEffect(() => {
+    const cargarDatosSeleccionados = async () => {
+      if (
+        archivoSeleccionado &&
+        hojasSeleccionadas.length > 0 &&
+        hojasPorArchivo[archivoSeleccionado.nombreBackend]
+      ) {
+        setColumnasPorArchivo({});
+        setDatosPorArchivo({});
+        await obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
+      }
+    };
+    cargarDatosSeleccionados();
+  }, [archivoSeleccionado, hojasSeleccionadas]);
 
   const datosCombinados = () => {
     if (!archivoSeleccionado || !hojasSeleccionadas.length) return [];
@@ -168,6 +166,9 @@ const useArchivos = () => {
     datosCombinados,
     setArchivos,
     cargarArchivos,
+    loading,
+    error,
+    reset,
   };
 };
 
