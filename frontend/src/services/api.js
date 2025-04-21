@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://backend-flask-0rnq.onrender.com';
+const API_BASE_URL = 'https://backend-flask-u76y.onrender.com';
 
 export const subirArchivoExcel = async (file) => {
   const formData = new FormData();

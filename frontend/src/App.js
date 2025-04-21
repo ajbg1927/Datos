@@ -26,7 +26,7 @@ import useExportaciones from './hooks/useExportaciones';
 
 import axios from 'axios';
 
-const API_URL = 'https://backend-flask-0rnq.onrender.com';
+const API_URL = 'https://backend-flask-u76y.onrender.com';
 const LOCAL_STORAGE_KEY = 'dataAnalysisAppState';
 
 const App = () => {
