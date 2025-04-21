@@ -31,6 +31,15 @@ const useArchivos = () => {
     setLoading(false);
   };
 
+  useEffect(() => {
+    setArchivos([]);
+    setArchivoSeleccionado(null);
+    setHojasSeleccionadas([]);
+    setHojasPorArchivo({});
+    setDatosPorArchivo({});
+    setColumnasPorArchivo({});
+  }, []); 
+
   const cargarArchivos = async (archivosInput) => {
     if (!archivosInput || archivosInput.length === 0) {
       alert("No se seleccionaron archivos.");
@@ -38,11 +47,10 @@ const useArchivos = () => {
     }
 
     const formData = new FormData();
+
     for (const archivo of archivosInput) {
       formData.append('archivos', archivo);
     }
-
-    setLoading(true);
 
     try {
       const subida = await axios.post(`${API_URL}/subir`, formData, {
@@ -78,26 +86,32 @@ const useArchivos = () => {
         setArchivoSeleccionado(nuevosArchivos[0]);
       }
 
-      setLoading(false);
-
     } catch (error) {
-      manejarError(
-        `Error en la carga: ${error?.response?.data?.error || error?.message || 'Error inesperado'}`,
-        error
-      );
+      console.error('Error al subir o leer hojas de los archivos:', error.response || error);
+      alert(`Error en la carga: ${error?.response?.data?.error || 'Error inesperado'}`);
     }
   };
 
   const obtenerDatos = async (nombreBackend, hojas) => {
-    if (!nombreBackend || !hojas || hojas.length === 0) {
-      alert('Por favor, seleccione un archivo y las hojas correspondientes.');
-      return;
-    }
-
-    const hojasLimpias = hojas.map((hoja) => hoja.trim());
-
     try {
-      setLoading(true);
+      if (!nombreBackend || !hojas || hojas.length === 0) {
+        console.warn('Falta nombre del archivo o lista de hojas');
+        alert('Por favor, seleccione un archivo y las hojas correspondientes.');
+        return;
+      }
+
+      if (!Array.isArray(hojas) || hojas.length === 0) {
+        alert('No se especificaron hojas válidas.');
+        return;
+      }
+
+      const hojasLimpias = hojas.map((hoja) => hoja.trim());
+
+      console.log('Solicitando datos a backend:', {
+        url: `${API_URL}/archivos/datos`,
+        filename: nombreBackend,
+        hojas: hojasLimpias,
+      });
 
       const response = await axios.post(
         `${API_URL}/archivos/datos`,
@@ -129,13 +143,9 @@ const useArchivos = () => {
         }));
       }
 
-      setLoading(false);
-
     } catch (error) {
-      manejarError(
-        `Error al obtener datos: ${error?.response?.data?.error || error?.message || 'Error inesperado'}`,
-        error
-      );
+      console.error('Error al obtener datos del archivo:', error);
+      alert(`Error al obtener datos: ${error?.response?.data?.error || 'Error inesperado'}`);
     }
   };
 
@@ -154,13 +164,10 @@ const useArchivos = () => {
     hojasPorArchivo,
     datosPorArchivo,
     columnasPorArchivo,
-    cargarArchivos,
     obtenerDatos,
     datosCombinados,
     setArchivos,
-    reset,
-    loading,
-    error,
+    cargarArchivos,
   };
 };
 
