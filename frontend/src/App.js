@@ -58,7 +58,6 @@ const App = () => {
     const storedState = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (storedState) {
       const parsedState = JSON.parse(storedState);
-      if (parsedState.archivos) setArchivos(parsedState.archivos);
       if (parsedState.archivoSeleccionado) setArchivoSeleccionado(parsedState.archivoSeleccionado);
       if (parsedState.hojasSeleccionadas) setHojasSeleccionadas(parsedState.hojasSeleccionadas);
       if (parsedState.filtros) setFiltros(parsedState.filtros);
@@ -69,11 +68,11 @@ const App = () => {
       if (parsedState.ordenarGrafico) setOrdenarGrafico(parsedState.ordenarGrafico);
       if (parsedState.topNGrafico) setTopNGrafico(parsedState.topNGrafico);
     }
-  }, [setArchivos, setArchivoSeleccionado, setHojasSeleccionadas, setFiltros, setColumnaAgrupar, setColumnaValor, setTipoGrafico, setPaleta, setOrdenarGrafico, setTopNGrafico]);
+  }, [setArchivoSeleccionado, setHojasSeleccionadas, setFiltros, setColumnaAgrupar, setColumnaValor, setTipoGrafico, setPaleta, setOrdenarGrafico, setTopNGrafico]);
 
   useEffect(() => {
+    // No guardar archivos en localStorage
     const stateToSave = {
-      archivos,
       archivoSeleccionado,
       hojasSeleccionadas,
       filtros,
@@ -85,7 +84,7 @@ const App = () => {
       topNGrafico,
     };
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateToSave));
-  }, [archivos, archivoSeleccionado, hojasSeleccionadas, filtros, columnaAgrupar, columnaValor, tipoGrafico, paleta, ordenarGrafico, topNGrafico]);
+  }, [archivoSeleccionado, hojasSeleccionadas, filtros, columnaAgrupar, columnaValor, tipoGrafico, paleta, ordenarGrafico, topNGrafico]);
 
   useEffect(() => {
     if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
@@ -103,12 +102,6 @@ const App = () => {
       }
     }
   }, [archivoSeleccionado, hojasPorArchivo, setHojasSeleccionadas]);
-
-  useEffect(() => {
-    return () => {
-      setArchivos([]);
-    };
-  }, [setArchivos]);
 
   const datos = datosCombinados();
 
