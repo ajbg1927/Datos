@@ -89,6 +89,8 @@ const App = () => {
 
   useEffect(() => {
     if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
+      console.log('Archivo seleccionado:', archivoSeleccionado);
+      console.log('Hojas seleccionadas:', hojasSeleccionadas);
       obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
     }
   }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
@@ -106,7 +108,7 @@ const App = () => {
     return () => {
       setArchivos([]);
     };
-  }, [setArchivos]); 
+  }, [setArchivos]);
 
   const datos = datosCombinados();
 
