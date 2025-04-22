@@ -53,7 +53,6 @@ const App = () => {
     const [paleta, setPaleta] = useState('Institucional');
     const [ordenarGrafico, setOrdenarGrafico] = useState(true);
     const [topNGrafico, setTopNGrafico] = useState(10);
-    // Añade estas dos líneas:
     const [mostrarPorcentajeBarras, setMostrarPorcentajeBarras] = useState(false);
 
     useEffect(() => {
