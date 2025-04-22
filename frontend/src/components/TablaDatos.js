@@ -70,7 +70,6 @@ const TablaDatos = ({ datos, columnas }) => {
           rowsPerPageOptions={[10, 25, 50, 100]}
         />
       </TableContainer>
-    </Box>
   );
 };
 
