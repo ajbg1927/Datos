@@ -259,39 +259,23 @@ const App = () => {
               topN={topNGrafico}
               setTopN={setTopNGrafico}
             />
-            <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
-            {columnasNumericas.length > 0 && (
-              <Container maxWidth="md" sx={{ my: 3 }}>
-                <TextField
-                  select
-                  fullWidth
-                  label="Columna a analizar (Pagos, Deducciones, etc.)"
-                  value={columnaValor}
-                  onChange={(e) => setColumnaValor(e.target.value)}
-                >
-                  {columnasNumericas.map((col) => (
-                    <MenuItem key={col} value={col}>
-                      {col}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Container>
-            )}
-            <Graficos
-              datos={datosFiltrados}
-              columnaAgrupacion={columnaAgrupar}
-              columnaValor={columnaValor}
-              tipoGrafico={tipoGrafico}
-              paleta={paleta}
-              ordenar={ordenarGrafico}
-              topN={topNGrafico}
-            />
+              <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
+              <Graficos
+                datos={datosFiltrados}
+                columnaAgrupacion={columnaAgrupar}
+                columnaValor={columnaValor}
+                tipoGrafico={tipoGrafico}
+                paleta={paleta}
+                ordenar={ordenarGrafico}
+                topN={topNGrafico}
+              />
+            </Suspense>
           </Paper>
 
           <Paper elevation={2} sx={{ p: 2 }}>
             <ExportButtons
               datos={datosFiltrados}
-              columnas={columnas || []}
+              columnas={columnas}
               onExport={handleExportar}
             />
           </Paper>
