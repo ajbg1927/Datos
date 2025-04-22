@@ -33,7 +33,6 @@ import axios from 'axios';
 const TablaDatos = lazy(() => import('./components/TablaDatos'));
 const Graficos = lazy(() => import('./components/Graficos'));
 const SelectoresAgrupacion = lazy(() =>
-  import('./components/SelectoresAgrupacion')
 );
 
 const API_URL = process.env.REACT_APP_API_URL;
