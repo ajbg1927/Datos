@@ -1,4 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  lazy,
+  Suspense,
+  useRef,
+} from 'react';
 import {
   Container,
   TextField,
@@ -14,32 +22,31 @@ import UploadFile from './components/UploadFile';
 import TablaArchivos from './components/TablaArchivos';
 import SelectorHojas from './components/SelectorHojas';
 import Filtros from './components/Filtros';
-import TablaDatos from './components/TablaDatos';
-import Graficos from './components/Graficos';
 import ExportButtons from './components/ExportButtons';
 import ResumenGeneral from './components/ResumenGeneral';
 import SelectoresAgrupacion from './components/SelectoresAgrupacion';
-
 import useArchivos from './hooks/useArchivos';
 import useFiltrosAvanzado from './hooks/useFiltrosAvanzado';
 import useExportaciones from './hooks/useExportaciones';
-
 import axios from 'axios';
 
-const API_URL = 'https://backend-flask-u76y.onrender.com';
+const TablaDatos = lazy(() => import('./components/TablaDatos'));
+const Graficos = lazy(() => import('./components/Graficos'));
+const SelectoresAgrupacion = lazy(() =>
+  import('./components/SelectoresAgrupacion')
+);
+
+const API_URL = process.env.REACT_APP_API_URL;
 const LOCAL_STORAGE_KEY = 'dataAnalysisAppState';
 
 const App = () => {
   const {
     archivos,
-    setArchivos,
     archivoSeleccionado,
     setArchivoSeleccionado,
     hojasSeleccionadas,
     setHojasSeleccionadas,
     hojasPorArchivo,
-    datosPorArchivo,
-    columnasPorArchivo,
     obtenerDatos,
     datosCombinados,
     cargarArchivos,
@@ -54,66 +61,95 @@ const App = () => {
   const [ordenarGrafico, setOrdenarGrafico] = useState(true);
   const [topNGrafico, setTopNGrafico] = useState(10);
 
+  // Persistencia en localStorage
   useEffect(() => {
-    if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
-      console.log('Archivo seleccionado:', archivoSeleccionado);
-      console.log('Hojas seleccionadas:', hojasSeleccionadas);
+    const saved = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '{}');
+    if (saved.filtros) setFiltros(saved.filtros);
+    if (saved.columnaAgrupar) setColumnaAgrupar(saved.columnaAgrupar);
+    if (saved.columnaValor) setColumnaValor(saved.columnaValor);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(
+      LOCAL_STORAGE_KEY,
+      JSON.stringify({ filtros, columnaAgrupar, columnaValor })
+    );
+  }, [filtros, columnaAgrupar, columnaValor]);
+
+  // Carga de datos al seleccionar archivo/hojas
+  useEffect(() => {
+    if (archivoSeleccionado && hojasSeleccionadas.length) {
       obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
     }
   }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
 
+  // Preseleccionar primera hoja
   useEffect(() => {
-    if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
-      const hojas = hojasPorArchivo[archivoSeleccionado.nombreBackend];
-      if (hojas.length > 0 && hojasSeleccionadas.length === 0) {
-        setHojasSeleccionadas([hojas[0]]);
-      }
+    if (
+      archivoSeleccionado &&
+      hojasPorArchivo[archivoSeleccionado.nombreBackend] &&
+      !hojasSeleccionadas.length
+    ) {
+      setHojasSeleccionadas([
+        hojasPorArchivo[archivoSeleccionado.nombreBackend][0],
+      ]);
     }
   }, [archivoSeleccionado, hojasPorArchivo, setHojasSeleccionadas]);
 
   const datos = datosCombinados();
 
-  const columnasSet = new Set();
-  datos.forEach((row) => {
-    Object.keys(row).forEach((key) => columnasSet.add(key));
-  });
-  const columnas = Array.from(columnasSet);
+  // Memoización de columnas y valores únicos
+  const columnas = useMemo(() => {
+    const setCols = new Set();
+    datos.forEach((row) => Object.keys(row).forEach((k) => setCols.add(k)));
+    return Array.from(setCols);
+  }, [datos]);
 
-  const columnasFecha = columnas.filter((col) =>
-    col.toLowerCase().includes('fecha')
-  );
-  const columnasNumericas = columnas.filter((col) =>
-    col.toLowerCase().match(/pago|valor|deducci|oblig|monto|total|suma|saldo/)
+  const columnasFecha = useMemo(
+    () => columnas.filter((c) => c.toLowerCase().includes('fecha')),
+    [columnas]
   );
 
+  const columnasNumericas = useMemo(
+    () =>
+      columnas.filter((c) =>
+        c.toLowerCase().match(
+          /pago|valor|deducci|oblig|monto|total|suma|saldo/
+        )
+      ),
+    [columnas]
+  );
+
+  const valoresUnicos = useMemo(() => {
+    const obj = {};
+    columnas.forEach((col) => {
+      const vals = datos
+        .map((row) => row[col])
+        .filter((v) => v !== undefined && v !== null);
+      obj[col] = [...new Set(vals)];
+    });
+    return obj;
+  }, [datos, columnas]);
+
+  // Inicialización de columnas de agrupación y valor
   useEffect(() => {
-    if (columnas.length > 0 && !columnaAgrupar) {
+    if (columnas.length && !columnaAgrupar) {
       setColumnaAgrupar(columnas[0]);
     }
-    if (columnasNumericas.length > 0 && !columnaValor) {
+    if (columnasNumericas.length && !columnaValor) {
       setColumnaValor(columnasNumericas[0]);
     }
-  }, [columnas, columnasNumericas, columnaAgrupar, setColumnaAgrupar, columnaValor, setColumnaValor]);
+  }, [columnas, columnasNumericas, columnaAgrupar, columnaValor]);
 
-  const valoresUnicos = {};
-  columnas.forEach((col) => {
-    const valores = datos
-      .map((row) => row[col])
-      .filter((v) => v !== undefined && v !== null);
-    valoresUnicos[col] = [...new Set(valores)];
-  });
-
+  // Preparar filtros para el hook
   const texto = filtros.busqueda || '';
   const fechaInicio = filtros.Fecha_desde || '';
   const fechaFin = filtros.Fecha_hasta || '';
-
   const filtrosColumnas = Object.fromEntries(
     Object.entries(filtros).filter(
-      ([key]) =>
-        !['busqueda', 'Fecha_desde', 'Fecha_hasta'].includes(key)
+      ([k]) => !['busqueda', 'Fecha_desde', 'Fecha_hasta'].includes(k)
     )
   );
-
   const pagosMin = filtros[`${columnaValor}_min`] || '';
   const pagosMax = filtros[`${columnaValor}_max`] || '';
 
@@ -128,57 +164,73 @@ const App = () => {
     columnaValor
   );
 
-  const { exportToExcel, exportToCSV, exportToPDF, exportToTXT } = useExportaciones();
+  const { exportToExcel, exportToCSV, exportToPDF, exportToTXT } =
+    useExportaciones();
 
-  const handleClearFilters = () => {
+  const handleClearFilters = useCallback(() => {
     setFiltros({});
-  };
+  }, []);
 
-  const handleExportar = (formato) => {
-    switch (formato) {
-      case 'excel':
-        exportToExcel(datosFiltrados, columnas);
-        break;
-      case 'csv':
-        exportToCSV(datosFiltrados, columnas);
-        break;
-      case 'pdf':
-        exportToPDF(datosFiltrados, columnas);
-        break;
-      case 'txt':
-        exportToTXT(datosFiltrados, columnas);
-        break;
-      default:
-        exportToExcel(datosFiltrados, columnas);
-        break;
-    }
-  };
+  const handleExportar = useCallback(
+    (formato) => {
+      switch (formato) {
+        case 'excel':
+          return exportToExcel(datosFiltrados, columnas);
+        case 'csv':
+          return exportToCSV(datosFiltrados, columnas);
+        case 'pdf':
+          return exportToPDF(datosFiltrados, columnas);
+        case 'txt':
+          return exportToTXT(datosFiltrados, columnas);
+        default:
+          return exportToExcel(datosFiltrados, columnas);
+      }
+    },
+    [datosFiltrados, columnas, exportToCSV, exportToExcel, exportToPDF, exportToTXT]
+  );
 
-  const handleArchivosSubidos = async (files) => {
-    const formData = new FormData();
-    for (const file of files) {
-      formData.append('archivos', file);
-    }
-
-    try {
+  const handleArchivosSubidos = useCallback(
+    async (files) => {
+      const formData = new FormData();
+      files.forEach((f) => formData.append('archivos', f));
       setIsLoadingUpload(true);
-      await axios.post(`${API_URL}/subir`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      await cargarArchivos(files);
-    } catch (error) {
-      console.error('Error al subir archivos:', error);
-      alert('Error al subir archivos');
-    } finally {
-      setIsLoadingUpload(false);
+      try {
+        await axios.post(`${API_URL}/subir`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        await cargarArchivos(files);
+      } catch (e) {
+        console.error(e);
+        alert('Error al subir archivos');
+      } finally {
+        setIsLoadingUpload(false);
+      }
+    },
+    [cargarArchivos]
+  );
+
+  // Ref para auto-scroll
+  const datosRef = useRef();
+  useEffect(() => {
+    if (datos.length) {
+      datosRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  };
+  }, [datos]);
 
   return (
     <Layout
       sidebar={
-        <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
-          {columnas.length > 0 ? (
+        <Paper
+          elevation={1}
+          sx={{
+            p: 3,
+            borderRadius: 3,
+            backgroundColor: 'white',
+            maxHeight: '80vh',
+            overflow: 'auto',
+          }}
+        >
+          {columnas.length ? (
             <Filtros
               columnas={columnas}
               valoresUnicos={valoresUnicos}
@@ -187,9 +239,9 @@ const App = () => {
               handleClearFilters={handleClearFilters}
               columnasFecha={columnasFecha}
               columnasNumericas={columnasNumericas}
-              valorBusqueda={filtros.busqueda || ''}
-              setValorBusqueda={(valor) =>
-                setFiltros((prev) => ({ ...prev, busqueda: valor }))
+              valorBusqueda={texto}
+              setValorBusqueda={(v) =>
+                setFiltros((prev) => ({ ...prev, busqueda: v }))
               }
               columnaAgrupar={columnaAgrupar}
               setColumnaAgrupar={setColumnaAgrupar}
@@ -198,14 +250,19 @@ const App = () => {
             />
           ) : (
             <Typography variant="body2" color="textSecondary">
-              Carga un archivo para activar los filtros.
+              Selecciona un archivo para ver los filtros.
             </Typography>
           )}
         </Paper>
       }
     >
       {isLoadingUpload && (
-        <Box display="flex" justifyContent="center" alignItems="center" my={2}>
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          my={2}
+        >
           <CircularProgress sx={{ mr: 2 }} />
           <Typography>Subiendo archivo(s)... por favor espera</Typography>
         </Box>
@@ -215,9 +272,11 @@ const App = () => {
         <UploadFile onFilesUploaded={handleArchivosSubidos} />
       </Paper>
 
-      {archivos?.length > 0 && (
+      {archivos.length > 0 && (
         <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
-          <Typography variant="h6" gutterBottom>📁 Archivos Cargados</Typography>
+          <Typography variant="h6" gutterBottom>
+            📁 Archivos Cargados
+          </Typography>
           <TablaArchivos
             archivos={archivos}
             archivoSeleccionado={archivoSeleccionado}
@@ -233,65 +292,55 @@ const App = () => {
 
       {datos.length > 0 && (
         <Box display="flex" flexDirection="column" gap={3}>
-          <Paper elevation={2} sx={{ p: 3 }}>
+          <Paper elevation={2} sx={{ p: 3 }} ref={datosRef}>
             <Typography variant="h6" gutterBottom>
               📄 Datos
             </Typography>
-            <TablaDatos datos={datosFiltrados} columnas={columnas} />
+            <Suspense fallback={<CircularProgress />}>
+              <TablaDatos datos={datosFiltrados} columnas={columnas} />
+            </Suspense>
           </Paper>
 
           <Paper elevation={2} sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               📊 Análisis
             </Typography>
-            <SelectoresAgrupacion
-              columnas={columnas}
-              columnaAgrupar={columnaAgrupar}
-              setColumnaAgrupar={setColumnaAgrupar}
-              columnaValor={columnaValor}
-              setColumnaValor={setColumnaValor}
-              tipoGrafico={tipoGrafico}
-              setTipoGrafico={setTipoGrafico}
-              paleta={paleta}
-              setPaleta={setPaleta}
-              ordenar={ordenarGrafico}
-              setOrdenar={setOrdenarGrafico}
-              topN={topNGrafico}
-              setTopN={setTopNGrafico}
-            />
-            <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
-            {columnasNumericas.length > 0 && (
-              <Container maxWidth="md" sx={{ my: 3 }}>
-                <TextField
-                  select
-                  fullWidth
-                  label="Columna a analizar (Pagos, Deducciones, etc.)"
-                  value={columnaValor}
-                  onChange={(e) => setColumnaValor(e.target.value)}
-                >
-                  {columnasNumericas.map((col) => (
-                    <MenuItem key={col} value={col}>
-                      {col}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Container>
-            )}
-            <Graficos
-              datos={datosFiltrados}
-              columnaAgrupacion={columnaAgrupar}
-              columnaValor={columnaValor}
-              tipoGrafico={tipoGrafico}
-              paleta={paleta}
-              ordenar={ordenarGrafico}
-              topN={topNGrafico}
-            />
+            <Suspense fallback={<CircularProgress />}>
+              <SelectoresAgrupacion
+                columnas={columnas}
+                columnaAgrupar={columnaAgrupar}
+                setColumnaAgrupar={setColumnaAgrupar}
+                columnaValor={columnaValor}
+                setColumnaValor={setColumnaValor}
+                tipoGrafico={tipoGrafico}
+                setTipoGrafico={setTipoGrafico}
+                paleta={paleta}
+                setPaleta={setPaleta}
+                ordenar={ordenarGrafico}
+                setOrdenar={setOrdenarGrafico}
+                topN={topNGrafico}
+                setTopN={setTopNGrafico}
+              />
+              <ResumenGeneral
+                datos={datosFiltrados}
+                columnaValor={columnaValor}
+              />
+              <Graficos
+                datos={datosFiltrados}
+                columnaAgrupacion={columnaAgrupar}
+                columnaValor={columnaValor}
+                tipoGrafico={tipoGrafico}
+                paleta={paleta}
+                ordenar={ordenarGrafico}
+                topN={topNGrafico}
+              />
+            </Suspense>
           </Paper>
 
           <Paper elevation={2} sx={{ p: 2 }}>
             <ExportButtons
               datos={datosFiltrados}
-              columnas={columnas || []}
+              columnas={columnas}
               onExport={handleExportar}
             />
           </Paper>
