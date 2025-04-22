@@ -23,6 +23,7 @@ const PALETAS = {
     Pastel: ['#ffd1dc', '#bae1ff', '#caffbf', '#fdffb6', '#a0c4ff', '#ffc6ff'],
     Fuego: ['#ff5722', '#ff7043', '#ff8a65', '#ffab91', '#d84315', '#bf360c'],
     Frío: ['#00bcd4', '#4dd0e1', '#80deea', '#b2ebf2', '#e0f7fa', '#006064'],
+    Oceano: ['#034078', '#05668D', '#028090', '#00A896', '#02C8A9'],
 };
 
 const Graficos = ({
