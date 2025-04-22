@@ -30,7 +30,7 @@ function Header() {
             src="/logo_am.png"
             alt="Logo Municipio"
             sx={{
-              height: { xs: 35, sm: 45, md: 60 },
+              height: { xs: 50, sm: 70, md: 90 },
               maxWidth: '100%',
               mr: 2,
             }}
@@ -57,7 +57,7 @@ function Header() {
             src="/logo_tic.png"
             alt="Logo TIC Mosquera"
             sx={{
-              height: { xs: 30, sm: 40, md: 50 },
+              height: { xs: 45, sm: 65, md: 85 },
               maxWidth: '100%',
               ml: 2,
             }}
