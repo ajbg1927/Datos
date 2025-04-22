@@ -38,6 +38,7 @@ const Graficos = ({ datos, columnaAgrupacion, columnaValor }) => {
   const [dataAgrupada, setDataAgrupada] = useState([]);
   const [ordenar, setOrdenar] = useState(true);
   const [topN, setTopN] = useState(10);
+  const [mostrarPorcentajeBarras, setMostrarPorcentajeBarras] = useState(false);
 
   useEffect(() => {
     if (!datos || !columnaAgrupacion || !columnaValor || datos.length === 0) {
@@ -76,6 +77,7 @@ const Graficos = ({ datos, columnaAgrupacion, columnaValor }) => {
   }, [datos, columnaAgrupacion, columnaValor, ordenar, topN]);
 
   const coloresUsar = PALETAS[paleta] || PALETAS['Institucional'];
+  const total = dataAgrupada.reduce((acc, cur) => acc + cur.value, 0);
 
   return (
     <Box mt={4}>
@@ -150,7 +152,9 @@ const Graficos = ({ datos, columnaAgrupacion, columnaValor }) => {
               type="number"
               label="Top N"
               value={topN}
-              onChange={(e) => setTopN(parseInt(e.target.value) || 0)}
+              onChange={(e) =>
+                setTopN(Math.max(1, parseInt(e.target.value) || 1))
+              }
               inputProps={{ min: 1 }}
             />
           </Grid>
@@ -169,6 +173,23 @@ const Graficos = ({ datos, columnaAgrupacion, columnaValor }) => {
               </Select>
             </FormControl>
           </Grid>
+
+          {tipoGrafico.includes('Barras') && (
+            <Grid item xs={12} sm={3}>
+              <FormControl fullWidth>
+                <InputLabel id="porcentaje-label">Mostrar %</InputLabel>
+                <Select
+                  labelId="porcentaje-label"
+                  value={mostrarPorcentajeBarras ? 'Sí' : 'No'}
+                  label="Mostrar %"
+                  onChange={(e) => setMostrarPorcentajeBarras(e.target.value === 'Sí')}
+                >
+                  <MenuItem value="Sí">Sí</MenuItem>
+                  <MenuItem value="No">No</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+          )}
         </Grid>
       </Box>
 
@@ -185,8 +206,6 @@ const Graficos = ({ datos, columnaAgrupacion, columnaValor }) => {
               xs: '1fr',
               md: tipoGrafico === 'Ambos' ? '1fr 1fr' : '1fr',
             },
-            alignItems: 'center',
-            justifyContent: 'center',
           }}
         >
           {(tipoGrafico === 'Barras' || tipoGrafico === 'Ambos') && (
@@ -196,18 +215,26 @@ const Graficos = ({ datos, columnaAgrupacion, columnaValor }) => {
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip
+                  formatter={(value, name, props) => [
+                    `${value.toLocaleString()} (${((value / total) * 100).toFixed(1)}%)`,
+                    columnaValor,
+                  ]}
                   contentStyle={{
                     backgroundColor: '#ffffff',
                     border: '1px solid #ccc',
                     fontSize: '0.85rem',
                   }}
                 />
-                <Bar
-                  dataKey="value"
-                  fill={coloresUsar[0]}
-                  animationDuration={1000}
-                >
-                  <LabelList dataKey="value" position="top" />
+                <Bar dataKey="value" fill={coloresUsar[0]} animationDuration={1000}>
+                  <LabelList
+                    dataKey="value"
+                    position="top"
+                    formatter={(value) =>
+                      mostrarPorcentajeBarras
+                        ? `${((value / total) * 100).toFixed(1)}%`
+                        : value.toLocaleString()
+                    }
+                  />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -236,6 +263,9 @@ const Graficos = ({ datos, columnaAgrupacion, columnaValor }) => {
                   ))}
                 </Pie>
                 <Tooltip
+                  formatter={(value) =>
+                    `${value.toLocaleString()} (${((value / total) * 100).toFixed(1)}%)`
+                  }
                   contentStyle={{
                     backgroundColor: '#ffffff',
                     border: '1px solid #ccc',
