@@ -232,72 +232,58 @@ const App = () => {
       )}
 
       {datos.length > 0 && (
-        <Box display="flex" flexDirection="column" gap={3}>
-          <Paper elevation={2} sx={{ p: 3 }}>
+    <Box display="flex" flexDirection="column" gap={3}>
+        <Paper elevation={2} sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
-              📄 Datos
+                📄 Datos
             </Typography>
             <TablaDatos datos={datosFiltrados} columnas={columnas} />
-          </Paper>
+        </Paper>
 
-          <Paper elevation={2} sx={{ p: 3 }}>
+        <Paper elevation={2} sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
-              📊 Análisis
+                📊 Análisis
             </Typography>
             <SelectoresAgrupacion
-              columnas={columnas}
-              columnaAgrupar={columnaAgrupar}
-              setColumnaAgrupar={setColumnaAgrupar}
-              columnaValor={columnaValor}
-              setColumnaValor={setColumnaValor}
-              tipoGrafico={tipoGrafico}
-              setTipoGrafico={setTipoGrafico}
-              paleta={paleta}
-              setPaleta={setPaleta}
-              ordenar={ordenarGrafico}
-              setOrdenar={setOrdenarGrafico}
-              topN={topNGrafico}
-              setTopN={setTopNGrafico}
+                columnas={columnas}
+                columnaAgrupar={columnaAgrupar}
+                setColumnaAgrupar={setColumnaAgrupar}
+                columnaValor={columnaValor}
+                setColumnaValor={setColumnaValor}
+                tipoGrafico={tipoGrafico}
+                setTipoGrafico={setTipoGrafico}
+                paleta={paleta}
+                setPaleta={setPaleta}
+                ordenar={ordenarGrafico}
+                setOrdenar={setOrdenarGrafico}
+                topN={topNGrafico}
+                setTopN={setTopNGrafico}
+                mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+                setMostrarPorcentajeBarras={setMostrarPorcentajeBarras}
             />
             <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
-            {columnasNumericas.length > 0 && (
-              <Container maxWidth="md" sx={{ my: 3 }}>
-                <TextField
-                  select
-                  fullWidth
-                  label="Columna a analizar (Pagos, Deducciones, etc.)"
-                  value={columnaValor}
-                  onChange={(e) => setColumnaValor(e.target.value)}
-                >
-                  {columnasNumericas.map((col) => (
-                    <MenuItem key={col} value={col}>
-                      {col}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Container>
-            )}
             <Graficos
-              datos={datosFiltrados}
-              columnaAgrupacion={columnaAgrupar}
-              columnaValor={columnaValor}
-              tipoGrafico={tipoGrafico}
-              paleta={paleta}
-              ordenar={ordenarGrafico}
-              topN={topNGrafico}
+                datos={datosFiltrados}
+                columnaAgrupacion={columnaAgrupar}
+                columnaValor={columnaValor}
+                tipoGrafico={tipoGrafico}
+                paleta={paleta}
+                ordenar={ordenarGrafico}
+                topN={topNGrafico}
+                mostrarPorcentajeBarras={mostrarPorcentajeBarras}
             />
-          </Paper>
+        </Paper>
 
-          <Paper elevation={2} sx={{ p: 2 }}>
+        <Paper elevation={2} sx={{ p: 2 }}>
             <ExportButtons
-              datos={datosFiltrados}
-              columnas={columnas || []}
-              onExport={handleExportar}
+                datos={datosFiltrados}
+                columnas={columnas || []}
+                onExport={handleExportar}
             />
-          </Paper>
-        </Box>
-      )}
-    </Layout>
+        </Paper>
+    </Box>
+  )}
+  </Layout>
   );
 };
 
