@@ -35,21 +35,7 @@ const TablaDatos = ({ datos, columnas }) => {
   }
 
   return (
-    <Box sx={{ mt: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-        <CSVLink
-          data={datos}
-          filename="datos_exportados.csv"
-          headers={columnas.map((col) => ({ label: col, key: col }))}
-          style={{ textDecoration: 'none' }}
-        >
-          <Button variant="contained" color="success">
-            Exportar CSV
-          </Button>
-        </CSVLink>
-      </Box>
-
-      <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
+    <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
         <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
