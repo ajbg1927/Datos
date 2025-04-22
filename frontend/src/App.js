@@ -232,7 +232,7 @@ const App = () => {
       )}
 
       {datos.length > 0 && (
-    <Box display="flex" flexDirection="column" gap={3}>
+        <Box display="flex" flexDirection="column" gap={3}>
         <Paper elevation={2} sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
                 📄 Datos
@@ -279,7 +279,7 @@ const App = () => {
                 datos={datosFiltrados}
                 columnas={columnas || []}
                 onExport={handleExportar}
-            />
+                />
         </Paper>
     </Box>
   )}
