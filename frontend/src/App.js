@@ -8,7 +8,6 @@ import React, {
   useRef,
 } from 'react';
 import {
-  Container,
   Typography,
   CircularProgress,
   Box,
@@ -140,7 +139,7 @@ const App = () => {
     }
   }, [columnas, columnasNumericas, columnaAgrupar, columnaValor]);
 
-  // Preparar filtros para el hook
+  // Preparar parámetros para el hook de filtrado
   const texto = filtros.busqueda || '';
   const fechaInicio = filtros.Fecha_desde || '';
   const fechaFin = filtros.Fecha_hasta || '';
@@ -208,11 +207,11 @@ const App = () => {
     [cargarArchivos]
   );
 
-  // Ref para auto-scroll
+  // Ref para auto-scroll al cambiar datos
   const datosRef = useRef();
   useEffect(() => {
-    if (datos.length) {
-      datosRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (datos.length > 0 && datosRef.current) {
+      datosRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [datos]);
 
@@ -229,7 +228,7 @@ const App = () => {
             overflow: 'auto',
           }}
         >
-          {columnas.length ? (
+          {columnas.length > 0 ? (
             <Filtros
               columnas={columnas}
               valoresUnicos={valoresUnicos}
@@ -320,10 +319,7 @@ const App = () => {
                 topN={topNGrafico}
                 setTopN={setTopNGrafico}
               />
-              <ResumenGeneral
-                datos={datosFiltrados}
-                columnaValor={columnaValor}
-              />
+              <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
               <Graficos
                 datos={datosFiltrados}
                 columnaAgrupacion={columnaAgrupar}
