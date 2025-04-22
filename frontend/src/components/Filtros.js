@@ -9,11 +9,17 @@ import {
   Button,
   InputAdornment,
   Grid,
+  useTheme,
+  useMediaQuery,
+  Tooltip,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import GroupIcon from '@mui/icons-material/Group';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import ClearAllIcon from '@mui/icons-material/ClearAll';
+import EventIcon from '@mui/icons-material/Event';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import BarChartIcon from '@mui/icons-material/BarChart';
 
 const Filtros = ({
   columnas = [],
@@ -30,6 +36,9 @@ const Filtros = ({
   columnaValor = '',
   setColumnaValor = () => {},
 }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const handleChange = (columna, valor) => {
     if (typeof setFiltros === 'function') {
       setFiltros((prev) => ({
@@ -59,8 +68,8 @@ const Filtros = ({
         boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
       }}
     >
-      <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'green', mb: 2 }}>
-        Filtros de análisis
+      <Typography variant="h6" sx={{ fontWeight: 'bold', color: theme.palette.success.main, mb: 2 }}>
+        Panel de Filtros
       </Typography>
 
       <TextField
@@ -81,14 +90,16 @@ const Filtros = ({
             </InputAdornment>
           ),
         }}
+        aria-label="Buscar en todos los campos"
         sx={{ mb: 3 }}
       />
 
       {columnasFecha.length > 0 && (
         <>
           <Divider sx={{ my: 2 }} />
-          <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2 }}>
-            📅 Filtrar por fecha
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2, display: 'flex', alignItems: 'center' }}>
+            <EventIcon sx={{ mr: 1 }} />
+            Filtrar por Fecha
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6} md={4}>
@@ -118,8 +129,9 @@ const Filtros = ({
       {columnasNumericas.length > 0 && (
         <>
           <Divider sx={{ my: 2 }} />
-          <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2 }}>
-            🔢 Rango de valores
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2, display: 'flex', alignItems: 'center' }}>
+            <FilterAltIcon sx={{ mr: 1 }} />
+            Rango de Valores
           </Typography>
           <Grid container spacing={2}>
             {columnasNumericas.map((col) => (
@@ -148,82 +160,86 @@ const Filtros = ({
         </>
       )}
 
-      <Divider sx={{ my: 2 }} />
-      <Typography variant="subtitle1" sx={{ color: 'green', fontWeight: 'bold', mb: 2 }}>
-        📊 Visualización de Gráficos
-      </Typography>
+      <Divider sx={{ my: 3 }} />
+      <Paper variant="outlined" sx={{ p: 2, mb: 3, bgcolor: '#f5f5f5' }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2, display: 'flex', alignItems: 'center', color: theme.palette.success.main }}>
+          <BarChartIcon sx={{ mr: 1 }} />
+          Visualización de Gráficos
+        </Typography>
 
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={6}>
-          <TextField
-            fullWidth
-            select
-            label="Agrupar por"
-            value={columnaAgrupar || ''}
-            onChange={(e) => setColumnaAgrupar(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <GroupIcon />
-                </InputAdornment>
-              ),
-            }}
-          >
-            {columnas.map((col) => (
-              <MenuItem key={col} value={col}>
-                {col}
-              </MenuItem>
-            ))}
-          </TextField>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              select
+              label="Agrupar por"
+              value={columnaAgrupar || ''}
+              onChange={(e) => setColumnaAgrupar(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <GroupIcon />
+                  </InputAdornment>
+                ),
+              }}
+            >
+              {columnas.map((col) => (
+                <MenuItem key={col} value={col}>
+                  {col}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              select
+              label="Columna de valor"
+              value={columnaValor || ''}
+              onChange={(e) => setColumnaValor(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <AttachMoneyIcon />
+                  </InputAdornment>
+                ),
+              }}
+            >
+              {columnas.map((col) => (
+                <MenuItem key={col} value={col}>
+                  {col}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
         </Grid>
+      </Paper>
 
-        <Grid item xs={12} md={6}>
-          <TextField
-            fullWidth
-            select
-            label="Columna de valor"
-            value={columnaValor || ''}
-            onChange={(e) => setColumnaValor(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <AttachMoneyIcon />
-                </InputAdornment>
-              ),
-            }}
-          >
-            {columnas.map((col) => (
-              <MenuItem key={col} value={col}>
-                {col}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
-      </Grid>
-
-      <Divider sx={{ my: 2 }} />
       <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2 }}>
-        Filtrar por categorías
+        Filtrar por Categorías
       </Typography>
       <Grid container spacing={2}>
         {columnasFiltrables.map((col) => {
           const opciones = valoresUnicos[col] || [];
           return (
             <Grid item xs={12} sm={6} md={4} key={col}>
-              <TextField
-                select
-                fullWidth
-                label={`Filtrar por ${col}`}
-                value={filtros[col] || ''}
-                onChange={(e) => handleChange(col, e.target.value)}
-              >
-                <MenuItem value="">Todos</MenuItem>
-                {opciones.map((opcion, index) => (
-                  <MenuItem key={index} value={opcion}>
-                    {opcion}
-                  </MenuItem>
-                ))}
-              </TextField>
+              <Tooltip title={`Filtrar por ${col}`} arrow>
+                <TextField
+                  select
+                  fullWidth
+                  label={`Filtrar por ${col}`}
+                  value={filtros[col] || ''}
+                  onChange={(e) => handleChange(col, e.target.value)}
+                >
+                  <MenuItem value="">Todos</MenuItem>
+                  {opciones.map((opcion, index) => (
+                    <MenuItem key={index} value={opcion}>
+                      {opcion}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Tooltip>
             </Grid>
           );
         })}
@@ -233,6 +249,7 @@ const Filtros = ({
         <Button
           variant="contained"
           color="error"
+          fullWidth={isMobile}
           startIcon={<ClearAllIcon />}
           onClick={handleClearFilters}
         >
