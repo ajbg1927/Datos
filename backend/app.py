@@ -10,6 +10,7 @@ from database.models import Archivo, Hoja, Datos, DatosExcel
 from database.procesar_excel import procesar_excel
 from config import Config
 from routes import api_bp
+from utils.excel_parser import extraer_tablas_relevantes
 import pandas as pd
 import os
 
@@ -270,6 +271,27 @@ def cargar():
             return jsonify({"error": str(e)}), 400
 
     return jsonify(data)
+
+@app.route('/procesar_excel', methods=['POST'])
+def procesar_excel():
+    archivo = request.files['archivo']
+    nombre_hoja = request.form.get('hoja', 'Hoja1')
+    dependencia = request.form.get('dependencia')  # opcional
+
+    ruta_temporal = f"/tmp/{archivo.filename}"
+    archivo.save(ruta_temporal)
+
+    try:
+        resultado = extraer_tablas_relevantes(
+            ruta_archivo=ruta_temporal,
+            nombre_hoja=nombre_hoja,
+            filtro_dependencia=dependencia
+        )
+        return jsonify({"status": "ok", "tablas": resultado})
+    except Exception as e:
+        return jsonify({"status": "error", "detalle": str(e)}), 500
+    finally:
+        os.remove(ruta_temporal)
 
 @app.route("/generate-report", methods=["POST"])
 def generate_report():
