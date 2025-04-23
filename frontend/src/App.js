@@ -44,6 +44,7 @@ const App = () => {
         obtenerDatos,
         datosCombinados,
         cargarArchivos,
+        procesarExcel, 
     } = useArchivos();
 
     const [filtros, setFiltros] = useState({});
@@ -61,7 +62,8 @@ const App = () => {
     const [corAbiertosData, setCorAbiertosData] = useState(null);
     const [ppAbiertosData, setPpAbiertosData] = useState(null);
     const [ticData, setTicData] = useState([]);
-    const [resultadosProcesados, setResultadosProcesados] = useState(null); // Nuevo estado
+    const [resultadosProcesados, setResultadosProcesados] = useState(null); 
+    const [ticProcesado, setTicProcesado] = useState(false); 
 
     const ticKeywords = [
         "FUNCIONAMIENTO",
@@ -81,7 +83,6 @@ const App = () => {
         const cargarDatosIniciales = async () => {
             if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
                 await obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
-    
             }
         };
         cargarDatosIniciales();
@@ -105,11 +106,12 @@ const App = () => {
                 if (tabla.data && tabla.data.length > 0 && tabla.data[0]) {
                     const headers = Object.keys(tabla.data[0]);
                     const matches = headers.filter(header => ticKeywords.includes(header.toUpperCase()));
-                    return matches.length >= 3; // Umbral inicial, podemos ajustarlo
+                    return matches.length >= 3; 
                 }
                 return false;
             });
             setTicData(ticTables);
+            setTicProcesado(true); 
         }
     }, [resultadosProcesados, ticKeywords]);
 
@@ -228,16 +230,16 @@ const App = () => {
     const handleProcesarTIC = async () => {
         if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
             const formData = new FormData();
-            formData.append('archivo', archivoSeleccionado.archivo); 
+            formData.append('nombreBackend', archivoSeleccionado.nombreBackend); 
             formData.append('hoja', hojasSeleccionadas[0]);
             formData.append('dependencia', 'DIRECCION DE LAS TIC');
             try {
                 const response = await axios.post(`${API_URL}/procesar_excel`, formData, {
                     headers: {
-                        'Content-Type': 'multipart/form-data',
+                        'Content-Type': 'application/x-www-form-urlencoded', 
                     },
                 });
-                const resultados = response.data;
+                const resultados = response.data.tablas; 
                 setResultadosProcesados(resultados);
                 console.log('Resultados procesados:', resultados);
             } catch (error) {
@@ -248,7 +250,7 @@ const App = () => {
 
     const handleChangeTab = (event, newValue) => {
         setTabValue(newValue);
-        if (newValue === 0 && archivoSeleccionado && hojasSeleccionadas.length > 0 && !resultadosProcesados) {
+        if (newValue === 0 && archivoSeleccionado && hojasSeleccionadas.length > 0 && !ticProcesado) {
             handleProcesarTIC();
         }
     };

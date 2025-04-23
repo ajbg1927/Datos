@@ -43,7 +43,7 @@ const useArchivos = () => {
             });
 
             const archivosBackend = respuesta.data.archivos || [];
-            const hojasPorArchivoResponse = respuesta.data.hojas_por_archivo || {}; 
+            const hojasPorArchivoResponse = respuesta.data.hojas_por_archivo || {};
             const nuevosArchivos = archivosInput.map((archivo, index) => ({
                 nombreOriginal: archivo.name,
                 nombreBackend: archivosBackend[index],
@@ -118,7 +118,7 @@ const useArchivos = () => {
         return datosArchivo.combinado || [];
     };
 
-    const procesarExcel = async ({ nombreBackend, hoja = 'Hoja1', dependencia = '' }) => { 
+    const procesarExcel = async ({ nombreBackend, hoja = 'Hoja1', dependencia = '' }) => {
         if (!nombreBackend) {
             console.error('Error: nombreBackend no proporcionado para procesarExcel');
             setError('Error al procesar el archivo');
@@ -128,18 +128,18 @@ const useArchivos = () => {
         try {
             setLoading(true);
             const formData = new FormData();
-            formData.append('nombreBackend', nombreBackend); 
+            formData.append('nombreBackend', nombreBackend);
             formData.append('hoja', hoja);
             if (dependencia) formData.append('dependencia', dependencia);
 
             const response = await axios.post(`${API_URL}/procesar_excel`, formData, {
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, 
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             });
 
             const { tablas } = response.data;
             setDatosPorArchivo((prev) => ({
                 ...prev,
-                [nombreBackend]: tablas, 
+                [nombreBackend]: tablas,
             }));
 
             return tablas;

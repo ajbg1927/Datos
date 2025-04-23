@@ -253,26 +253,28 @@ def cargar():
 
     return jsonify(data)
 
-@app.route('/procesar_excel', methods=['POST'])
+@app.route("/procesar_excel", methods=["POST"])
 def procesar_excel():
-    archivo = request.files['archivo']
+    filename_backend = request.form.get('nombreBackend') 
     nombre_hoja = request.form.get('hoja', 'Hoja1')
     dependencia = request.form.get('dependencia')
 
-    ruta_temporal = f"/tmp/{archivo.filename}"
-    archivo.save(ruta_temporal)
+    if not filename_backend:
+        return jsonify({"error": "Nombre de archivo no proporcionado"}), 400
+
+    filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename_backend)
+    if not os.path.exists(filepath):
+        return jsonify({"error": f"Archivo '{filename_backend}' no encontrado"}), 404
 
     try:
         resultado = extraer_tablas_relevantes(
-            ruta_archivo=ruta_temporal,
+            ruta_archivo=filepath,
             nombre_hoja=nombre_hoja,
             filtro_dependencia=dependencia
         )
-        return jsonify(resultado["tablas"]) 
+        return jsonify(resultado["tablas"])
     except Exception as e:
         return jsonify({"status": "error", "detalle": str(e)}), 500
-    finally:
-        os.remove(ruta_temporal)
 
 @app.route("/generate-report", methods=["POST"])
 def generate_report():
