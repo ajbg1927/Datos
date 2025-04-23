@@ -315,7 +315,7 @@ const App = () => {
                                 ))}
                             </Box>
                         )}
-                        {tabValue === 5 && datos.length > 0 && (
+                        {tabValue === 5 && datosCombinadosApp.length > 0 && (
                             <Box display="flex" flexDirection="column" gap={3}>
                                 <Paper elevation={2} sx={{ p: 3 }}>
                                     <Typography variant="h6" gutterBottom>
