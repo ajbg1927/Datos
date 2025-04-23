@@ -17,7 +17,7 @@ const useArchivos = () => {
     const obtenerDatos = useCallback(async (nombreBackend, hojas) => {
         if (!nombreBackend || !Array.isArray(hojas) || hojas.length === 0 || cargandoDatos) {
             console.log('obtenerDatos llamado innecesariamente o ya en curso.');
-            return;
+            return [];
         }
 
         try {
@@ -32,9 +32,10 @@ const useArchivos = () => {
             const datos = response.data.datos || [];
             if (!datos || datos.length === 0) {
                 alert('No se encontraron datos para la hoja seleccionada.');
-                return;
+                return [];
             }
 
+            // Guardar datos combinados en el estado
             setDatosPorArchivo((prev) => ({
                 ...prev,
                 [nombreBackend]: {
@@ -43,15 +44,19 @@ const useArchivos = () => {
                 },
             }));
 
+            // Guardar columnas detectadas automáticamente
             if (datos.length > 0) {
                 setColumnasPorArchivo((prev) => ({
                     ...prev,
                     [nombreBackend]: Object.keys(datos[0]),
                 }));
             }
+
+            return datos; 
         } catch (err) {
             console.error('Error al obtener datos:', err);
             alert(`Error al obtener datos: ${err?.response?.data?.error || 'Error inesperado'}`);
+            return [];
         } finally {
             setCargandoDatos(false);
         }
@@ -91,8 +96,6 @@ const useArchivos = () => {
             const respuesta = await axios.post(`${API_URL}/subir`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
-
-            console.log('Respuesta de /subir:', respuesta.data);
 
             const archivosBackend = respuesta.data.archivos || [];
             const nuevosArchivos = archivosInput.map((archivo, index) => ({
@@ -184,7 +187,7 @@ const useArchivos = () => {
         columnasPorArchivo,
         cargarArchivos,
         obtenerHojas,
-        obtenerDatos,
+        obtenerDatos, 
         datosCombinados,
         procesarExcel,
         loading,
