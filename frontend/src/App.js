@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
     Box,
     CircularProgress,
@@ -41,7 +41,7 @@ const App = () => {
         obtenerDatos,
         datosCombinados,
         cargarArchivos,
-        obtenerHojas, 
+        obtenerHojas,
     } = useArchivos();
 
     const [filtros, setFiltros] = useState({});
@@ -76,14 +76,15 @@ const App = () => {
         "% GASTO"
     ];
 
-    useEffect(() => {
-        const cargarDatosIniciales = async () => {
-            if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
-                await obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
-            }
-        };
-        cargarDatosIniciales();
+    const cargarDatosIniciales = useCallback(async () => {
+        if (archivoSeleccionado?.nombreBackend && hojasSeleccionadas.length > 0) {
+            await obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
+        }
     }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
+
+    useEffect(() => {
+        cargarDatosIniciales();
+    }, [cargarDatosIniciales]);
 
     useEffect(() => {
         if (resultadosProcesados) {

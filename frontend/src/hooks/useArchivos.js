@@ -49,15 +49,16 @@ const useArchivos = () => {
                 nombreOriginal: archivo.name,
                 nombreBackend: archivosBackend[index],
                 archivo: archivo,
-                hojas: [], 
+                hojas: [],
             }));
 
             setArchivos((prev) => [...prev, ...nuevosArchivos]);
 
             if (nuevosArchivos.length > 0) {
-                setArchivoSeleccionado(nuevosArchivos[0]);
+                const primerArchivo = nuevosArchivos[0];
+                setArchivoSeleccionado(primerArchivo);
                 setHojasSeleccionadas([]); 
-                obtenerHojas(nuevosArchivos[0].nombreBackend);
+                obtenerHojas(primerArchivo.nombreBackend); 
             }
 
         } catch (err) {
@@ -75,10 +76,16 @@ const useArchivos = () => {
 
         try {
             const response = await axios.get(`${API_URL}/hojas/${nombreBackend}`);
+            const hojas = response.data.hojas || [];
             setHojasPorArchivo((prev) => ({
                 ...prev,
-                [nombreBackend]: response.data.hojas || [],
+                [nombreBackend]: hojas,
             }));
+
+            if (hojas.length > 0) {
+                setHojasSeleccionadas([hojas[0]]);
+                obtenerDatos(nombreBackend, [hojas[0]]);
+            }
         } catch (error) {
             console.error('Error al obtener las hojas:', error);
             alert(`Error al obtener las hojas para ${nombreBackend}`);
@@ -87,13 +94,13 @@ const useArchivos = () => {
 
     const obtenerDatos = async (nombreBackend, hojas) => {
         if (!nombreBackend || !Array.isArray(hojas) || hojas.length === 0) {
-            alert('Por favor selecciona al menos una hoja.');
+            console.log('obtenerDatos llamado sin hojas seleccionadas.');
             return;
         }
 
         try {
             setLoading(true);
-            console.log('Llamando a la API para obtener datos...');
+            console.log('Llamando a la API para obtener datos de las hojas:', hojas);
             const response = await axios.post(
                 `${API_URL}/archivos/datos`,
                 { filename: nombreBackend, hojas },
@@ -178,7 +185,7 @@ const useArchivos = () => {
         datosPorArchivo,
         columnasPorArchivo,
         cargarArchivos,
-        obtenerHojas, 
+        obtenerHojas,
         obtenerDatos,
         datosCombinados,
         procesarExcel,
