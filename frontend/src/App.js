@@ -125,13 +125,15 @@ const App = () => {
     }, [archivoSeleccionado, obtenerHojas, hojasPorArchivo]);
 
     useEffect(() => {
-        if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
-            const hojas = hojasPorArchivo[archivoSeleccionado.nombreBackend];
-            if (hojas.length > 0 && hojasSeleccionadas.length === 0) {
-                setHojasSeleccionadas([hojas[0]]);
-            }
-        }
-    }, [archivoSeleccionado, hojasPorArchivo, hojasSeleccionadas, setHojasSeleccionadas]);
+    if (
+        archivoSeleccionado?.nombreBackend &&
+        hojasSeleccionadas.length > 0 &&
+        !datosPorArchivo[archivoSeleccionado.nombreBackend]?.combinado
+    ) {
+        console.log('Cargando datos desde App.js useEffect...');
+        obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
+    }
+}, [archivoSeleccionado, hojasSeleccionadas, datosPorArchivo, obtenerDatos]);
 
     const datos = datosCombinados();
     console.log('datosCombinados (App.js):', datos);

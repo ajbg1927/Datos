@@ -57,25 +57,24 @@ const useArchivos = () => {
     }, []);
 
     const obtenerHojas = useCallback(async (nombreBackend) => {
-        if (!nombreBackend) return;
+    if (!nombreBackend) return;
 
-        try {
-            const response = await axios.get(`${API_URL}/hojas/${nombreBackend}`);
-            const hojas = response.data.hojas || [];
-            setHojasPorArchivo((prev) => ({
-                ...prev,
-                [nombreBackend]: hojas,
-            }));
+    try {
+        const response = await axios.get(`${API_URL}/hojas/${nombreBackend}`);
+        const hojas = response.data.hojas || [];
+        setHojasPorArchivo((prev) => ({
+            ...prev,
+            [nombreBackend]: hojas,
+        }));
 
-            if (hojas.length > 0) {
-                setHojasSeleccionadas([hojas[0]]);
-                obtenerDatos(nombreBackend, [hojas[0]]);
-            }
-        } catch (error) {
-            console.error('Error al obtener las hojas:', error);
-            alert(`Error al obtener las hojas para ${nombreBackend}`);
+        if (hojas.length > 0) {
+            setHojasSeleccionadas([hojas[0]]); 
         }
-    }, [obtenerDatos]);
+    } catch (error) {
+        console.error('Error al obtener las hojas:', error);
+        alert(`Error al obtener las hojas para ${nombreBackend}`);
+    }
+}, []);
 
     const cargarArchivos = useCallback(async (archivosInput) => {
         if (!archivosInput || archivosInput.length === 0) {
