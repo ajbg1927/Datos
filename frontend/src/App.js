@@ -24,10 +24,10 @@ import useArchivos from './hooks/useArchivos';
 import useFiltrosAvanzado from './hooks/useFiltrosAvanzado';
 import useExportaciones from './hooks/useExportaciones';
 
+import procesarExcel from './utils/procesarExcel'; // << integración aquí
 import axios from 'axios';
 
 const API_URL = 'https://backend-flask-u76y.onrender.com';
-const LOCAL_STORAGE_KEY = 'dataAnalysisAppState';
 
 const App = () => {
     const {
@@ -55,13 +55,22 @@ const App = () => {
     const [topNGrafico, setTopNGrafico] = useState(10);
     const [mostrarPorcentajeBarras, setMostrarPorcentajeBarras] = useState(false);
 
+    const [resultadosProcesados, setResultadosProcesados] = useState(null); // << nuevo estado
+
     useEffect(() => {
-        if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
-            console.log('Archivo seleccionado:', archivoSeleccionado);
-            console.log('Hojas seleccionadas:', hojasSeleccionadas);
-            obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
-        }
-    }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
+        const procesar = async () => {
+            if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
+                await obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
+
+                // Procesamiento adicional con util
+                const datos = datosCombinados();
+                const resultados = procesarExcel(datos);
+                setResultadosProcesados(resultados);
+                console.log('Resultados procesados:', resultados);
+            }
+        };
+        procesar();
+    }, [archivoSeleccionado, hojasSeleccionadas]);
 
     useEffect(() => {
         if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
@@ -262,7 +271,11 @@ const App = () => {
                             mostrarPorcentajeBarras={mostrarPorcentajeBarras}
                             setMostrarPorcentajeBarras={setMostrarPorcentajeBarras}
                         />
-                        <ResumenGeneral datos={datosFiltrados} columnaValor={columnaValor} />
+                        <ResumenGeneral
+                            datos={datosFiltrados}
+                            columnaValor={columnaValor}
+                            resultadosProcesados={resultadosProcesados} // nuevo prop
+                        />
                         <Graficos
                             datos={datosFiltrados}
                             columnaAgrupacion={columnaAgrupar}

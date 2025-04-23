@@ -56,6 +56,7 @@ const useArchivos = () => {
         nuevosArchivos.push({
           nombreOriginal,
           nombreBackend,
+          archivo,
           hojas,
         });
 
@@ -123,6 +124,34 @@ const useArchivos = () => {
     return datosArchivo.combinado || [];
   };
 
+  const procesarExcel = async ({ archivo, hoja = 'Hoja1', dependencia = '' }) => {
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append('archivo', archivo);
+      formData.append('hoja', hoja);
+      if (dependencia) formData.append('dependencia', dependencia);
+
+      const response = await axios.post(`${API_URL}/procesar_excel`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      const { tablas } = response.data;
+      setDatosPorArchivo((prev) => ({
+        ...prev,
+        [archivo.name]: tablas,
+      }));
+
+      return tablas;
+    } catch (error) {
+      console.error('Error procesando el Excel:', error);
+      setError('Error procesando el archivo');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     archivos,
     archivoSeleccionado,
@@ -135,6 +164,7 @@ const useArchivos = () => {
     cargarArchivos,
     obtenerDatos,
     datosCombinados,
+    procesarExcel,
     loading,
     error,
     reset,
