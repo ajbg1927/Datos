@@ -42,21 +42,22 @@ const useArchivos = () => {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
 
+            console.log('Respuesta de /subir:', respuesta.data); 
+
             const archivosBackend = respuesta.data.archivos || [];
-            const hojasPorArchivoResponse = respuesta.data.hojas_por_archivo || {};
             const nuevosArchivos = archivosInput.map((archivo, index) => ({
                 nombreOriginal: archivo.name,
                 nombreBackend: archivosBackend[index],
                 archivo: archivo,
-                hojas: hojasPorArchivoResponse[archivosBackend[index]] || [],
+                hojas: [], 
             }));
 
             setArchivos((prev) => [...prev, ...nuevosArchivos]);
-            setHojasPorArchivo((prev) => ({ ...prev, ...hojasPorArchivoResponse }));
 
             if (nuevosArchivos.length > 0) {
                 setArchivoSeleccionado(nuevosArchivos[0]);
-                setHojasSeleccionadas(nuevosArchivos[0].hojas.length > 0 ? [nuevosArchivos[0].hojas[0]] : []);
+                setHojasSeleccionadas([]); 
+                obtenerHojas(nuevosArchivos[0].nombreBackend);
             }
 
         } catch (err) {
@@ -66,6 +67,21 @@ const useArchivos = () => {
             setError(errorMessage);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const obtenerHojas = async (nombreBackend) => {
+        if (!nombreBackend) return;
+
+        try {
+            const response = await axios.get(`${API_URL}/hojas/${nombreBackend}`);
+            setHojasPorArchivo((prev) => ({
+                ...prev,
+                [nombreBackend]: response.data.hojas || [],
+            }));
+        } catch (error) {
+            console.error('Error al obtener las hojas:', error);
+            alert(`Error al obtener las hojas para ${nombreBackend}`);
         }
     };
 
@@ -162,6 +178,7 @@ const useArchivos = () => {
         datosPorArchivo,
         columnasPorArchivo,
         cargarArchivos,
+        obtenerHojas, 
         obtenerDatos,
         datosCombinados,
         procesarExcel,

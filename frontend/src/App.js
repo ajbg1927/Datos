@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Container,
-    TextField,
-    MenuItem,
-    Typography,
-    CircularProgress,
     Box,
+    CircularProgress,
     Paper,
-    Tabs,
     Tab,
+    Tabs,
+    Typography,
 } from '@mui/material';
 
 import Layout from './components/Layout';
@@ -44,26 +41,21 @@ const App = () => {
         obtenerDatos,
         datosCombinados,
         cargarArchivos,
-        procesarExcel, 
+        obtenerHojas, // Importamos obtenerHojas
     } = useArchivos();
 
     const [filtros, setFiltros] = useState({});
     const [columnaAgrupar, setColumnaAgrupar] = useState('');
     const [columnaValor, setColumnaValor] = useState('');
     const [isLoadingUpload, setIsLoadingUpload] = useState(false);
-    const [tipoGrafico, setTipoGrafico] = useState('Barras');
-    const [paleta, setPaleta] = useState('Institucional');
-    const [ordenarGrafico, setOrdenarGrafico] = useState(true);
-    const [topNGrafico, setTopNGrafico] = useState(10);
-    const [mostrarPorcentajeBarras, setMostrarPorcentajeBarras] = useState(false);
     const [tabValue, setTabValue] = useState(0);
     const [informeData, setInformeData] = useState(null);
     const [ejecucionData, setEjecucionData] = useState(null);
     const [corAbiertosData, setCorAbiertosData] = useState(null);
     const [ppAbiertosData, setPpAbiertosData] = useState(null);
     const [ticData, setTicData] = useState([]);
-    const [resultadosProcesados, setResultadosProcesados] = useState(null); 
-    const [ticProcesado, setTicProcesado] = useState(false); 
+    const [resultadosProcesados, setResultadosProcesados] = useState(null);
+    const [ticProcesado, setTicProcesado] = useState(false);
 
     const ticKeywords = [
         "FUNCIONAMIENTO",
@@ -106,14 +98,20 @@ const App = () => {
                 if (tabla.data && tabla.data.length > 0 && tabla.data[0]) {
                     const headers = Object.keys(tabla.data[0]);
                     const matches = headers.filter(header => ticKeywords.includes(header.toUpperCase()));
-                    return matches.length >= 3; 
+                    return matches.length >= 3;
                 }
                 return false;
             });
             setTicData(ticTables);
-            setTicProcesado(true); 
+            setTicProcesado(true);
         }
     }, [resultadosProcesados, ticKeywords]);
+
+    useEffect(() => {
+        if (archivoSeleccionado && !hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
+            obtenerHojas(archivoSeleccionado.nombreBackend);
+        }
+    }, [archivoSeleccionado, obtenerHojas, hojasPorArchivo]);
 
     useEffect(() => {
         if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
@@ -230,16 +228,16 @@ const App = () => {
     const handleProcesarTIC = async () => {
         if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
             const formData = new FormData();
-            formData.append('nombreBackend', archivoSeleccionado.nombreBackend); 
+            formData.append('nombreBackend', archivoSeleccionado.nombreBackend);
             formData.append('hoja', hojasSeleccionadas[0]);
             formData.append('dependencia', 'DIRECCION DE LAS TIC');
             try {
                 const response = await axios.post(`${API_URL}/procesar_excel`, formData, {
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded', 
+                        'Content-Type': 'application/x-www-form-urlencoded',
                     },
                 });
-                const resultados = response.data.tablas; 
+                const resultados = response.data.tablas;
                 setResultadosProcesados(resultados);
                 console.log('Resultados procesados:', resultados);
             } catch (error) {
