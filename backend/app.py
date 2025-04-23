@@ -180,7 +180,7 @@ def obtener_datos_archivo():
             print(f"Error: Archivo '{filename}' no encontrado")
             return jsonify({"error": f"Archivo '{filename}' no encontrado"}), 400
 
-        xls = pd.ExcelFile(filepath)
+        xls = pd.ExcelFile(filepath) # Abre el archivo una sola vez
         datos_totales = []
         row_id = 1
 
