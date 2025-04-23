@@ -53,35 +53,35 @@ const App = () => {
     const [topNGrafico, setTopNGrafico] = useState(10);
     const [mostrarPorcentajeBarras, setMostrarPorcentajeBarras] = useState(false);
 
-    const [resultadosProcesados, setResultadosProcesados] = useState(null); // << nuevo estado
+    const [resultadosProcesados, setResultadosProcesados] = useState(null); // Nuevo estado
 
     useEffect(() => {
-    const procesar = async () => {
-        if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
-            await obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
+        const procesar = async () => {
+            if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
+                await obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
 
-            const formData = new FormData();
-            formData.append('archivo', archivoSeleccionado);  
-            formData.append('hoja', hojasSeleccionadas[0]);  
-            formData.append('dependencia', dependenciaSeleccionada);  
+                const formData = new FormData();
+                formData.append('archivo', archivoSeleccionado.archivo);
+                formData.append('hoja', hojasSeleccionadas[0]);
+                formData.append('dependencia', 'DIRECCION DE LAS TIC');
 
-            try {
-                const response = await axios.post(`${API_URL}/procesar_excel`, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data', // Necesario para enviar archivos
-                    },
-                });
+                try {
+                    const response = await axios.post(`${API_URL}/procesar_excel`, formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    });
 
-                const resultados = response.data;
-                setResultadosProcesados(resultados);
-                console.log('Resultados procesados:', resultados);
-            } catch (error) {
-                console.error('Error al procesar los datos:', error);
+                    const resultados = response.data;
+                    setResultadosProcesados(resultados);
+                    console.log('Resultados procesados:', resultados);
+                } catch (error) {
+                    console.error('Error al procesar los datos:', error);
+                }
             }
-        }
-    };
-    procesar();
-}, [archivoSeleccionado, hojasSeleccionadas, datosCombinados]);
+        };
+        procesar();
+    }, [archivoSeleccionado, hojasSeleccionadas]);
 
     useEffect(() => {
         if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
@@ -252,7 +252,29 @@ const App = () => {
                 </Paper>
             )}
 
-            {datos.length > 0 && (
+            {resultadosProcesados && resultadosProcesados.length > 0 ? (
+                <Box display="flex" flexDirection="column" gap={3}>
+                    {resultadosProcesados.map((tabla, index) => (
+                        <Paper elevation={2} sx={{ p: 3 }} key={index}>
+                            <Typography variant="h6" gutterBottom>
+                                📄 {tabla.nombre || `Tabla ${index + 1}`}
+                            </Typography>
+                            {tabla.data && tabla.data.length > 0 ? (
+                                <TablaDatos datos={tabla.data} columnas={tabla.headers || Object.keys(tabla.data[0] || {})} />
+                            ) : (
+                                <Typography variant="body2" color="textSecondary">No hay datos en esta tabla.</Typography>
+                            )}
+                        </Paper>
+                    ))}
+                    <Paper elevation={2} sx={{ p: 2 }}>
+                        <ExportButtons
+                            datos={datosFiltrados} // Considerar cómo exportar múltiples tablas
+                            columnas={columnas || []}
+                            onExport={handleExportar}
+                        />
+                    </Paper>
+                </Box>
+            ) : datos.length > 0 && (
                 <Box display="flex" flexDirection="column" gap={3}>
                     <Paper elevation={2} sx={{ p: 3 }}>
                         <Typography variant="h6" gutterBottom>
@@ -285,7 +307,7 @@ const App = () => {
                         <ResumenGeneral
                             datos={datosFiltrados}
                             columnaValor={columnaValor}
-                            resultadosProcesados={resultadosProcesados} // nuevo prop
+                            resultadosProcesados={resultadosProcesados}
                         />
                         <Graficos
                             datos={datosFiltrados}

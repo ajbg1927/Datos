@@ -276,7 +276,7 @@ def cargar():
 def procesar_excel():
     archivo = request.files['archivo']
     nombre_hoja = request.form.get('hoja', 'Hoja1')
-    dependencia = request.form.get('dependencia') 
+    dependencia = request.form.get('dependencia')
 
     ruta_temporal = f"/tmp/{archivo.filename}"
     archivo.save(ruta_temporal)
@@ -287,7 +287,7 @@ def procesar_excel():
             nombre_hoja=nombre_hoja,
             filtro_dependencia=dependencia
         )
-        return jsonify({"status": "ok", "tablas": resultado})
+        return jsonify(resultado["tablas"]) 
     except Exception as e:
         return jsonify({"status": "error", "detalle": str(e)}), 500
     finally:
