@@ -77,10 +77,12 @@ const App = () => {
     ];
 
     const cargarDatosIniciales = useCallback(async () => {
+        console.log('cargarDatosIniciales ejecutado con:', archivoSeleccionado, hojasSeleccionadas);
         if (archivoSeleccionado?.nombreBackend && hojasSeleccionadas.length > 0) {
             await obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
+            console.log('Datos obtenidos (App.js):', datosPorArchivo);
         }
-    }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
+    }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos, datosPorArchivo]); 
 
     useEffect(() => {
         cargarDatosIniciales();
@@ -129,6 +131,7 @@ const App = () => {
     }, [archivoSeleccionado, hojasPorArchivo, setHojasSeleccionadas]);
 
     const datos = datosCombinados();
+    console.log('datosCombinados (App.js):', datos);
 
     const columnasSet = new Set();
     datos.forEach((row) => {
