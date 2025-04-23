@@ -156,36 +156,27 @@ def obtener_datos(filename):
 @app.route("/archivos/datos", methods=["POST"])
 def obtener_datos_archivo():
     data = request.get_json()
-    print(f"Datos recibidos en el backend: {data}")
     if not data:
-        print("Error: No se recibieron datos en la solicitud")
         return jsonify({"error": "No se recibieron datos en la solicitud"}), 400
 
     filename = data.get("filename")
     hojas = data.get("hojas")
-    print(f"Filename recibido: {filename}")
-    print(f"Hojas recibidas: {hojas}")
 
     if not filename:
-        print("Error: Nombre de archivo no proporcionado")
         return jsonify({"error": "Nombre de archivo no proporcionado"}), 400
     if not hojas or not isinstance(hojas, list):
-        print("Error: Lista de hojas no proporcionada o inválida")
         return jsonify({"error": "Lista de hojas no proporcionada o inválida"}), 400
 
     try:
         filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-        print(f"Filepath a intentar abrir: {filepath}")
         if not os.path.exists(filepath):
-            print(f"Error: Archivo '{filename}' no encontrado")
-            return jsonify({"error": f"Archivo '{filename}' no encontrado"}), 400
+            return jsonify({"error": f"Archivo '{filename}' no encontrado"}), 404
 
-        xls = pd.ExcelFile(filepath) # Abre el archivo una sola vez
+        xls = pd.ExcelFile(filepath)
         datos_totales = []
         row_id = 1
 
         for hoja in hojas:
-            print(f"Procesando hoja: {hoja}")
             if hoja in xls.sheet_names:
                 try:
                     df = pd.read_excel(xls, sheet_name=hoja, dtype=str)
@@ -194,21 +185,11 @@ def obtener_datos_archivo():
                     row_id += len(df)
                     df["Hoja"] = hoja
                     datos_totales.extend(df.to_dict(orient="records"))
-                    print(f"Hoja '{hoja}' procesada. Filas: {len(df)}")
                 except Exception as e:
-                    print(f"Error al leer la hoja '{hoja}': {e}")
                     return jsonify({"error": f"Error al leer la hoja '{hoja}': {str(e)}"}), 500
-            else:
-                print(f"Advertencia: La hoja '{hoja}' no existe en el archivo '{filename}'.")
 
-        print(f"Datos totales a enviar: {len(datos_totales)} registros")
         return jsonify({"datos": datos_totales})
-
-    except FileNotFoundError:
-        print(f"Error: Archivo '{filename}' no encontrado (FileNotFoundError)")
-        return jsonify({"error": f"Archivo '{filename}' no encontrado"}), 404
     except Exception as e:
-        print(f"Error general al procesar el archivo '{filename}': {e}")
         return jsonify({"error": f"Error al procesar el archivo '{filename}': {str(e)}"}), 500
 
 @app.route("/datos", methods=["POST"])
@@ -364,10 +345,13 @@ def listar_archivos_con_hojas():
 def procesar_todos_los_archivos():
     archivos = os.listdir(UPLOAD_FOLDER)
     if not archivos:
-        print("No hay archivos en la carpeta '/tmp'.")
-    else:
-        for archivo in archivos:
-            procesar_excel(os.path.join(UPLOAD_FOLDER, archivo))
+        print("No hay archivos en la carpeta '/uploads'.")
+        return
+    for archivo in archivos:
+        try:
+            procesar_excel(archivo)
+        except Exception as e:
+            print(f"Error al procesar el archivo {archivo}: {e}")
 
 def procesar_excel(nombre_archivo, app):
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], nombre_archivo)
