@@ -69,30 +69,17 @@ const App = () => {
     ];
 
     useEffect(() => {
-        if (
-            archivoSeleccionado?.nombreBackend &&
-            hojasSeleccionadas.length > 0 &&
-            !datosPorArchivo[archivoSeleccionado.nombreBackend]?.combinado
-        ) {
+        if (archivoSeleccionado?.nombreBackend && hojasSeleccionadas.length > 0) {
             console.log('Cargando datos desde App.js useEffect...');
             obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
         }
-    }, [archivoSeleccionado, hojasSeleccionadas, datosPorArchivo, obtenerDatos]);
+    }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
 
     useEffect(() => {
         if (archivoSeleccionado && !hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
             obtenerHojas(archivoSeleccionado.nombreBackend);
         }
     }, [archivoSeleccionado, obtenerHojas, hojasPorArchivo]);
-
-    useEffect(() => {
-        if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
-            const hojas = hojasPorArchivo[archivoSeleccionado.nombreBackend];
-            if (hojas.length > 0 && hojasSeleccionadas.length === 0) {
-                setHojasSeleccionadas([hojas[0]]);
-            }
-        }
-    }, [archivoSeleccionado, hojasPorArchivo, hojasSeleccionadas, setHojasSeleccionadas]);
 
     useEffect(() => {
         if (resultadosProcesados) {
@@ -216,7 +203,7 @@ const App = () => {
         }
     };
 
-   return (
+    return (
         <Layout
             sidebar={
                 <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
@@ -324,7 +311,13 @@ const App = () => {
                                     <Typography variant="h6" gutterBottom>
                                         Datos
                                     </Typography>
-                                    <TablaDatos datos={datosFiltrados} columnas={columnas} />
+                                    {datosFiltrados.length > 0 ? (
+                                        <TablaDatos datos={datosFiltrados} columnas={columnas} />
+                                    ) : (
+                                        <Typography variant="body1" color="textSecondary">
+                                            No hay datos para mostrar o aún se están cargando.
+                                        </Typography>
+                                    )}
                                 </Paper>
 
                                 <Paper elevation={2} sx={{ p: 3 }}>
