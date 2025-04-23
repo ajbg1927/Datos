@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react'; 
 import axios from 'axios';
 
 const API_URL = 'https://backend-flask-u76y.onrender.com';
@@ -13,7 +13,7 @@ const useArchivos = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const reset = () => {
+    const reset = useCallback(() => { 
         setArchivos([]);
         setArchivoSeleccionado(null);
         setHojasSeleccionadas([]);
@@ -22,9 +22,9 @@ const useArchivos = () => {
         setColumnasPorArchivo({});
         setError(null);
         setLoading(false);
-    };
+    }, []); 
 
-    const cargarArchivos = async (archivosInput) => {
+    const cargarArchivos = useCallback(async (archivosInput) => { 
         if (!archivosInput || archivosInput.length === 0) {
             alert("No se seleccionaron archivos.");
             return;
@@ -69,9 +69,9 @@ const useArchivos = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [obtenerHojas, setArchivoSeleccionado, setArchivos, setHojasSeleccionadas, setLoading, setError]); 
 
-    const obtenerHojas = async (nombreBackend) => {
+    const obtenerHojas = useCallback(async (nombreBackend) => { 
         if (!nombreBackend) return;
 
         try {
@@ -90,9 +90,9 @@ const useArchivos = () => {
             console.error('Error al obtener las hojas:', error);
             alert(`Error al obtener las hojas para ${nombreBackend}`);
         }
-    };
+    }, [obtenerDatos, setHojasPorArchivo, setHojasSeleccionadas]); 
 
-    const obtenerDatos = async (nombreBackend, hojas) => {
+    const obtenerDatos = useCallback(async (nombreBackend, hojas) => { 
         if (!nombreBackend || !Array.isArray(hojas) || hojas.length === 0) {
             console.log('obtenerDatos llamado sin hojas seleccionadas.');
             return;
@@ -100,7 +100,7 @@ const useArchivos = () => {
 
         try {
             setLoading(true);
-            console.log('Llamando a obtenerDatos con:', nombreBackend, hojas); // AGREGADO: Log al inicio de la función
+            console.log('Llamando a obtenerDatos con:', nombreBackend, hojas);
             const response = await axios.post(
                 `${API_URL}/archivos/datos`,
                 { filename: nombreBackend, hojas },
@@ -133,15 +133,15 @@ const useArchivos = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [setColumnasPorArchivo, setDatosPorArchivo, setLoading, setError]); 
 
-    const datosCombinados = () => {
+    const datosCombinados = useCallback(() => { 
         if (!archivoSeleccionado || hojasSeleccionadas.length === 0) return [];
         const datosArchivo = datosPorArchivo[archivoSeleccionado.nombreBackend] || {};
         return datosArchivo.combinado || [];
-    };
+    }, [archivoSeleccionado, datosPorArchivo, hojasSeleccionadas]); 
 
-    const procesarExcel = async ({ nombreBackend, hoja = 'Hoja1', dependencia = '' }) => {
+    const procesarExcel = useCallback(async ({ nombreBackend, hoja = 'Hoja1', dependencia = '' }) => { 
         if (!nombreBackend) {
             console.error('Error: nombreBackend no proporcionado para procesarExcel');
             setError('Error al procesar el archivo');
@@ -173,7 +173,7 @@ const useArchivos = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [setError, setLoading, setDatosPorArchivo]); 
 
     return {
         archivos,
