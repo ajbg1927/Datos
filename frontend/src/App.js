@@ -59,8 +59,23 @@ const App = () => {
     const [ejecucionData, setEjecucionData] = useState(null);
     const [corAbiertosData, setCorAbiertosData] = useState(null);
     const [ppAbiertosData, setPpAbiertosData] = useState(null);
+    const [ticData, setTicData] = useState([]); 
 
     const [resultadosProcesados, setResultadosProcesados] = useState(null); // Nuevo estado
+
+    const ticKeywords = [
+        "FUNCIONAMIENTO",
+        "INVERSION",
+        "CUENTAS POR PAGAR",
+        "CDP",
+        "VALOR CDP",
+        "DIAS ABIERTOS",
+        "RP",
+        "VALOR INICIAL",
+        "PAGOS",
+        "DIAS",
+        "% GASTO"
+    ];
 
     useEffect(() => {
         const procesar = async () => {
@@ -93,7 +108,7 @@ const App = () => {
     useEffect(() => {
         if (resultadosProcesados) {
             const informe = resultadosProcesados.find(tabla => tabla.nombre?.toLowerCase() === 'informe');
-            setInformeData(informe?.data?.[0] || null); 
+            setInformeData(informe?.data?.[0] || null);
 
             const ejecucion = resultadosProcesados.find(tabla => tabla.nombre?.toLowerCase() === 'ejecucion');
             setEjecucionData(ejecucion);
@@ -103,8 +118,19 @@ const App = () => {
 
             const ppAbiertos = resultadosProcesados.find(tabla => tabla.nombre?.toLowerCase() === 'pp abiertos');
             setPpAbiertosData(ppAbiertos);
+
+            // Identificar la información de la Dirección de las Tics
+            const ticTables = resultadosProcesados.filter(tabla => {
+                if (tabla.data && tabla.data.length > 0 && tabla.data[0]) {
+                    const headers = Object.keys(tabla.data[0]);
+                    const matches = headers.filter(header => ticKeywords.includes(header.toUpperCase()));
+                    return matches.length >= 3; // Umbral inicial, podemos ajustarlo
+                }
+                return false;
+            });
+            setTicData(ticTables);
         }
-    }, [resultadosProcesados]);
+    }, [resultadosProcesados, ticKeywords]);
 
     useEffect(() => {
         if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
@@ -222,7 +248,7 @@ const App = () => {
         setTabValue(newValue);
     };
 
-     return (
+    return (
         <Layout
             sidebar={
                 <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
@@ -286,7 +312,8 @@ const App = () => {
                         <Tab label="Ejecución Detallada" id="tab-1" aria-controls="tabpanel-1" />
                         <Tab label="CDP's Abiertos" id="tab-2" aria-controls="tabpanel-2" />
                         <Tab label="PP Abiertos" id="tab-3" aria-controls="tabpanel-3" />
-                        <Tab label="Análisis General" id="tab-4" aria-controls="tabpanel-4" />
+                        <Tab label="Dirección de las Tics" id="tab-4" aria-controls="tabpanel-4" /> {/* Nueva pestaña */}
+                        <Tab label="Análisis General" id="tab-5" aria-controls="tabpanel-5" />
                     </Tabs>
                     <Box sx={{ p: 3 }}>
                         {tabValue === 0 && informeData && (
@@ -317,7 +344,7 @@ const App = () => {
                                 <Paper elevation={2} sx={{ p: 2 }}>
                                     <Typography variant="h6" gutterBottom>Ejecución General</Typography>
                                     {resultadosProcesados
-                                        .find(tabla => tabla.nombre?.toLowerCase() === 'informe')?.data?.slice(0, 3) 
+                                        .find(tabla => tabla.nombre?.toLowerCase() === 'informe')?.data?.slice(0, 3) // Tomar las primeras 3 filas de Ejecución General
                                         .map((row, index) => (
                                             <Box key={index} mb={1}>
                                                 <Typography variant="body2">Tipo: {row['TIPO']}</Typography>
@@ -341,9 +368,7 @@ const App = () => {
                                 <Paper elevation={2} sx={{ p: 2 }}>
                                     <Typography variant="h6" gutterBottom>Registros Presupuestales</Typography>
                                     {resultadosProcesados
-                                        .find(tabla => tabla.nombre?.toLowerCase() === 'informe')?.data?.slice(8, 10) // Tomar las filas de Registros Presupuestales
-                                        .map((row, index) => (
-                                            <Box key={index} mb={1}>
+                                        .find(tabla => tabla.nombre?.toLowerCase() === 'informe')?.data?.slice(8, 10) 
                                                 <Typography variant="body2">RP: {row['RP']}</Typography>
                                                 <Typography variant="body2">Valor Inicial: {row['VALOR INICIAL']}</Typography>
                                                 <Typography variant="body2">Pagos: {row['PAGOS_2']}</Typography>
@@ -363,7 +388,18 @@ const App = () => {
                         {tabValue === 3 && ppAbiertosData?.data && (
                             <TablaDatos datos={ppAbiertosData.data} columnas={ppAbiertosData.headers || Object.keys(ppAbiertosData.data[0] || {})} />
                         )}
-                        {tabValue === 4 && datos.length > 0 && (
+                        {tabValue === 4 && ticData.length > 0 && (
+                            <Box display="flex" flexDirection="column" gap={3}>
+                                <Typography variant="h6" gutterBottom>Información Relevante para la Dirección de las Tics</Typography>
+                                {ticData.map((tabla, index) => (
+                                    <Paper elevation={2} sx={{ p: 3 }} key={index}>
+                                        <Typography variant="subtitle1" gutterBottom>{tabla.nombre || `Tabla ${index + 1}`}</Typography>
+                                        <TablaDatos datos={tabla.data} columnas={tabla.headers || Object.keys(tabla.data[0] || {})} />
+                                    </Paper>
+                                ))}
+                            </Box>
+                        )}
+                        {tabValue === 5 && datos.length > 0 && (
                             <Box display="flex" flexDirection="column" gap={3}>
                                 <Paper elevation={2} sx={{ p: 3 }}>
                                     <Typography variant="h6" gutterBottom>
