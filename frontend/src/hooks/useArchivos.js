@@ -13,16 +13,69 @@ const useArchivos = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const reset = useCallback(() => {
-        setArchivos([]);
-        setArchivoSeleccionado(null);
-        setHojasSeleccionadas([]);
-        setHojasPorArchivo({});
-        setDatosPorArchivo({});
-        setColumnasPorArchivo({});
-        setError(null);
-        setLoading(false);
+    const obtenerDatos = useCallback(async (nombreBackend, hojas) => {
+        if (!nombreBackend || !Array.isArray(hojas) || hojas.length === 0) {
+            console.log('obtenerDatos llamado sin hojas seleccionadas.');
+            return;
+        }
+
+        try {
+            setLoading(true);
+            console.log('Llamando a obtenerDatos con:', nombreBackend, hojas);
+            const response = await axios.post(
+                `${API_URL}/archivos/datos`,
+                { filename: nombreBackend, hojas },
+                { headers: { 'Content-Type': 'application/json' } }
+            );
+
+            const datos = response.data.datos || [];
+            if (!datos || datos.length === 0) {
+                alert('No se encontraron datos para la hoja seleccionada.');
+                return;
+            }
+
+            setDatosPorArchivo((prev) => ({
+                ...prev,
+                [nombreBackend]: {
+                    ...prev[nombreBackend],
+                    combinado: datos,
+                },
+            }));
+
+            if (datos.length > 0) {
+                setColumnasPorArchivo((prev) => ({
+                    ...prev,
+                    [nombreBackend]: Object.keys(datos[0]),
+                }));
+            }
+        } catch (err) {
+            console.error('Error al obtener datos:', err);
+            alert(`Error al obtener datos: ${err?.response?.data?.error || 'Error inesperado'}`);
+        } finally {
+            setLoading(false);
+        }
     }, []);
+
+    const obtenerHojas = useCallback(async (nombreBackend) => {
+        if (!nombreBackend) return;
+
+        try {
+            const response = await axios.get(`${API_URL}/hojas/${nombreBackend}`);
+            const hojas = response.data.hojas || [];
+            setHojasPorArchivo((prev) => ({
+                ...prev,
+                [nombreBackend]: hojas,
+            }));
+
+            if (hojas.length > 0) {
+                setHojasSeleccionadas([hojas[0]]);
+                obtenerDatos(nombreBackend, [hojas[0]]);
+            }
+        } catch (error) {
+            console.error('Error al obtener las hojas:', error);
+            alert(`Error al obtener las hojas para ${nombreBackend}`);
+        }
+    }, [obtenerDatos]);
 
     const cargarArchivos = useCallback(async (archivosInput) => {
         if (!archivosInput || archivosInput.length === 0) {
@@ -69,71 +122,7 @@ const useArchivos = () => {
         } finally {
             setLoading(false);
         }
-    }, [obtenerHojas, setArchivoSeleccionado, setArchivos, setHojasSeleccionadas, setLoading, setError]);
-
-    const obtenerHojas = useCallback(async (nombreBackend) => {
-        if (!nombreBackend) return;
-
-        try {
-            const response = await axios.get(`${API_URL}/hojas/${nombreBackend}`);
-            const hojas = response.data.hojas || [];
-            setHojasPorArchivo((prev) => ({
-                ...prev,
-                [nombreBackend]: hojas,
-            }));
-
-            if (hojas.length > 0) {
-                setHojasSeleccionadas([hojas[0]]);
-                obtenerDatos(nombreBackend, [hojas[0]]);
-            }
-        } catch (error) {
-            console.error('Error al obtener las hojas:', error);
-            alert(`Error al obtener las hojas para ${nombreBackend}`);
-        }
-    }, [obtenerDatos, setHojasPorArchivo, setHojasSeleccionadas]);
-
-    const obtenerDatos = useCallback(async (nombreBackend, hojas) => {
-        if (!nombreBackend || !Array.isArray(hojas) || hojas.length === 0) {
-            console.log('obtenerDatos llamado sin hojas seleccionadas.');
-            return;
-        }
-
-        try {
-            setLoading(true);
-            console.log('Llamando a obtenerDatos con:', nombreBackend, hojas);
-            const response = await axios.post(
-                `${API_URL}/archivos/datos`,
-                { filename: nombreBackend, hojas },
-                { headers: { 'Content-Type': 'application/json' } }
-            );
-
-            const datos = response.data.datos || [];
-            if (!datos || datos.length === 0) {
-                alert('No se encontraron datos para la hoja seleccionada.');
-                return;
-            }
-
-            setDatosPorArchivo((prev) => ({
-                ...prev,
-                [nombreBackend]: {
-                    ...prev[nombreBackend],
-                    combinado: datos,
-                },
-            }));
-
-            if (datos.length > 0) {
-                setColumnasPorArchivo((prev) => ({
-                    ...prev,
-                    [nombreBackend]: Object.keys(datos[0]),
-                }));
-            }
-        } catch (err) {
-            console.error('Error al obtener datos:', err);
-            alert(`Error al obtener datos: ${err?.response?.data?.error || 'Error inesperado'}`);
-        } finally {
-            setLoading(false);
-        }
-    }, [setColumnasPorArchivo, setDatosPorArchivo, setLoading, setError]);
+    }, [obtenerHojas]);
 
     const datosCombinados = useCallback(() => {
         if (!archivoSeleccionado || hojasSeleccionadas.length === 0) return [];
@@ -173,7 +162,18 @@ const useArchivos = () => {
         } finally {
             setLoading(false);
         }
-    }, [setError, setLoading, setDatosPorArchivo]);
+    }, []);
+
+    const reset = useCallback(() => {
+        setArchivos([]);
+        setArchivoSeleccionado(null);
+        setHojasSeleccionadas([]);
+        setHojasPorArchivo({});
+        setDatosPorArchivo({});
+        setColumnasPorArchivo({});
+        setError(null);
+        setLoading(false);
+    }, []);
 
     return {
         archivos,
