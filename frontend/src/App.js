@@ -368,14 +368,16 @@ const App = () => {
                                 <Paper elevation={2} sx={{ p: 2 }}>
                                     <Typography variant="h6" gutterBottom>Registros Presupuestales</Typography>
                                     {resultadosProcesados
-                                        .find(tabla => tabla.nombre?.toLowerCase() === 'informe')?.data?.slice(8, 10) 
-                                                <Typography variant="body2">RP: {row['RP']}</Typography>
-                                                <Typography variant="body2">Valor Inicial: {row['VALOR INICIAL']}</Typography>
-                                                <Typography variant="body2">Pagos: {row['PAGOS_2']}</Typography>
-                                                <Typography variant="body2">Días: {row['DIAS']}</Typography>
-                                                <Typography variant="body2">% Gasto: {row['% GASTO']}</Typography>
-                                            </Box>
-                                        ))}
+                                        .find(tabla => tabla.nombre?.toLowerCase() === 'informe')?.data?.slice(8, 12) // Tomar las filas de Registros Presupuestales (ajusté el slice)
+                                        .map((row, index) => (
+                                        <Box key={index} mb={1}>
+                                        <Typography variant="body2">RP: {row['RP']}</Typography>
+                                        <Typography variant="body2">Valor Inicial: {row['VALOR INICIAL']}</Typography>
+                                        <Typography variant="body2">Pagos: {row['PAGOS_2']}</Typography>
+                                        <Typography variant="body2">Días: {row['DIAS']}</Typography>
+                                        <Typography variant="body2">% Gasto: {row['% GASTO']}</Typography>
+                                        </Box>
+                                    ))}
                                 </Paper>
                             </Box>
                         )}
