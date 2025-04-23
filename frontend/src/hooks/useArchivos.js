@@ -37,6 +37,7 @@ const useArchivos = () => {
 
     try {
       setLoading(true);
+      console.log('Llamando a la API para cargar archivos...');
       const respuesta = await axios.post(`${API_URL}/subir`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
@@ -73,8 +74,9 @@ const useArchivos = () => {
       }
     } catch (err) {
       console.error('Error al cargar archivos:', err);
-      alert(`Error al cargar archivos: ${err?.response?.data?.error || 'Error inesperado'}`);
-      setError(err.message || 'Error inesperado');
+      const errorMessage = err.response?.data?.error || 'Error inesperado';
+      alert(`Error al cargar archivos: ${errorMessage}`);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -88,6 +90,7 @@ const useArchivos = () => {
 
     try {
       setLoading(true);
+      console.log('Llamando a la API para obtener datos...');
       const response = await axios.post(
         `${API_URL}/archivos/datos`,
         { filename: nombreBackend, hojas },
@@ -95,6 +98,10 @@ const useArchivos = () => {
       );
 
       const datos = response.data.datos || [];
+      if (!datos || datos.length === 0) {
+        alert('No se encontraron datos para la hoja seleccionada.');
+        return;
+      }
 
       setDatosPorArchivo((prev) => ({
         ...prev,
