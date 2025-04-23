@@ -56,19 +56,25 @@ const App = () => {
     const [resultadosProcesados, setResultadosProcesados] = useState(null); // << nuevo estado
 
     useEffect(() => {
-        const procesar = async () => {
-            if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
-                await obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
+    const procesar = async () => {
+        if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
+            await obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
 
-                // Procesamiento adicional con util
-                const datos = datosCombinados();
-                const resultados = procesarExcel(datos);
+            try {
+                const response = await axios.post(`${API_URL}/procesar_excel`, {
+                    datos: datosCombinados(),  
+                });
+
+                const resultados = response.data; 
                 setResultadosProcesados(resultados);
                 console.log('Resultados procesados:', resultados);
+            } catch (error) {
+                console.error('Error al procesar los datos:', error);
             }
-        };
-        procesar();
-    }, [archivoSeleccionado, hojasSeleccionadas]);
+        }
+    };
+    procesar();
+}, [archivoSeleccionado, hojasSeleccionadas, datosCombinados]);
 
     useEffect(() => {
         if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
