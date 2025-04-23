@@ -7,6 +7,8 @@ import {
     CircularProgress,
     Box,
     Paper,
+    Tabs,
+    Tab,
 } from '@mui/material';
 
 import Layout from './components/Layout';
@@ -52,6 +54,11 @@ const App = () => {
     const [ordenarGrafico, setOrdenarGrafico] = useState(true);
     const [topNGrafico, setTopNGrafico] = useState(10);
     const [mostrarPorcentajeBarras, setMostrarPorcentajeBarras] = useState(false);
+    const [tabValue, setTabValue] = useState(0);
+    const [informeData, setInformeData] = useState(null);
+    const [ejecucionData, setEjecucionData] = useState(null);
+    const [corAbiertosData, setCorAbiertosData] = useState(null);
+    const [ppAbiertosData, setPpAbiertosData] = useState(null);
 
     const [resultadosProcesados, setResultadosProcesados] = useState(null); // Nuevo estado
 
@@ -81,7 +88,23 @@ const App = () => {
             }
         };
         procesar();
-    }, [archivoSeleccionado, hojasSeleccionadas]);
+    }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
+
+    useEffect(() => {
+        if (resultadosProcesados) {
+            const informe = resultadosProcesados.find(tabla => tabla.nombre?.toLowerCase() === 'informe');
+            setInformeData(informe?.data?.[0] || null); 
+
+            const ejecucion = resultadosProcesados.find(tabla => tabla.nombre?.toLowerCase() === 'ejecucion');
+            setEjecucionData(ejecucion);
+
+            const corAbiertos = resultadosProcesados.find(tabla => tabla.nombre?.toLowerCase() === 'cor abiertos');
+            setCorAbiertosData(corAbiertos);
+
+            const ppAbiertos = resultadosProcesados.find(tabla => tabla.nombre?.toLowerCase() === 'pp abiertos');
+            setPpAbiertosData(ppAbiertos);
+        }
+    }, [resultadosProcesados]);
 
     useEffect(() => {
         if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
@@ -195,7 +218,11 @@ const App = () => {
         }
     };
 
-    return (
+    const handleChangeTab = (event, newValue) => {
+        setTabValue(newValue);
+    };
+
+     return (
         <Layout
             sidebar={
                 <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
@@ -252,83 +279,148 @@ const App = () => {
                 </Paper>
             )}
 
-            {resultadosProcesados && resultadosProcesados.length > 0 ? (
-                <Box display="flex" flexDirection="column" gap={3}>
-                    {resultadosProcesados.map((tabla, index) => (
-                        <Paper elevation={2} sx={{ p: 3 }} key={index}>
-                            <Typography variant="h6" gutterBottom>
-                                📄 {tabla.nombre || `Tabla ${index + 1}`}
-                            </Typography>
-                            {tabla.data && tabla.data.length > 0 ? (
-                                <TablaDatos datos={tabla.data} columnas={tabla.headers || Object.keys(tabla.data[0] || {})} />
-                            ) : (
-                                <Typography variant="body2" color="textSecondary">No hay datos en esta tabla.</Typography>
-                            )}
-                        </Paper>
-                    ))}
-                    <Paper elevation={2} sx={{ p: 2 }}>
-                        <ExportButtons
-                            datos={datosFiltrados} // Considerar cómo exportar múltiples tablas
-                            columnas={columnas || []}
-                            onExport={handleExportar}
-                        />
-                    </Paper>
-                </Box>
-            ) : datos.length > 0 && (
-                <Box display="flex" flexDirection="column" gap={3}>
-                    <Paper elevation={2} sx={{ p: 3 }}>
-                        <Typography variant="h6" gutterBottom>
-                            📄 Datos
-                        </Typography>
-                        <TablaDatos datos={datosFiltrados} columnas={columnas} />
-                    </Paper>
+            {resultadosProcesados && resultadosProcesados.length > 0 && (
+                <Paper elevation={2} sx={{ width: '100%' }}>
+                    <Tabs value={tabValue} onChange={handleChangeTab} aria-label="basic tabs example">
+                        <Tab label="Resumen TIC" id="tab-0" aria-controls="tabpanel-0" />
+                        <Tab label="Ejecución Detallada" id="tab-1" aria-controls="tabpanel-1" />
+                        <Tab label="CDP's Abiertos" id="tab-2" aria-controls="tabpanel-2" />
+                        <Tab label="PP Abiertos" id="tab-3" aria-controls="tabpanel-3" />
+                        <Tab label="Análisis General" id="tab-4" aria-controls="tabpanel-4" />
+                    </Tabs>
+                    <Box sx={{ p: 3 }}>
+                        {tabValue === 0 && informeData && (
+                            <Box display="grid" gridTemplateColumns="repeat(auto-fit, minmax(300px, 1fr))" gap={2}>
+                                <Paper elevation={2} sx={{ p: 2 }}>
+                                    <Typography variant="h6" gutterBottom>Presupuesto Asignado 2025</Typography>
+                                    <Typography variant="body1">{informeData['PRESUPUESTO ASIGNADO 2025 $']}</Typography>
+                                </Paper>
+                                <Paper elevation={2} sx={{ p: 2 }}>
+                                    <Typography variant="h6" gutterBottom>Monto CDP'S</Typography>
+                                    <Typography variant="body2">Valor Contratos CPS: {informeData['VALOR CONTRATOS CPS']}</Typography>
+                                    <Typography variant="body2">Aprobado: {informeData['APROBADO']}</Typography>
+                                    <Typography variant="body2">Saldo: {informeData['SALDO_1']}</Typography>
+                                    <Typography variant="body2">% de Consumo: {informeData['% DE CONSUMO']}</Typography>
+                                </Paper>
+                                <Paper elevation={2} sx={{ p: 2 }}>
+                                    <Typography variant="h6" gutterBottom>RP's Cuentas por Pagar</Typography>
+                                    <Typography variant="body2">Valor RPC: {informeData['VALOR RPC']}</Typography>
+                                    <Typography variant="body2">Pagos: {informeData['PAGOS']}</Typography>
+                                    <Typography variant="body2">Saldo: {informeData['SALDO_2']}</Typography>
+                                </Paper>
+                                <Paper elevation={2} sx={{ p: 2 }}>
+                                    <Typography variant="h6" gutterBottom>Reservas</Typography>
+                                    <Typography variant="body2">Reservas: {informeData['RESERVAS']}</Typography>
+                                    <Typography variant="body2">Valor: {informeData['VALOR']}</Typography>
+                                    <Typography variant="body2">Pagos: {informeData['PAGOS_1']}</Typography>
+                                </Paper>
+                                <Paper elevation={2} sx={{ p: 2 }}>
+                                    <Typography variant="h6" gutterBottom>Ejecución General</Typography>
+                                    {resultadosProcesados
+                                        .find(tabla => tabla.nombre?.toLowerCase() === 'informe')?.data?.slice(0, 3) 
+                                        .map((row, index) => (
+                                            <Box key={index} mb={1}>
+                                                <Typography variant="body2">Tipo: {row['TIPO']}</Typography>
+                                                <Typography variant="body2">Apropiación Definitiva: {row['APROPIACION DEFINITIVA']}</Typography>
+                                                <Typography variant="body2">% de Ejecución: {row['% EJECUCION']}</Typography>
+                                            </Box>
+                                        ))}
+                                </Paper>
+                                <Paper elevation={2} sx={{ p: 2 }}>
+                                    <Typography variant="h6" gutterBottom>CDP's Abiertos</Typography>
+                                    {resultadosProcesados
+                                        .find(tabla => tabla.nombre?.toLowerCase() === 'informe')?.data?.slice(4, 8) // Tomar las filas de CDP's Abiertos
+                                        .map((row, index) => (
+                                            <Box key={index} mb={1}>
+                                                <Typography variant="body2">CDP: {row['CDP']}</Typography>
+                                                <Typography variant="body2">Valor CDP: {row['VALOR CDP']}</Typography>
+                                                <Typography variant="body2">Días Abiertos: {row['DIAS ABIERTOS']}</Typography>
+                                            </Box>
+                                        ))}
+                                </Paper>
+                                <Paper elevation={2} sx={{ p: 2 }}>
+                                    <Typography variant="h6" gutterBottom>Registros Presupuestales</Typography>
+                                    {resultadosProcesados
+                                        .find(tabla => tabla.nombre?.toLowerCase() === 'informe')?.data?.slice(8, 10) // Tomar las filas de Registros Presupuestales
+                                        .map((row, index) => (
+                                            <Box key={index} mb={1}>
+                                                <Typography variant="body2">RP: {row['RP']}</Typography>
+                                                <Typography variant="body2">Valor Inicial: {row['VALOR INICIAL']}</Typography>
+                                                <Typography variant="body2">Pagos: {row['PAGOS_2']}</Typography>
+                                                <Typography variant="body2">Días: {row['DIAS']}</Typography>
+                                                <Typography variant="body2">% Gasto: {row['% GASTO']}</Typography>
+                                            </Box>
+                                        ))}
+                                </Paper>
+                            </Box>
+                        )}
+                        {tabValue === 1 && ejecucionData?.data && (
+                            <TablaDatos datos={ejecucionData.data} columnas={ejecucionData.headers || Object.keys(ejecucionData.data[0] || {})} />
+                        )}
+                        {tabValue === 2 && corAbiertosData?.data && (
+                            <TablaDatos datos={corAbiertosData.data} columnas={corAbiertosData.headers || Object.keys(corAbiertosData.data[0] || {})} />
+                        )}
+                        {tabValue === 3 && ppAbiertosData?.data && (
+                            <TablaDatos datos={ppAbiertosData.data} columnas={ppAbiertosData.headers || Object.keys(ppAbiertosData.data[0] || {})} />
+                        )}
+                        {tabValue === 4 && datos.length > 0 && (
+                            <Box display="flex" flexDirection="column" gap={3}>
+                                <Paper elevation={2} sx={{ p: 3 }}>
+                                    <Typography variant="h6" gutterBottom>
+                                        📄 Datos
+                                    </Typography>
+                                    <TablaDatos datos={datosFiltrados} columnas={columnas} />
+                                </Paper>
 
-                    <Paper elevation={2} sx={{ p: 3 }}>
-                        <Typography variant="h6" gutterBottom>
-                            📊 Análisis
-                        </Typography>
-                        <SelectoresAgrupacion
-                            columnas={columnas}
-                            columnaAgrupar={columnaAgrupar}
-                            setColumnaAgrupar={setColumnaAgrupar}
-                            columnaValor={columnaValor}
-                            setColumnaValor={setColumnaValor}
-                            tipoGrafico={tipoGrafico}
-                            setTipoGrafico={setTipoGrafico}
-                            paleta={paleta}
-                            setPaleta={setPaleta}
-                            ordenar={ordenarGrafico}
-                            setOrdenar={setOrdenarGrafico}
-                            topN={topNGrafico}
-                            setTopN={setTopNGrafico}
-                            mostrarPorcentajeBarras={mostrarPorcentajeBarras}
-                            setMostrarPorcentajeBarras={setMostrarPorcentajeBarras}
-                        />
-                        <ResumenGeneral
-                            datos={datosFiltrados}
-                            columnaValor={columnaValor}
-                            resultadosProcesados={resultadosProcesados}
-                        />
-                        <Graficos
-                            datos={datosFiltrados}
-                            columnaAgrupacion={columnaAgrupar}
-                            columnaValor={columnaValor}
-                            tipoGrafico={tipoGrafico}
-                            paleta={paleta}
-                            ordenar={ordenarGrafico}
-                            topN={topNGrafico}
-                            mostrarPorcentajeBarras={mostrarPorcentajeBarras}
-                        />
-                    </Paper>
+                                <Paper elevation={2} sx={{ p: 3 }}>
+                                    <Typography variant="h6" gutterBottom>
+                                        📊 Análisis
+                                    </Typography>
+                                    <SelectoresAgrupacion
+                                        columnas={columnas}
+                                        columnaAgrupar={columnaAgrupar}
+                                        setColumnaAgrupar={setColumnaAgrupar}
+                                        columnaValor={columnaValor}
+                                        setColumnaValor={setColumnaValor}
+                                        tipoGrafico={tipoGrafico}
+                                        setTipoGrafico={setTipoGrafico}
+                                        paleta={paleta}
+                                        setPaleta={setPaleta}
+                                        ordenar={ordenarGrafico}
+                                        setOrdenar={setOrdenarGrafico}
+                                        topN={topNGrafico}
+                                        setTopN={setTopNGrafico}
+                                        mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+                                        setMostrarPorcentajeBarras={setMostrarPorcentajeBarras}
+                                    />
+                                    <ResumenGeneral
+                                        datos={datosFiltrados}
+                                        columnaValor={columnaValor}
+                                        resultadosProcesados={resultadosProcesados}
+                                    />
+                                    <Graficos
+                                        datos={datosFiltrados}
+                                        columnaAgrupacion={columnaAgrupar}
+                                        columnaValor={columnaValor}
+                                        tipoGrafico={tipoGrafico}
+                                        paleta={paleta}
+                                        ordenar={ordenarGrafico}
+                                        topN={topNGrafico}
+                                        mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+                                    />
+                                </Paper>
 
-                    <Paper elevation={2} sx={{ p: 2 }}>
-                        <ExportButtons
-                            datos={datosFiltrados}
-                            columnas={columnas || []}
-                            onExport={handleExportar}
-                        />
-                    </Paper>
-                </Box>
+                                <Paper elevation={2} sx={{ p: 2 }}>
+                                    <ExportButtons
+                                        datos={datosFiltrados}
+                                        columnas={columnas || []}
+                                        onExport={handleExportar}
+                                    />
+                                </Paper>
+                            </Box>
+                        )}
+                    </Box>
+                </Paper>
             )}
         </Layout>
     );

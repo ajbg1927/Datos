@@ -1,19 +1,82 @@
 import React from 'react';
-import { Box, Grid, Card, CardContent, Typography } from '@mui/material';
+import {
+  Box,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  useTheme,
+} from '@mui/material';
 import PaidIcon from '@mui/icons-material/Paid';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import ShowChartIcon from '@mui/icons-material/ShowChart';
 
-const ResumenGeneral = ({ datos, columnaValor }) => {
-  if (!datos || datos.length === 0 || !columnaValor) return null;
+const calcularMediana = (valores) => {
+  if (valores.length === 0) return 0;
+  const sorted = [...valores].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0
+    ? (sorted[mid - 1] + sorted[mid]) / 2
+    : sorted[mid];
+};
 
-  const totalRegistros = datos.length;
-  const totalValor = datos.reduce((acc, fila) => acc + (parseFloat(fila[columnaValor]) || 0), 0);
+const getIconForMetric = (tipo) => {
+  switch (tipo) {
+    case 'total': return <PaidIcon />;
+    case 'promedio': return <AccountBalanceIcon />;
+    case 'min': return <TrendingDownIcon />;
+    case 'max': return <TrendingUpIcon />;
+    case 'mediana': return <ShowChartIcon />;
+    case 'conteo': return <AssessmentIcon />;
+    default: return <AssessmentIcon />;
+  }
+};
 
+const getColorForMetric = (tipo) => {
+  switch (tipo) {
+    case 'total': return '#4caf50';
+    case 'promedio': return '#2196f3';
+    case 'min': return '#e53935';
+    case 'max': return '#43a047';
+    case 'mediana': return '#ff9800';
+    case 'conteo': return '#9c27b0';
+    default: return '#607d8b';
+  }
+};
+
+const ResumenGeneral = ({ datos, columnasValor = [] }) => {
+  if (!datos || datos.length === 0 || columnasValor.length === 0) return null;
+
+  const theme = useTheme();
   const formatter = new Intl.NumberFormat('es-CO', {
     style: 'currency',
     currency: 'COP',
     minimumFractionDigits: 0,
+  });
+
+  const metricas = columnasValor.flatMap((columna) => {
+    const valoresNumericos = datos
+      .map((fila) => parseFloat(fila[columna]))
+      .filter((val) => !isNaN(val));
+
+    const total = valoresNumericos.reduce((acc, val) => acc + val, 0);
+    const promedio = total / valoresNumericos.length || 0;
+    const min = Math.min(...valoresNumericos);
+    const max = Math.max(...valoresNumericos);
+    const mediana = calcularMediana(valoresNumericos);
+    const conteo = valoresNumericos.length;
+
+    return [
+      { tipo: 'conteo', label: `# Registros de ${columna}`, valor: conteo },
+      { tipo: 'total', label: `Total ${columna}`, valor: total, esMoneda: true },
+      { tipo: 'promedio', label: `Promedio ${columna}`, valor: promedio, esMoneda: true },
+      { tipo: 'min', label: `Mínimo ${columna}`, valor: min, esMoneda: true },
+      { tipo: 'max', label: `Máximo ${columna}`, valor: max, esMoneda: true },
+      { tipo: 'mediana', label: `Mediana ${columna}`, valor: mediana, esMoneda: true },
+    ];
   });
 
   return (
@@ -23,49 +86,39 @@ const ResumenGeneral = ({ datos, columnaValor }) => {
       </Typography>
 
       <Grid container spacing={3}>
-        <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ backgroundColor: '#f5f5f5', borderLeft: '6px solid #4caf50' }}>
-            <CardContent>
-              <Box display="flex" alignItems="center">
-                <AssessmentIcon sx={{ fontSize: 40, color: '#4caf50', mr: 2 }} />
-                <Box>
-                  <Typography variant="subtitle2">Total registros</Typography>
-                  <Typography variant="h6" fontWeight="bold">{totalRegistros}</Typography>
+        {metricas.map((metrica, idx) => (
+          <Grid item xs={12} sm={6} md={4} lg={3} key={idx}>
+            <Card
+              sx={{
+                backgroundColor: theme.palette.background.paper,
+                borderLeft: `6px solid ${getColorForMetric(metrica.tipo)}`,
+                height: '100%',
+              }}
+            >
+              <CardContent>
+                <Box display="flex" alignItems="center">
+                  <Box
+                    sx={{
+                      fontSize: 40,
+                      color: getColorForMetric(metrica.tipo),
+                      mr: 2,
+                    }}
+                  >
+                    {getIconForMetric(metrica.tipo)}
+                  </Box>
+                  <Box>
+                    <Typography variant="subtitle2">{metrica.label}</Typography>
+                    <Typography variant="h6" fontWeight="bold">
+                      {metrica.esMoneda
+                        ? formatter.format(metrica.valor)
+                        : metrica.valor}
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ backgroundColor: '#f5f5f5', borderLeft: '6px solid #fdd835' }}>
-            <CardContent>
-              <Box display="flex" alignItems="center">
-                <PaidIcon sx={{ fontSize: 40, color: '#fdd835', mr: 2 }} />
-                <Box>
-                  <Typography variant="subtitle2">Total {columnaValor}</Typography>
-                  <Typography variant="h6" fontWeight="bold">{formatter.format(totalValor)}</Typography>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ backgroundColor: '#f5f5f5', borderLeft: '6px solid #2196f3' }}>
-            <CardContent>
-              <Box display="flex" alignItems="center">
-                <AccountBalanceIcon sx={{ fontSize: 40, color: '#2196f3', mr: 2 }} />
-                <Box>
-                  <Typography variant="subtitle2">Valor promedio</Typography>
-                  <Typography variant="h6" fontWeight="bold">
-                    {formatter.format(totalValor / totalRegistros || 0)}
-                  </Typography>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
       </Grid>
     </Box>
   );
