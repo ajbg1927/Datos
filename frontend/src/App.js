@@ -61,6 +61,7 @@ const App = () => {
     const [ticData, setTicData] = useState([]);
     const [resultadosProcesados, setResultadosProcesados] = useState(null);
     const [ticProcesado, setTicProcesado] = useState(false);
+    const [cargandoDatosTabla, setCargandoDatosTabla] = useState(false); 
 
     const ticKeywords = [
         "FUNCIONAMIENTO", "INVERSION", "CUENTAS POR PAGAR", "CDP",
@@ -71,7 +72,9 @@ const App = () => {
     useEffect(() => {
         if (archivoSeleccionado?.nombreBackend && hojasSeleccionadas.length > 0) {
             console.log('Cargando datos desde App.js useEffect...');
-            obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
+            setCargandoDatosTabla(true); // Iniciar carga
+            obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas)
+                .finally(() => setCargandoDatosTabla(false)); // Finalizar carga
         }
     }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
 
@@ -311,11 +314,15 @@ const App = () => {
                                     <Typography variant="h6" gutterBottom>
                                         Datos
                                     </Typography>
-                                    {datosFiltrados.length > 0 ? (
+                                    {cargandoDatosTabla ? (
+                                        <Box display="flex" justifyContent="center">
+                                            <CircularProgress />
+                                        </Box>
+                                    ) : datosFiltrados.length > 0 ? (
                                         <TablaDatos datos={datosFiltrados} columnas={columnas} />
                                     ) : (
                                         <Typography variant="body1" color="textSecondary">
-                                            No hay datos para mostrar o aún se están cargando.
+                                            No hay datos para mostrar con los filtros aplicados.
                                         </Typography>
                                     )}
                                 </Paper>
