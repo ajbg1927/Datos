@@ -39,7 +39,6 @@ const App = () => {
         datosPorArchivo,
         columnasPorArchivo,
         obtenerDatos,
-        datosCombinados,
         cargarArchivos,
         obtenerHojas,
     } = useArchivos();
@@ -61,7 +60,8 @@ const App = () => {
     const [ticData, setTicData] = useState([]);
     const [resultadosProcesados, setResultadosProcesados] = useState(null);
     const [ticProcesado, setTicProcesado] = useState(false);
-    const [cargandoDatosTabla, setCargandoDatosTabla] = useState(false); 
+    const [cargandoDatosTabla, setCargandoDatosTabla] = useState(false);
+    const [datosCombinadosApp, setDatosCombinadosApp] = useState([]);
 
     const ticKeywords = [
         "FUNCIONAMIENTO", "INVERSION", "CUENTAS POR PAGAR", "CDP",
@@ -108,11 +108,18 @@ const App = () => {
         }
     }, [resultadosProcesados, ticKeywords]);
 
-    const datos = datosCombinados();
-    console.log('datosCombinados:', datos.length, datos);
+    useEffect(() => {
+        if (archivoSeleccionado?.nombreBackend && hojasSeleccionadas.length > 0 && datosPorArchivo[archivoSeleccionado.nombreBackend]?.combinado) {
+            setDatosCombinadosApp(datosPorArchivo[archivoSeleccionado.nombreBackend].combinado);
+        } else {
+            setDatosCombinadosApp([]);
+        }
+    }, [archivoSeleccionado, hojasSeleccionadas, datosPorArchivo]);
+
+    console.log('datosCombinadosApp:', datosCombinadosApp.length, datosCombinadosApp);
 
     const columnasSet = new Set();
-    datos.forEach(row => Object.keys(row).forEach(col => columnasSet.add(col)));
+    datosCombinadosApp.forEach(row => Object.keys(row).forEach(col => columnasSet.add(col)));
     const columnas = Array.from(columnasSet);
 
     const columnasFecha = columnas.filter(col => col.toLowerCase().includes('fecha'));
@@ -127,7 +134,7 @@ const App = () => {
 
     const valoresUnicos = {};
     columnas.forEach(col => {
-        const valores = datos.map(row => row[col]).filter(v => v !== undefined && v !== null);
+        const valores = datosCombinadosApp.map(row => row[col]).filter(v => v !== undefined && v !== null);
         valoresUnicos[col] = [...new Set(valores)];
     });
 
@@ -141,7 +148,7 @@ const App = () => {
     const pagosMax = filtros[`${columnaValor}_max`] || '';
 
     const datosFiltrados = useFiltrosAvanzado(
-        datos,
+        datosCombinadosApp,
         texto,
         fechaInicio,
         fechaFin,
