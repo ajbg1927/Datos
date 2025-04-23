@@ -23,8 +23,6 @@ import SelectoresAgrupacion from './components/SelectoresAgrupacion';
 import useArchivos from './hooks/useArchivos';
 import useFiltrosAvanzado from './hooks/useFiltrosAvanzado';
 import useExportaciones from './hooks/useExportaciones';
-
-import procesarExcel from './utils/procesarExcel'; // << integración aquí
 import axios from 'axios';
 
 const API_URL = 'https://backend-flask-u76y.onrender.com';
