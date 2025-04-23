@@ -60,8 +60,7 @@ const App = () => {
     const [ejecucionData, setEjecucionData] = useState(null);
     const [corAbiertosData, setCorAbiertosData] = useState(null);
     const [ppAbiertosData, setPpAbiertosData] = useState(null);
-    const [ticData, setTicData] = useState([]); 
-
+    const [ticData, setTicData] = useState([]);
     const [resultadosProcesados, setResultadosProcesados] = useState(null); // Nuevo estado
 
     const ticKeywords = [
@@ -79,31 +78,13 @@ const App = () => {
     ];
 
     useEffect(() => {
-        const procesar = async () => {
+        const cargarDatosIniciales = async () => {
             if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
                 await obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
-
-                const formData = new FormData();
-                formData.append('archivo', archivoSeleccionado.archivo);
-                formData.append('hoja', hojasSeleccionadas[0]);
-                formData.append('dependencia', 'DIRECCION DE LAS TIC');
-
-                try {
-                    const response = await axios.post(`${API_URL}/procesar_excel`, formData, {
-                        headers: {
-                            'Content-Type': 'multipart/form-data',
-                        },
-                    });
-
-                    const resultados = response.data;
-                    setResultadosProcesados(resultados);
-                    console.log('Resultados procesados:', resultados);
-                } catch (error) {
-                    console.error('Error al procesar los datos:', error);
-                }
+    
             }
         };
-        procesar();
+        cargarDatosIniciales();
     }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
 
     useEffect(() => {
@@ -120,7 +101,6 @@ const App = () => {
             const ppAbiertos = resultadosProcesados.find(tabla => tabla.nombre?.toLowerCase() === 'pp abiertos');
             setPpAbiertosData(ppAbiertos);
 
-            // Identificar la información de la Dirección de las Tics
             const ticTables = resultadosProcesados.filter(tabla => {
                 if (tabla.data && tabla.data.length > 0 && tabla.data[0]) {
                     const headers = Object.keys(tabla.data[0]);
@@ -245,8 +225,32 @@ const App = () => {
         }
     };
 
+    const handleProcesarTIC = async () => {
+        if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
+            const formData = new FormData();
+            formData.append('archivo', archivoSeleccionado.archivo); 
+            formData.append('hoja', hojasSeleccionadas[0]);
+            formData.append('dependencia', 'DIRECCION DE LAS TIC');
+            try {
+                const response = await axios.post(`${API_URL}/procesar_excel`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+                const resultados = response.data;
+                setResultadosProcesados(resultados);
+                console.log('Resultados procesados:', resultados);
+            } catch (error) {
+                console.error('Error al procesar los datos:', error);
+            }
+        }
+    };
+
     const handleChangeTab = (event, newValue) => {
         setTabValue(newValue);
+        if (newValue === 0 && archivoSeleccionado && hojasSeleccionadas.length > 0 && !resultadosProcesados) {
+            handleProcesarTIC();
+        }
     };
 
     return (
