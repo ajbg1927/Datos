@@ -12,15 +12,16 @@ const useArchivos = () => {
     const [columnasPorArchivo, setColumnasPorArchivo] = useState({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [cargandoDatos, setCargandoDatos] = useState(false); 
 
     const obtenerDatos = useCallback(async (nombreBackend, hojas) => {
-        if (!nombreBackend || !Array.isArray(hojas) || hojas.length === 0) {
-            console.log('obtenerDatos llamado sin hojas seleccionadas.');
+        if (!nombreBackend || !Array.isArray(hojas) || hojas.length === 0 || cargandoDatos) {
+            console.log('obtenerDatos llamado innecesariamente o ya en curso.');
             return;
         }
 
         try {
-            setLoading(true);
+            setCargandoDatos(true);
             console.log('Llamando a obtenerDatos con:', nombreBackend, hojas);
             const response = await axios.post(
                 `${API_URL}/archivos/datos`,
@@ -52,29 +53,26 @@ const useArchivos = () => {
             console.error('Error al obtener datos:', err);
             alert(`Error al obtener datos: ${err?.response?.data?.error || 'Error inesperado'}`);
         } finally {
-            setLoading(false);
+            setCargandoDatos(false);
         }
-    }, []);
+    }, [cargandoDatos]); 
 
     const obtenerHojas = useCallback(async (nombreBackend) => {
-    if (!nombreBackend) return;
+        if (!nombreBackend) return;
 
-    try {
-        const response = await axios.get(`${API_URL}/hojas/${nombreBackend}`);
-        const hojas = response.data.hojas || [];
-        setHojasPorArchivo((prev) => ({
-            ...prev,
-            [nombreBackend]: hojas,
-        }));
+        try {
+            const response = await axios.get(`${API_URL}/hojas/${nombreBackend}`);
+            const hojas = response.data.hojas || [];
+            setHojasPorArchivo((prev) => ({
+                ...prev,
+                [nombreBackend]: hojas,
+            }));
 
-        if (hojas.length > 0) {
-            setHojasSeleccionadas([hojas[0]]); 
+        } catch (error) {
+            console.error('Error al obtener las hojas:', error);
+            alert(`Error al obtener las hojas para ${nombreBackend}`);
         }
-    } catch (error) {
-        console.error('Error al obtener las hojas:', error);
-        alert(`Error al obtener las hojas para ${nombreBackend}`);
-    }
-}, []);
+    }, []);
 
     const cargarArchivos = useCallback(async (archivosInput) => {
         if (!archivosInput || archivosInput.length === 0) {
@@ -172,6 +170,7 @@ const useArchivos = () => {
         setColumnasPorArchivo({});
         setError(null);
         setLoading(false);
+        setCargandoDatos(false); 
     }, []);
 
     return {
