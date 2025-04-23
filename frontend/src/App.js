@@ -79,10 +79,13 @@ const App = () => {
     const cargarDatosIniciales = useCallback(async () => {
         console.log('cargarDatosIniciales ejecutado con:', archivoSeleccionado, hojasSeleccionadas);
         if (archivoSeleccionado?.nombreBackend && hojasSeleccionadas.length > 0) {
-            await obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
-            console.log('Datos obtenidos (App.js):', datosPorArchivo);
+            const yaCargado = datosPorArchivo[archivoSeleccionado.nombreBackend]?.combinado;
+            if (!yaCargado) {
+                await obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
+                console.log('Datos obtenidos (App.js):', datosPorArchivo);
+            }
         }
-    }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos, datosPorArchivo]); 
+    }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
 
     useEffect(() => {
         cargarDatosIniciales();
@@ -113,7 +116,7 @@ const App = () => {
             setTicData(ticTables);
             setTicProcesado(true);
         }
-    }, [resultadosProcesados, ticKeywords]);
+    }, [resultadosProcesados]);
 
     useEffect(() => {
         if (archivoSeleccionado && !hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
@@ -128,7 +131,7 @@ const App = () => {
                 setHojasSeleccionadas([hojas[0]]);
             }
         }
-    }, [archivoSeleccionado, hojasPorArchivo, setHojasSeleccionadas]);
+    }, [archivoSeleccionado, hojasPorArchivo, hojasSeleccionadas, setHojasSeleccionadas]);
 
     const datos = datosCombinados();
     console.log('datosCombinados (App.js):', datos);
@@ -153,7 +156,7 @@ const App = () => {
         if (columnasNumericas.length > 0 && !columnaValor) {
             setColumnaValor(columnasNumericas[0]);
         }
-    }, [columnas, columnasNumericas, columnaAgrupar, setColumnaAgrupar, columnaValor, setColumnaValor]);
+    }, [columnas, columnasNumericas, columnaAgrupar, columnaValor]);
 
     const valoresUnicos = {};
     columnas.forEach((col) => {
