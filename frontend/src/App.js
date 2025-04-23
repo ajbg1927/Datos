@@ -60,12 +60,19 @@ const App = () => {
         if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
             await obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
 
+            const formData = new FormData();
+            formData.append('archivo', archivoSeleccionado);  
+            formData.append('hoja', hojasSeleccionadas[0]);  
+            formData.append('dependencia', dependenciaSeleccionada);  
+
             try {
-                const response = await axios.post(`${API_URL}/procesar_excel`, {
-                    datos: datosCombinados(),  
+                const response = await axios.post(`${API_URL}/procesar_excel`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data', // Necesario para enviar archivos
+                    },
                 });
 
-                const resultados = response.data; 
+                const resultados = response.data;
                 setResultadosProcesados(resultados);
                 console.log('Resultados procesados:', resultados);
             } catch (error) {

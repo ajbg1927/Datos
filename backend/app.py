@@ -276,7 +276,7 @@ def cargar():
 def procesar_excel():
     archivo = request.files['archivo']
     nombre_hoja = request.form.get('hoja', 'Hoja1')
-    dependencia = request.form.get('dependencia')  # opcional
+    dependencia = request.form.get('dependencia') 
 
     ruta_temporal = f"/tmp/{archivo.filename}"
     archivo.save(ruta_temporal)
