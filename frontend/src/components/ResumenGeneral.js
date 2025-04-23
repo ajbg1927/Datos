@@ -47,8 +47,8 @@ const getColorForMetric = (tipo) => {
   }
 };
 
-const ResumenGeneral = ({ datos, columnasValor = [] }) => {
-  if (!datos || datos.length === 0 || columnasValor.length === 0) return null;
+const ResumenGeneral = React.memo(({ datos, columnaValor, resultadosProcesados }) => {
+  if (!datos || datos.length === 0 || !columnaValor) return null; 
 
   const theme = useTheme();
   const formatter = new Intl.NumberFormat('es-CO', {
@@ -57,7 +57,7 @@ const ResumenGeneral = ({ datos, columnasValor = [] }) => {
     minimumFractionDigits: 0,
   });
 
-  const metricas = columnasValor.flatMap((columna) => {
+  const metricas = (columnaValor || []).flatMap((columna) => { 
     const valoresNumericos = datos
       .map((fila) => parseFloat(fila[columna]))
       .filter((val) => !isNaN(val));
@@ -122,6 +122,6 @@ const ResumenGeneral = ({ datos, columnasValor = [] }) => {
       </Grid>
     </Box>
   );
-};
+});
 
 export default ResumenGeneral;
