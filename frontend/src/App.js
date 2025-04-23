@@ -41,13 +41,18 @@ const App = () => {
         obtenerDatos,
         datosCombinados,
         cargarArchivos,
-        obtenerHojas, // Importamos obtenerHojas
+        obtenerHojas, 
     } = useArchivos();
 
     const [filtros, setFiltros] = useState({});
     const [columnaAgrupar, setColumnaAgrupar] = useState('');
     const [columnaValor, setColumnaValor] = useState('');
     const [isLoadingUpload, setIsLoadingUpload] = useState(false);
+    const [tipoGrafico, setTipoGrafico] = useState('Barras');
+    const [paleta, setPaleta] = useState('Institucional');
+    const [ordenarGrafico, setOrdenarGrafico] = useState(true);
+    const [topNGrafico, setTopNGrafico] = useState(10);
+    const [mostrarPorcentajeBarras, setMostrarPorcentajeBarras] = useState(false);
     const [tabValue, setTabValue] = useState(0);
     const [informeData, setInformeData] = useState(null);
     const [ejecucionData, setEjecucionData] = useState(null);
