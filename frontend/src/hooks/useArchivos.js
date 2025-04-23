@@ -42,7 +42,7 @@ const useArchivos = () => {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
 
-            console.log('Respuesta de /subir:', respuesta.data); 
+            console.log('Respuesta de /subir:', respuesta.data);
 
             const archivosBackend = respuesta.data.archivos || [];
             const nuevosArchivos = archivosInput.map((archivo, index) => ({
@@ -57,8 +57,8 @@ const useArchivos = () => {
             if (nuevosArchivos.length > 0) {
                 const primerArchivo = nuevosArchivos[0];
                 setArchivoSeleccionado(primerArchivo);
-                setHojasSeleccionadas([]); 
-                obtenerHojas(primerArchivo.nombreBackend); 
+                setHojasSeleccionadas([]);
+                obtenerHojas(primerArchivo.nombreBackend);
             }
 
         } catch (err) {
@@ -100,7 +100,7 @@ const useArchivos = () => {
 
         try {
             setLoading(true);
-            console.log('Llamando a la API para obtener datos de las hojas:', hojas);
+            console.log('Llamando a obtenerDatos con:', nombreBackend, hojas); // AGREGADO: Log al inicio de la función
             const response = await axios.post(
                 `${API_URL}/archivos/datos`,
                 { filename: nombreBackend, hojas },
