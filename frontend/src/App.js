@@ -63,33 +63,36 @@ const App = () => {
     const [ticProcesado, setTicProcesado] = useState(false);
 
     const ticKeywords = [
-        "FUNCIONAMIENTO",
-        "INVERSION",
-        "CUENTAS POR PAGAR",
-        "CDP",
-        "VALOR CDP",
-        "DIAS ABIERTOS",
-        "RP",
-        "VALOR INICIAL",
-        "PAGOS",
-        "DIAS",
-        "% GASTO"
+        "FUNCIONAMIENTO", "INVERSION", "CUENTAS POR PAGAR", "CDP",
+        "VALOR CDP", "DIAS ABIERTOS", "RP", "VALOR INICIAL",
+        "PAGOS", "DIAS", "% GASTO"
     ];
 
-    const cargarDatosIniciales = useCallback(async () => {
-        console.log('cargarDatosIniciales ejecutado con:', archivoSeleccionado, hojasSeleccionadas);
-        if (archivoSeleccionado?.nombreBackend && hojasSeleccionadas.length > 0) {
-            const yaCargado = datosPorArchivo[archivoSeleccionado.nombreBackend]?.combinado;
-            if (!yaCargado) {
-                await obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
-                console.log('Datos obtenidos (App.js):', datosPorArchivo);
-            }
+    useEffect(() => {
+        if (
+            archivoSeleccionado?.nombreBackend &&
+            hojasSeleccionadas.length > 0 &&
+            !datosPorArchivo[archivoSeleccionado.nombreBackend]?.combinado
+        ) {
+            console.log('Cargando datos desde App.js useEffect...');
+            obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
         }
-    }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
+    }, [archivoSeleccionado, hojasSeleccionadas, datosPorArchivo, obtenerDatos]);
 
     useEffect(() => {
-        cargarDatosIniciales();
-    }, [cargarDatosIniciales]);
+        if (archivoSeleccionado && !hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
+            obtenerHojas(archivoSeleccionado.nombreBackend);
+        }
+    }, [archivoSeleccionado, obtenerHojas, hojasPorArchivo]);
+
+    useEffect(() => {
+        if (archivoSeleccionado && hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
+            const hojas = hojasPorArchivo[archivoSeleccionado.nombreBackend];
+            if (hojas.length > 0 && hojasSeleccionadas.length === 0) {
+                setHojasSeleccionadas([hojas[0]]);
+            }
+        }
+    }, [archivoSeleccionado, hojasPorArchivo, hojasSeleccionadas, setHojasSeleccionadas]);
 
     useEffect(() => {
         if (resultadosProcesados) {
@@ -106,79 +109,44 @@ const App = () => {
             setPpAbiertosData(ppAbiertos);
 
             const ticTables = resultadosProcesados.filter(tabla => {
-                if (tabla.data && tabla.data.length > 0 && tabla.data[0]) {
-                    const headers = Object.keys(tabla.data[0]);
-                    const matches = headers.filter(header => ticKeywords.includes(header.toUpperCase()));
-                    return matches.length >= 3;
-                }
-                return false;
+                const headers = tabla.data?.[0] ? Object.keys(tabla.data[0]) : [];
+                const matches = headers.filter(header => ticKeywords.includes(header.toUpperCase()));
+                return matches.length >= 3;
             });
             setTicData(ticTables);
             setTicProcesado(true);
         }
     }, [resultadosProcesados]);
 
-    useEffect(() => {
-        if (archivoSeleccionado && !hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
-            obtenerHojas(archivoSeleccionado.nombreBackend);
-        }
-    }, [archivoSeleccionado, obtenerHojas, hojasPorArchivo]);
-
-    useEffect(() => {
-    if (
-        archivoSeleccionado?.nombreBackend &&
-        hojasSeleccionadas.length > 0 &&
-        !datosPorArchivo[archivoSeleccionado.nombreBackend]?.combinado
-    ) {
-        console.log('Cargando datos desde App.js useEffect...');
-        obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas);
-    }
-}, [archivoSeleccionado, hojasSeleccionadas, datosPorArchivo, obtenerDatos]);
-
     const datos = datosCombinados();
-    console.log('datosCombinados (App.js):', datos);
+    console.log('datosCombinados:', datos.length, datos);
 
     const columnasSet = new Set();
-    datos.forEach((row) => {
-        Object.keys(row).forEach((key) => columnasSet.add(key));
-    });
+    datos.forEach(row => Object.keys(row).forEach(col => columnasSet.add(col)));
     const columnas = Array.from(columnasSet);
 
-    const columnasFecha = columnas.filter((col) =>
-        col.toLowerCase().includes('fecha')
-    );
-    const columnasNumericas = columnas.filter((col) =>
+    const columnasFecha = columnas.filter(col => col.toLowerCase().includes('fecha'));
+    const columnasNumericas = columnas.filter(col =>
         col.toLowerCase().match(/pago|valor|deducci|oblig|monto|total|suma|saldo/)
     );
 
     useEffect(() => {
-        if (columnas.length > 0 && !columnaAgrupar) {
-            setColumnaAgrupar(columnas[0]);
-        }
-        if (columnasNumericas.length > 0 && !columnaValor) {
-            setColumnaValor(columnasNumericas[0]);
-        }
+        if (columnas.length > 0 && !columnaAgrupar) setColumnaAgrupar(columnas[0]);
+        if (columnasNumericas.length > 0 && !columnaValor) setColumnaValor(columnasNumericas[0]);
     }, [columnas, columnasNumericas, columnaAgrupar, columnaValor]);
 
     const valoresUnicos = {};
-    columnas.forEach((col) => {
-        const valores = datos
-            .map((row) => row[col])
-            .filter((v) => v !== undefined && v !== null);
+    columnas.forEach(col => {
+        const valores = datos.map(row => row[col]).filter(v => v !== undefined && v !== null);
         valoresUnicos[col] = [...new Set(valores)];
     });
 
     const texto = filtros.busqueda || '';
     const fechaInicio = filtros.Fecha_desde || '';
     const fechaFin = filtros.Fecha_hasta || '';
-
     const filtrosColumnas = Object.fromEntries(
-        Object.entries(filtros).filter(
-            ([key]) =>
-                !['busqueda', 'Fecha_desde', 'Fecha_hasta'].includes(key)
-        )
+        Object.entries(filtros).filter(([key]) => !['busqueda', 'Fecha_desde', 'Fecha_hasta'].includes(key))
     );
-
     const pagosMin = filtros[`${columnaValor}_min`] || '';
     const pagosMax = filtros[`${columnaValor}_max`] || '';
 
@@ -195,36 +163,21 @@ const App = () => {
 
     const { exportToExcel, exportToCSV, exportToPDF, exportToTXT } = useExportaciones();
 
-    const handleClearFilters = () => {
-        setFiltros({});
-    };
+    const handleClearFilters = () => setFiltros({});
 
     const handleExportar = (formato) => {
-        switch (formato) {
-            case 'excel':
-                exportToExcel(datosFiltrados, columnas);
-                break;
-            case 'csv':
-                exportToCSV(datosFiltrados, columnas);
-                break;
-            case 'pdf':
-                exportToPDF(datosFiltrados, columnas);
-                break;
-            case 'txt':
-                exportToTXT(datosFiltrados, columnas);
-                break;
-            default:
-                exportToExcel(datosFiltrados, columnas);
-                break;
-        }
+        const exportadores = {
+            excel: exportToExcel,
+            csv: exportToCSV,
+            pdf: exportToPDF,
+            txt: exportToTXT,
+        };
+        (exportadores[formato] || exportToExcel)(datosFiltrados, columnas);
     };
 
     const handleArchivosSubidos = async (files) => {
         const formData = new FormData();
-        for (const file of files) {
-            formData.append('archivos', file);
-        }
-
+        files.forEach(file => formData.append('archivos', file));
         try {
             setIsLoadingUpload(true);
             await axios.post(`${API_URL}/subir`, formData, {
@@ -247,13 +200,9 @@ const App = () => {
             formData.append('dependencia', 'DIRECCION DE LAS TIC');
             try {
                 const response = await axios.post(`${API_URL}/procesar_excel`, formData, {
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 });
-                const resultados = response.data.tablas;
-                setResultadosProcesados(resultados);
-                console.log('Resultados procesados:', resultados);
+                setResultadosProcesados(response.data.tablas);
             } catch (error) {
                 console.error('Error al procesar los datos:', error);
             }
