@@ -254,27 +254,24 @@ def cargar():
     return jsonify(data)
 
 @app.route("/procesar_excel", methods=["POST"])
-def procesar_excel():
-    filename_backend = request.form.get('nombreBackend')
-    nombre_hoja = request.form.get('hoja', 'Hoja1')
-    dependencia = request.form.get('dependencia')
+def procesar_excel_endpoint():
+    if 'nombreBackend' not in request.form or 'hojas' not in request.form:
+        return jsonify({'error': 'Falta el nombre del archivo o la lista de hojas'}), 400
 
-    if not filename_backend:
-        return jsonify({"error": "Nombre de archivo no proporcionado"}), 400
+    nombre_archivo_backend = request.form['nombreBackend']
+    hojas_a_procesar = json.loads(request.form['hojas'])
+    filtro_dependencia = request.form.get('dependencia')
+    ruta_archivo = os.path.join(app.config['UPLOAD_FOLDER'], nombre_archivo_backend)
 
-    filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename_backend)
-    if not os.path.exists(filepath):
-        return jsonify({"error": f"Archivo '{filename_backend}' no encontrado"}), 404
+    resultados = {}
+    for nombre_hoja in hojas_a_procesar:
+        try:
+            tablas = extraer_tablas_relevantes(ruta_archivo, nombre_hoja, filtro_dependencia)
+            resultados[nombre_hoja] = tablas
+        except Exception as e:
+            resultados[nombre_hoja] = {"error": f"Error al procesar la hoja '{nombre_hoja}': {str(e)}"}
 
-    try:
-        resultado = extraer_tablas_relevantes(
-            ruta_archivo=filepath,
-            nombre_hoja=nombre_hoja,
-            filtro_dependencia=dependencia
-        )
-        return jsonify(resultado["tablas"])
-    except Exception as e:
-        return jsonify({"status": "error", "detalle": str(e)}), 500
+    return jsonify({'tablas_por_hoja': resultados})
 
 @app.route("/generate-report", methods=["POST"])
 def generate_report():
