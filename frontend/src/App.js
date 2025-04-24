@@ -336,14 +336,15 @@ const App = () => {
                                 </Box>
                                 ) : (
                                 <>
-                                <Typography variant="subtitle1">Datos Combinados App:</Typography>
+
+                                <Typography variant="subtitle1">Datos Combinados App (Justo antes de TablaDatos):</Typography>
                                 <pre>{JSON.stringify(datosCombinadosApp, null, 2)}</pre>
-                                <Typography variant="subtitle1">Columnas:</Typography>
+                                <Typography variant="subtitle1">Columnas (Justo antes de TablaDatos):</Typography>
                                 <pre>{JSON.stringify(columnas, null, 2)}</pre>
-                                <TablaDatos datos={datosCombinadosApp} columnas={columnas} /> {/* Cambia datosFiltrados a datosCombinadosApp */}
-                                    </>
-                                )}
-                                </Paper>
+                                <TablaDatos datos={datosFiltrados} columnas={columnas} />
+                                </>
+                            )}
+                            </Paper>
 
                                 <Paper elevation={2} sx={{ p: 3 }}>
                                     <Typography variant="h6" gutterBottom>
