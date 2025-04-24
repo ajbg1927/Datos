@@ -9,14 +9,13 @@ import {
     Paper,
     Typography,
     TablePagination,
-    Button,
-    Box,
 } from '@mui/material';
-import { CSVLink } from 'react-csv';
 
 const TablaDatos = ({ datos, columnas }) => {
-    console.log("👉 DATOS recibidos en TablaDatos.js:", datos);
-    console.log("👉 COLUMNAS recibidas en TablaDatos.js:", columnas);
+
+    console.log("DATOS EN TABLA:", datos);
+    console.log("COLUMNAS EN TABLA:", columnas);
+
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
