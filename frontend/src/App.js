@@ -324,27 +324,26 @@ const App = () => {
                                 ))}
                             </Box>
                         )}
-                        {tabValue === 5 && datosCombinadosApp.length > 0 && (
+                        {tabValue === 5 && (
                             <Box display="flex" flexDirection="column" gap={3}>
-                            <Paper elevation={2} sx={{ p: 3 }}>
-                            <Typography variant="h6" gutterBottom>
-                            Datos
-                            </Typography>
-                            {cargandoDatosHook ? (
-                                <Box display="flex" justifyContent="center">
-                                <CircularProgress />
-                                </Box>
-                                ) : (
-                                <>
-
-                                <Typography variant="subtitle1">Datos Combinados App (Justo antes de TablaDatos):</Typography>
-                                <pre>{JSON.stringify(datosCombinadosApp, null, 2)}</pre>
-                                <Typography variant="subtitle1">Columnas (Justo antes de TablaDatos):</Typography>
-                                <pre>{JSON.stringify(columnas, null, 2)}</pre>
-                                <TablaDatos datos={datosFiltrados} columnas={columnas} />
-                                </>
-                            )}
-                            </Paper>
+                                <Paper elevation={2} sx={{ p: 3 }}>
+                                    <Typography variant="h6" gutterBottom>
+                                        Datos
+                                    </Typography>
+                                    {cargandoDatosHook ? (
+                                        <Box display="flex" justifyContent="center">
+                                            <CircularProgress />
+                                        </Box>
+                                    ) : (
+                                        <>
+                                            <Typography variant="subtitle1">Datos Combinados App (Justo antes de TablaDatos):</Typography>
+                                            <pre>{JSON.stringify(datosCombinadosApp, null, 2)}</pre>
+                                            <Typography variant="subtitle1">Columnas (Justo antes de TablaDatos):</Typography>
+                                            <pre>{JSON.stringify(columnas, null, 2)}</pre>
+                                            <TablaDatos datos={datosFiltrados} columnas={columnas} />
+                                        </>
+                                    )}
+                                </Paper>
 
                                 <Paper elevation={2} sx={{ p: 3 }}>
                                     <Typography variant="h6" gutterBottom>
