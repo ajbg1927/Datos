@@ -193,7 +193,7 @@ def obtener_datos_archivo():
         return jsonify({"error": f"Error al procesar el archivo '{filename}': {str(e)}"}), 500
 
 @app.route("/datos", methods=["POST"])
-def procesar_excel_endpoint():
+def procesar_datos_endpoint():
     if 'file' not in request.files:
         return jsonify({"error": "No se envió ningún archivo"}), 400
 
