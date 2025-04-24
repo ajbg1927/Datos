@@ -77,7 +77,7 @@ const useArchivos = () => {
         }
     }, []);
 
-    cconst cargarArchivos = useCallback(async (archivosInput) => {
+    const cargarArchivos = useCallback(async (archivosInput) => {
     if (!archivosInput || archivosInput.length === 0) {
         alert("No se seleccionaron archivos.");
         return;
