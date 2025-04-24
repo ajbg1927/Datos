@@ -27,16 +27,16 @@ const App = () => {
         archivos,
         setArchivos,
         archivoSeleccionado,
-        setArchivoSeleccionado: setArchivoSeleccionadoFromHook, 
+        setArchivoSeleccionado: setArchivoSeleccionadoFromHook,
         hojasSeleccionadas,
-        setHojasSeleccionadas: setHojasSeleccionadasFromHook, 
+        setHojasSeleccionadas: setHojasSeleccionadasFromHook,
         hojasPorArchivo,
         datosPorArchivo,
         columnasPorArchivo,
         obtenerDatos,
         cargarArchivos,
         obtenerHojas,
-        cargandoDatos: cargandoDatosHook, 
+        cargandoDatos: cargandoDatosHook,
     } = useArchivos();
 
     const [filtros, setFiltros] = useState({});
@@ -67,7 +67,7 @@ const App = () => {
 
     const handleArchivoSeleccionadoChange = useCallback((archivo) => {
         setArchivoSeleccionadoFromHook(archivo);
-        setHojasSeleccionadasFromHook([]); 
+        setHojasSeleccionadasFromHook([]);
     }, [setArchivoSeleccionadoFromHook, setHojasSeleccionadasFromHook]);
 
     const handleHojasSeleccionadasChange = useCallback((hojas) => {
@@ -113,16 +113,21 @@ const App = () => {
         }
     }, [resultadosProcesados, ticKeywords]);
 
-    
+
     useEffect(() => {
+        console.log('Archivo Seleccionado en useEffect:', archivoSeleccionado);
+        console.log('Hojas Seleccionadas en useEffect:', hojasSeleccionadas);
+        console.log('Datos Por Archivo en useEffect:', datosPorArchivo);
         if (archivoSeleccionado?.nombreBackend && hojasSeleccionadas.length > 0 && datosPorArchivo[archivoSeleccionado.nombreBackend]?.combinado) {
+            console.log('Actualizando datosCombinadosApp con:', datosPorArchivo[archivoSeleccionado.nombreBackend].combinado);
             setDatosCombinadosApp(datosPorArchivo[archivoSeleccionado.nombreBackend].combinado);
         } else {
+            console.log('Estableciendo datosCombinadosApp a vacío');
             setDatosCombinadosApp([]);
         }
     }, [archivoSeleccionado, hojasSeleccionadas, datosPorArchivo]);
 
-    
+
     const columnasSet = new Set();
     datosCombinadosApp.forEach(row => Object.keys(row).forEach(col => columnasSet.add(col)));
     const columnas = Array.from(columnasSet);
@@ -275,12 +280,12 @@ const App = () => {
                     <TablaArchivos
                         archivos={archivos}
                         archivoSeleccionado={archivoSeleccionado}
-                        onArchivoChange={handleArchivoSeleccionadoChange} 
+                        onArchivoChange={handleArchivoSeleccionadoChange} // ¡Ahora con useCallback!
                     />
                     <SelectorHojas
                         hojas={hojasPorArchivo[archivoSeleccionado?.nombreBackend] || []}
                         hojasSeleccionadas={hojasSeleccionadas}
-                        setHojasSeleccionadas={handleHojasSeleccionadasChange} 
+                        setHojasSeleccionadas={handleHojasSeleccionadasChange} // ¡Ahora con useCallback!
                     />
                 </Paper>
             )}
@@ -319,30 +324,30 @@ const App = () => {
                                 ))}
                             </Box>
                         )}
-                        {tabValue === 5 && datosCombinadosApp.length > 0 && (
+                        {tabValue === 5 && (
                             <Box display="flex" flexDirection="column" gap={3}>
-                            <Paper elevation={2} sx={{ p: 3 }}>
-                            <Typography variant="h6" gutterBottom>
-                            Datos
-                            </Typography>
-                            {cargandoDatosHook ? (
-                                <Box display="flex" justifyContent="center">
-                                <CircularProgress />
-                                </Box>
-                                ) : datosFiltrados.length > 0 ? (
-                                <>
-                                <Typography variant="subtitle1">Datos Combinados App:</Typography>
-                                <pre>{JSON.stringify(datosCombinadosApp, null, 2)}</pre>
-                                <Typography variant="subtitle1">Columnas:</Typography>
-                                <pre>{JSON.stringify(columnas, null, 2)}</pre>
-                                <TablaDatos datos={datosFiltrados} columnas={columnas} />
-                                </>
-                                ) : (
-                                <Typography variant="body1" color="textSecondary">
-                                No hay datos para mostrar con los filtros aplicados.
-                                </Typography>
-                            )}
-                            </Paper>
+                                <Paper elevation={2} sx={{ p: 3 }}>
+                                    <Typography variant="h6" gutterBottom>
+                                        Datos
+                                    </Typography>
+                                    {cargandoDatosHook ? (
+                                        <Box display="flex" justifyContent="center">
+                                            <CircularProgress />
+                                        </Box>
+                                    ) : datosFiltrados.length > 0 ? (
+                                        <>
+                                            <Typography variant="subtitle1">Datos Combinados App:</Typography>
+                                            <pre>{JSON.stringify(datosCombinadosApp, null, 2)}</pre>
+                                            <Typography variant="subtitle1">Columnas:</Typography>
+                                            <pre>{JSON.stringify(columnas, null, 2)}</pre>
+                                            <TablaDatos datos={datosFiltrados} columnas={columnas} />
+                                        </>
+                                    ) : (
+                                        <Typography variant="body1" color="textSecondary">
+                                            No hay datos para mostrar con los filtros aplicados.
+                                        </Typography>
+                                    )}
+                                </Paper>
 
                                 <Paper elevation={2} sx={{ p: 3 }}>
                                     <Typography variant="h6" gutterBottom>
