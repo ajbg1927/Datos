@@ -15,6 +15,8 @@ import {
 import { CSVLink } from 'react-csv';
 
 const TablaDatos = ({ datos, columnas }) => {
+    console.log("👉 DATOS recibidos en TablaDatos.js:", datos);
+    console.log("👉 COLUMNAS recibidas en TablaDatos.js:", columnas);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
