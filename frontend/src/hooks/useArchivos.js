@@ -58,7 +58,7 @@ const useArchivos = () => {
         } finally {
             setCargandoDatos(false);
         }
-    }, [cargandoDatos]);
+    }, []); // ¡Eliminamos cargandoDatos de las dependencias!
 
     const obtenerHojas = useCallback(async (nombreBackend) => {
         if (!nombreBackend) return;
@@ -192,7 +192,7 @@ const useArchivos = () => {
         error,
         reset,
         setArchivos,
-        setCargandoDatos, 
+        setCargandoDatos,
     };
 };
 
