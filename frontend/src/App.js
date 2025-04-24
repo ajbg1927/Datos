@@ -280,12 +280,12 @@ const App = () => {
                     <TablaArchivos
                         archivos={archivos}
                         archivoSeleccionado={archivoSeleccionado}
-                        onArchivoChange={handleArchivoSeleccionadoChange} // ¡Ahora con useCallback!
+                        onArchivoChange={handleArchivoSeleccionadoChange} 
                     />
                     <SelectorHojas
                         hojas={hojasPorArchivo[archivoSeleccionado?.nombreBackend] || []}
                         hojasSeleccionadas={hojasSeleccionadas}
-                        setHojasSeleccionadas={handleHojasSeleccionadasChange} // ¡Ahora con useCallback!
+                        setHojasSeleccionadas={handleHojasSeleccionadasChange} 
                     />
                 </Paper>
             )}
