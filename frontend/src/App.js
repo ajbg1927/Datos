@@ -75,6 +75,23 @@ const App = () => {
     }, [setHojasSeleccionadasFromHook]);
 
     useEffect(() => {
+        if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
+            // Llamada a la API con el archivo y las hojas seleccionadas
+            obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas)
+                .then((data) => {
+                    if (data) {
+                        console.log("Datos recibidos de la API:", data);
+                        // Asegúrate de actualizar correctamente el estado
+                        setDatosCombinadosApp(data); // Actualiza el estado con los datos procesados
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error al obtener los datos:", error);
+                });
+        }
+    }, [archivoSeleccionado, hojasSeleccionadas]);  // Dependencias del useEffect
+
+    useEffect(() => {
         if (archivoSeleccionado?.nombreBackend && hojasSeleccionadas.length > 0) {
             console.log('Cargando datos desde App.js useEffect...');
             setCargandoDatosTabla(true);
@@ -126,7 +143,6 @@ const App = () => {
             setDatosCombinadosApp([]);
         }
     }, [archivoSeleccionado, hojasSeleccionadas, datosPorArchivo]);
-
 
     const columnasSet = new Set();
     datosCombinadosApp.forEach(row => Object.keys(row).forEach(col => columnasSet.add(col)));
@@ -301,29 +317,6 @@ const App = () => {
                     <Tab label="Análisis General" id="tab-5" aria-controls="tabpanel-5" />
                 </Tabs>
                 <Box sx={{ p: 3 }}>
-                    {tabValue === 0 && informeData && (
-                        <ResumenGeneral informeData={informeData} />
-                    )}
-                    {tabValue === 1 && ejecucionData?.data && (
-                        <TablaDatos datos={ejecucionData.data} columnas={ejecucionData.headers || Object.keys(ejecucionData.data[0] || {})} />
-                    )}
-                    {tabValue === 2 && corAbiertosData?.data && (
-                        <TablaDatos datos={corAbiertosData.data} columnas={corAbiertosData.headers || Object.keys(corAbiertosData.data[0] || {})} />
-                    )}
-                    {tabValue === 3 && ppAbiertosData?.data && (
-                        <TablaDatos datos={ppAbiertosData.data} columnas={ppAbiertosData.headers || Object.keys(ppAbiertosData.data[0] || {})} />
-                    )}
-                    {tabValue === 4 && ticData.length > 0 && (
-                        <Box display="flex" flexDirection="column" gap={3}>
-                            <Typography variant="h6" gutterBottom>Información Relevante para la Dirección de las Tics</Typography>
-                            {ticData.map((tabla, index) => (
-                                <Paper elevation={2} sx={{ p: 3 }} key={index}>
-                                    <Typography variant="subtitle1" gutterBottom>{tabla.nombre || `Tabla ${index + 1}`}</Typography>
-                                    <TablaDatos datos={tabla.data} columnas={tabla.headers || Object.keys(tabla.data[0] || {})} />
-                                </Paper>
-                            ))}
-                        </Box>
-                    )}
                     {tabValue === 5 && (
                         <Box display="flex" flexDirection="column" gap={3}>
                             <Paper elevation={2} sx={{ p: 3 }}>
@@ -336,11 +329,15 @@ const App = () => {
                                     </Box>
                                 ) : (
                                     <>
-                                        <Typography variant="subtitle1">Datos Combinados App (Justo antes de TablaDatos):</Typography>
+                                        <Typography variant="subtitle1">Datos Combinados App:</Typography>
                                         <pre>{JSON.stringify(datosCombinadosApp, null, 2)}</pre>
-                                        <Typography variant="subtitle1">Columnas (Justo antes de TablaDatos):</Typography>
+                                        <Typography variant="subtitle1">Columnas:</Typography>
                                         <pre>{JSON.stringify(columnas, null, 2)}</pre>
-                                        <TablaDatos datos={datosFiltrados} columnas={columnas} />
+                                        {datosCombinadosApp && datosCombinadosApp.length > 0 ? (
+                                            <TablaDatos datos={datosCombinadosApp} columnas={columnas} />
+                                        ) : (
+                                            <p>No hay datos disponibles para mostrar.</p>
+                                        )}
                                     </>
                                 )}
                             </Paper>
