@@ -5,13 +5,17 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 const UploadFile = ({ onFilesUploaded }) => {
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length > 0) onFilesUploaded(files);
+    if (files.length > 0 && typeof onFilesUploaded === 'function') {
+      onFilesUploaded(files); 
+    }
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) onFilesUploaded(files);
+    if (files.length > 0 && typeof onFilesUploaded === 'function') {
+      onFilesUploaded(files); 
+    }
   };
 
   const handleDragOver = (e) => {

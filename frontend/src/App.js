@@ -92,8 +92,7 @@ const App = () => {
   const columnas = Array.from(columnasSet);
   const columnasFecha = columnas.filter(col => col.toLowerCase().includes('fecha'));
   const columnasNumericas = columnas.filter(col =>
-    col.toLowerCase().match(/pago|valor|deducci|oblig|monto|total|suma|saldo/)
-  );
+    col.toLowerCase().match(/pago|valor|deducci|oblig|monto|total|suma|saldo/));
 
   useEffect(() => {
     if (columnas.length > 0 && !columnaAgrupar) setColumnaAgrupar(columnas[0]);
