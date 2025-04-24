@@ -356,7 +356,7 @@ const App = () => {
                                     <Graficos
                                         datos={datosFiltrados}
                                         columnaAgrupacion={columnaAgrupar}
-                                        columnaValor={colmnaValor}
+                                        columnaValor={columnaValor}
                                         tipoGrafico={tipoGrafico}
                                         paleta={paleta}
                                         ordenar={ordenarGrafico}
