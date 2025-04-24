@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
     Box, CircularProgress, Paper, Tab, Tabs, Typography,
 } from '@mui/material';
@@ -36,6 +36,7 @@ const App = () => {
         obtenerDatos,
         cargarArchivos,
         obtenerHojas,
+        cargandoDatos: cargandoDatosHook, // Renombramos para evitar confusión
     } = useArchivos();
 
     const [filtros, setFiltros] = useState({});
@@ -64,6 +65,7 @@ const App = () => {
         "PAGOS", "DIAS", "% GASTO"
     ];
 
+    // Efecto para cargar datos cuando el archivo y las hojas cambian
     useEffect(() => {
         if (archivoSeleccionado?.nombreBackend && hojasSeleccionadas.length > 0) {
             console.log('Cargando datos desde App.js useEffect...');
@@ -73,12 +75,14 @@ const App = () => {
         }
     }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
 
+    // Efecto para obtener las hojas del archivo seleccionado
     useEffect(() => {
         if (archivoSeleccionado && !hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
             obtenerHojas(archivoSeleccionado.nombreBackend);
         }
     }, [archivoSeleccionado, obtenerHojas, hojasPorArchivo]);
 
+    // Efecto para procesar los resultados de la API de procesamiento
     useEffect(() => {
         if (resultadosProcesados) {
             const informe = resultadosProcesados.find(tabla => tabla.nombre?.toLowerCase() === 'informe');
@@ -103,6 +107,7 @@ const App = () => {
         }
     }, [resultadosProcesados, ticKeywords]);
 
+    // Efecto para actualizar los datos combinados para la tabla principal
     useEffect(() => {
         if (archivoSeleccionado?.nombreBackend && hojasSeleccionadas.length > 0 && datosPorArchivo[archivoSeleccionado.nombreBackend]?.combinado) {
             setDatosCombinadosApp(datosPorArchivo[archivoSeleccionado.nombreBackend].combinado);
@@ -111,6 +116,7 @@ const App = () => {
         }
     }, [archivoSeleccionado, hojasSeleccionadas, datosPorArchivo]);
 
+    // Obtener las columnas únicas de los datos combinados
     const columnasSet = new Set();
     datosCombinadosApp.forEach(row => Object.keys(row).forEach(col => columnasSet.add(col)));
     const columnas = Array.from(columnasSet);
@@ -118,17 +124,20 @@ const App = () => {
     const columnasNumericas = columnas.filter(col =>
         col.toLowerCase().match(/pago|valor|deducci|oblig|monto|total|suma|saldo/));
 
+    // Establecer columnas iniciales para agrupación y valor
     useEffect(() => {
         if (columnas.length > 0 && !columnaAgrupar) setColumnaAgrupar(columnas[0]);
         if (columnasNumericas.length > 0 && !columnaValor) setColumnaValor(columnasNumericas[0]);
     }, [columnas, columnasNumericas, columnaAgrupar, columnaValor]);
 
+    // Obtener valores únicos por columna para los filtros
     const valoresUnicos = {};
     columnas.forEach(col => {
         const valores = datosCombinadosApp.map(row => row[col]).filter(v => v !== undefined && v !== null);
         valoresUnicos[col] = [...new Set(valores)];
     });
 
+    // Preparar los valores de los filtros para el hook useFiltrosAvanzado
     const texto = filtros.busqueda || '';
     const fechaInicio = filtros.Fecha_desde || '';
     const fechaFin = filtros.Fecha_hasta || '';
@@ -138,6 +147,7 @@ const App = () => {
     const pagosMin = filtros[`${columnaValor}_min`] || '';
     const pagosMax = filtros[`${columnaValor}_max`] || '';
 
+    // Hook para aplicar filtros avanzados a los datos
     const datosFiltrados = useFiltrosAvanzado(
         datosCombinadosApp,
         texto,
@@ -149,8 +159,10 @@ const App = () => {
         columnaValor
     );
 
+    // Funciones de exportación
     const { exportToExcel, exportToCSV, exportToPDF, exportToTXT } = useExportaciones();
 
+    // Manejadores de eventos
     const handleClearFilters = () => setFiltros({});
     const handleExportar = (formato) => {
         const exportadores = {
@@ -162,7 +174,8 @@ const App = () => {
         (exportadores[formato] || exportToExcel)(datosFiltrados, columnas);
     };
 
-    const handleArchivosSubidos = async (files) => {
+    // Subir archivos
+    const handleArchivosSubidos = useCallback(async (files) => {
         const formData = new FormData();
         files.forEach(file => formData.append('archivos', file));
         try {
@@ -177,9 +190,10 @@ const App = () => {
         } finally {
             setIsLoadingUpload(false);
         }
-    };
+    }, [cargarArchivos]);
 
-    const handleProcesarTIC = async () => {
+    // Procesar el archivo para la pestaña de TIC
+    const handleProcesarTIC = useCallback(async () => {
         if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
             const formData = new FormData();
             formData.append('nombreBackend', archivoSeleccionado.nombreBackend);
@@ -194,8 +208,9 @@ const App = () => {
                 console.error('Error al procesar los datos:', error);
             }
         }
-    };
+    }, [archivoSeleccionado, hojasSeleccionadas]);
 
+    // Cambiar de pestaña
     const handleChangeTab = (event, newValue) => {
         setTabValue(newValue);
         if (newValue === 0 && archivoSeleccionado && hojasSeleccionadas.length > 0 && !ticProcesado) {
@@ -203,7 +218,7 @@ const App = () => {
         }
     };
 
-     return (
+    return (
         <Layout
             sidebar={
                 <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
@@ -252,7 +267,7 @@ const App = () => {
                     <CircularProgress />
                 </Box>
             )}
-            
+
             <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
                 <UploadFile onFilesUploaded={handleArchivosSubidos} />
             </Paper>
@@ -313,7 +328,7 @@ const App = () => {
                                     <Typography variant="h6" gutterBottom>
                                         Datos
                                     </Typography>
-                                    {cargandoDatosTabla ? (
+                                    {cargandoDatosHook ? ( // Usamos el estado de carga del hook
                                         <Box display="flex" justifyContent="center">
                                             <CircularProgress />
                                         </Box>

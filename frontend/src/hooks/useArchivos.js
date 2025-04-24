@@ -12,7 +12,7 @@ const useArchivos = () => {
     const [columnasPorArchivo, setColumnasPorArchivo] = useState({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [cargandoDatos, setCargandoDatos] = useState(false); 
+    const [cargandoDatos, setCargandoDatos] = useState(false);
 
     const obtenerDatos = useCallback(async (nombreBackend, hojas) => {
         if (!nombreBackend || !Array.isArray(hojas) || hojas.length === 0 || cargandoDatos) {
@@ -35,7 +35,6 @@ const useArchivos = () => {
                 return [];
             }
 
-            // Guardar datos combinados en el estado
             setDatosPorArchivo((prev) => ({
                 ...prev,
                 [nombreBackend]: {
@@ -44,7 +43,6 @@ const useArchivos = () => {
                 },
             }));
 
-            // Guardar columnas detectadas automáticamente
             if (datos.length > 0) {
                 setColumnasPorArchivo((prev) => ({
                     ...prev,
@@ -52,7 +50,7 @@ const useArchivos = () => {
                 }));
             }
 
-            return datos; 
+            return datos;
         } catch (err) {
             console.error('Error al obtener datos:', err);
             alert(`Error al obtener datos: ${err?.response?.data?.error || 'Error inesperado'}`);
@@ -60,7 +58,7 @@ const useArchivos = () => {
         } finally {
             setCargandoDatos(false);
         }
-    }, [cargandoDatos]); 
+    }, [cargandoDatos]);
 
     const obtenerHojas = useCallback(async (nombreBackend) => {
         if (!nombreBackend) return;
@@ -173,7 +171,7 @@ const useArchivos = () => {
         setColumnasPorArchivo({});
         setError(null);
         setLoading(false);
-        setCargandoDatos(false); 
+        setCargandoDatos(false);
     }, []);
 
     return {
@@ -187,13 +185,14 @@ const useArchivos = () => {
         columnasPorArchivo,
         cargarArchivos,
         obtenerHojas,
-        obtenerDatos, 
+        obtenerDatos,
         datosCombinados,
         procesarExcel,
         loading,
         error,
         reset,
         setArchivos,
+        setCargandoDatos, 
     };
 };
 
