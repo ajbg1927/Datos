@@ -67,9 +67,9 @@ const App = () => {
     useEffect(() => {
         if (archivoSeleccionado?.nombreBackend && hojasSeleccionadas.length > 0) {
             console.log('Cargando datos desde App.js useEffect...');
-            setCargandoDatosTabla(true); // Iniciar carga
+            setCargandoDatosTabla(true);
             obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas)
-                .finally(() => setCargandoDatosTabla(false)); // Finalizar carga
+                .finally(() => setCargandoDatosTabla(false));
         }
     }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
 
@@ -203,7 +203,7 @@ const App = () => {
         }
     };
 
-    return (
+     return (
         <Layout
             sidebar={
                 <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
@@ -248,12 +248,11 @@ const App = () => {
             }
         >
             {isLoadingUpload && (
-                <Box display="flex" justifyContent="center" alignItems="center" my={2}>
-                    <CircularProgress sx={{ mr: 2 }} />
-                    <Typography>Subiendo archivo(s)... por favor espera</Typography>
+                <Box display="flex" justifyContent="center" alignItems="center" my={4}>
+                    <CircularProgress />
                 </Box>
             )}
-
+            
             <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
                 <UploadFile onFilesUploaded={handleArchivosSubidos} />
             </Paper>
