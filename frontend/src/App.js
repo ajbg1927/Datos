@@ -1,11 +1,6 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-    Box,
-    CircularProgress,
-    Paper,
-    Tab,
-    Tabs,
-    Typography,
+    Box, CircularProgress, Paper, Tab, Tabs, Typography,
 } from '@mui/material';
 
 import Layout from './components/Layout';
@@ -54,14 +49,14 @@ const App = () => {
     const [mostrarPorcentajeBarras, setMostrarPorcentajeBarras] = useState(false);
     const [tabValue, setTabValue] = useState(0);
     const [informeData, setInformeData] = useState(null);
+    const [resultadosProcesados, setResultadosProcesados] = useState(null);
+    const [ticProcesado, setTicProcesado] = useState(false);
+    const [datosCombinadosApp, setDatosCombinadosApp] = useState([]);
     const [ejecucionData, setEjecucionData] = useState(null);
     const [corAbiertosData, setCorAbiertosData] = useState(null);
     const [ppAbiertosData, setPpAbiertosData] = useState(null);
     const [ticData, setTicData] = useState([]);
-    const [resultadosProcesados, setResultadosProcesados] = useState(null);
-    const [ticProcesado, setTicProcesado] = useState(false);
     const [cargandoDatosTabla, setCargandoDatosTabla] = useState(false);
-    const [datosCombinadosApp, setDatosCombinadosApp] = useState([]);
 
     const ticKeywords = [
         "FUNCIONAMIENTO", "INVERSION", "CUENTAS POR PAGAR", "CDP",
@@ -116,16 +111,12 @@ const App = () => {
         }
     }, [archivoSeleccionado, hojasSeleccionadas, datosPorArchivo]);
 
-    console.log('datosCombinadosApp:', datosCombinadosApp.length, datosCombinadosApp);
-
     const columnasSet = new Set();
     datosCombinadosApp.forEach(row => Object.keys(row).forEach(col => columnasSet.add(col)));
     const columnas = Array.from(columnasSet);
-
     const columnasFecha = columnas.filter(col => col.toLowerCase().includes('fecha'));
     const columnasNumericas = columnas.filter(col =>
-        col.toLowerCase().match(/pago|valor|deducci|oblig|monto|total|suma|saldo/)
-    );
+        col.toLowerCase().match(/pago|valor|deducci|oblig|monto|total|suma|saldo/));
 
     useEffect(() => {
         if (columnas.length > 0 && !columnaAgrupar) setColumnaAgrupar(columnas[0]);
@@ -161,7 +152,6 @@ const App = () => {
     const { exportToExcel, exportToCSV, exportToPDF, exportToTXT } = useExportaciones();
 
     const handleClearFilters = () => setFiltros({});
-
     const handleExportar = (formato) => {
         const exportadores = {
             excel: exportToExcel,
@@ -295,6 +285,9 @@ const App = () => {
                         <Tab label="Análisis General" id="tab-5" aria-controls="tabpanel-5" />
                     </Tabs>
                     <Box sx={{ p: 3 }}>
+                        {tabValue === 0 && informeData && (
+                            <ResumenGeneral informeData={informeData} />
+                        )}
                         {tabValue === 1 && ejecucionData?.data && (
                             <TablaDatos datos={ejecucionData.data} columnas={ejecucionData.headers || Object.keys(ejecucionData.data[0] || {})} />
                         )}
@@ -363,7 +356,7 @@ const App = () => {
                                     <Graficos
                                         datos={datosFiltrados}
                                         columnaAgrupacion={columnaAgrupar}
-                                        columnaValor={columnaValor}
+                                        columnaValor={colmnaValor}
                                         tipoGrafico={tipoGrafico}
                                         paleta={paleta}
                                         ordenar={ordenarGrafico}
