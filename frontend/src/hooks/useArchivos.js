@@ -58,7 +58,7 @@ const useArchivos = () => {
         } finally {
             setCargandoDatos(false);
         }
-    }, []); // ¡Eliminamos cargandoDatos de las dependencias!
+    }, []); 
 
     const obtenerHojas = useCallback(async (nombreBackend) => {
         if (!nombreBackend) return;
@@ -77,50 +77,64 @@ const useArchivos = () => {
         }
     }, []);
 
-    const cargarArchivos = useCallback(async (archivosInput) => {
-        if (!archivosInput || archivosInput.length === 0) {
-            alert("No se seleccionaron archivos.");
-            return;
-        }
+    cconst cargarArchivos = useCallback(async (archivosInput) => {
+    if (!archivosInput || archivosInput.length === 0) {
+        alert("No se seleccionaron archivos.");
+        return;
+    }
 
-        const formData = new FormData();
-        for (const archivo of archivosInput) {
-            formData.append('archivos', archivo);
-        }
+    const formData = new FormData();
+    for (const archivo of archivosInput) {
+        formData.append('archivos', archivo);
+    }
 
-        try {
-            setLoading(true);
-            console.log('Llamando a la API para cargar archivos...');
-            const respuesta = await axios.post(`${API_URL}/subir`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
+    try {
+        setLoading(true);
+        console.log('Llamando a la API para cargar archivos...');
+        const respuesta = await axios.post(`${API_URL}/subir`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        const archivosBackend = respuesta.data.archivos || [];
+        const nuevosArchivos = [];
+
+        for (let i = 0; i < archivosInput.length; i++) {
+            const archivo = archivosInput[i];
+            const nombreBackend = archivosBackend[i];
+
+            const responseHojas = await axios.get(`${API_URL}/hojas/${nombreBackend}`);
+            const hojas = responseHojas.data.hojas || [];
+
+            nuevosArchivos.push({
+                nombreOriginal: archivo.name,
+                nombreBackend,
+                archivo,
+                hojas,
             });
 
-            const archivosBackend = respuesta.data.archivos || [];
-            const nuevosArchivos = archivosInput.map((archivo, index) => ({
-                nombreOriginal: archivo.name,
-                nombreBackend: archivosBackend[index],
-                archivo: archivo,
-                hojas: [],
+            setHojasPorArchivo((prev) => ({
+                ...prev,
+                [nombreBackend]: hojas,
             }));
-
-            setArchivos((prev) => [...prev, ...nuevosArchivos]);
-
-            if (nuevosArchivos.length > 0) {
-                const primerArchivo = nuevosArchivos[0];
-                setArchivoSeleccionado(primerArchivo);
-                setHojasSeleccionadas([]);
-                obtenerHojas(primerArchivo.nombreBackend);
-            }
-
-        } catch (err) {
-            console.error('Error al cargar archivos:', err);
-            const errorMessage = err.response?.data?.error || 'Error inesperado';
-            alert(`Error al cargar archivos: ${errorMessage}`);
-            setError(errorMessage);
-        } finally {
-            setLoading(false);
         }
-    }, [obtenerHojas]);
+
+        setArchivos((prev) => [...prev, ...nuevosArchivos]);
+
+        if (nuevosArchivos.length > 0) {
+            const primerArchivo = nuevosArchivos[0];
+            setArchivoSeleccionado(primerArchivo);
+            setHojasSeleccionadas([]);
+        }
+
+    } catch (err) {
+        console.error('Error al cargar archivos:', err);
+        const errorMessage = err.response?.data?.error || 'Error inesperado';
+        alert(`Error al cargar archivos: ${errorMessage}`);
+        setError(errorMessage);
+    } finally {
+        setLoading(false);
+    }
+}, []);
 
     const datosCombinados = useCallback(() => {
         if (!archivoSeleccionado || hojasSeleccionadas.length === 0) return [];
