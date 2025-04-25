@@ -188,6 +188,18 @@ const App = () => {
         }
     };
 
+    const onSeleccionar = (dependencia, datosFiltrados) => {
+    setDatosFiltrados(datosFiltrados); // esto es lo que se muestra en la tabla
+    setDependenciaSeleccionada(dependencia);
+
+    if (datosFiltrados.length > 0) {
+        setColumnas(Object.keys(datosFiltrados[0]));
+        console.log("Columnas seteadas:", Object.keys(datosFiltrados[0]));
+    } else {
+        setColumnas([]);
+    }
+};
+
     return (
     <Layout
         sidebar={
@@ -301,21 +313,17 @@ const App = () => {
                     {tabValue === 5 && (
                         <Box display="flex" flexDirection="column" gap={3}>
                             <FiltroDependencia
-                                sheets={Object.keys(dependenciasPorHoja || {})}
-                                dependenciasPorHoja={dependenciasPorHoja}
-                                onSeleccionar={({ hoja, dependencia }) => {
-                                    console.log("Seleccionado hoja:", hoja, "dependencia:", dependencia);
-                                    setHojaSeleccionada(hoja);
-                                    setDependenciaSeleccionada(dependencia);
-                                    const datosOriginales = resultadosProcesadosPorHoja?.[hoja] || [];
-                                    console.log("Originales:", datosOriginales);
-                                    const datosFiltrados = datosOriginales
-                                        .flat()
-                                        .filter((row) => row?.Dependencia?.toUpperCase?.() === dependencia.toUpperCase());
-                                    console.log("Filtrados:", datosFiltrados);
-                                    setDatosFiltrados(datosFiltrados);
-                                    setColumnas(Object.keys(datosFiltrados[0] || {}));
-                                }}
+                            sheets={Object.keys(dependenciasPorHoja || {})}
+                            dependenciasPorHoja={dependenciasPorHoja}
+                            onSeleccionar={({ hoja, dependencia }) => {
+                                console.log("Seleccionado hoja:", hoja, "dependencia:", dependencia);
+                                setHojaSeleccionada(hoja);
+                                const datosOriginales = resultadosProcesadosPorHoja?.[hoja] || [];
+                                const datosFiltrados = datosOriginales
+                                .flat()
+                                .filter((row) => row?.Dependencia?.toUpperCase?.() === dependencia.toUpperCase());
+                                onSeleccionar(dependencia, datosFiltrados);
+                            }}
                             />
 
                             <Paper elevation={2} sx={{ p: 3 }}>
