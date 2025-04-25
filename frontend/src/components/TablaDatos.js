@@ -9,10 +9,11 @@ import {
     Paper,
     Typography,
     TablePagination,
+    Box,
 } from '@mui/material';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'; 
 
 const TablaDatos = ({ datos, columnas }) => {
-
     console.log("DATOS EN TABLA:", datos);
     console.log("COLUMNAS EN TABLA:", columnas);
 
@@ -33,11 +34,19 @@ const TablaDatos = ({ datos, columnas }) => {
             ? Object.keys(datos[0]) 
             : [];
 
-    if (!datos || datos.length === 0 || (datos.length > 0 && Object.keys(datos[0]).length === 0)) {
-    return (
-        <Typography variant="body1" sx={{ mt: 2 }}>
-            No hay datos para mostrar.
-        </Typography>
+    const datosVacios = !datos || datos.length === 0 || (datos.length > 0 && Object.keys(datos[0]).length === 0);
+
+    if (datosVacios) {
+        return (
+            <Box sx={{ textAlign: 'center', mt: 8 }}>
+                <InfoOutlinedIcon sx={{ fontSize: 80, color: 'grey.400' }} />
+                <Typography variant="h6" color="text.secondary" sx={{ mt: 2 }}>
+                    No hay datos estructurados para mostrar
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                    Selecciona un archivo y hoja para visualizar la información.
+                </Typography>
+            </Box>
         );
     }
 
