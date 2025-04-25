@@ -33,11 +33,11 @@ const TablaDatos = ({ datos, columnas }) => {
             ? Object.keys(datos[0]) 
             : [];
 
-    if (!datos || datos.length === 0) {
-        return (
-            <Typography variant="body1" sx={{ mt: 2 }}>
-                No hay datos para mostrar.
-            </Typography>
+    if (!datos || datos.length === 0 || (datos.length > 0 && Object.keys(datos[0]).length === 0)) {
+    return (
+        <Typography variant="body1" sx={{ mt: 2 }}>
+            No hay datos para mostrar.
+        </Typography>
         );
     }
 
