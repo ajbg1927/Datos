@@ -206,205 +206,211 @@ const App = () => {
     };
 
    return (
-        <Layout
-            sidebar={
-                <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
-                    {columnas.length > 0 ? (
-                        <>
-                            <Box sx={{ mb: 2 }}>
-                                <Typography variant="h6" gutterBottom>
-                                    Filtros Rápidos
-                                </Typography>
-                                <FiltroRapidoTIC
-                                    columns={columnas}
-                                    setFiltrosActivos={setFiltros}
-                                    filtrosActivos={filtros}
-                                    data={datosFiltrados}
-                                />
-                            </Box>
-
-                            <Filtros
-                                columnas={columnas}
-                                valoresUnicos={valoresUnicos}
-                                filtros={filtros}
-                                setFiltros={setFiltros}
-                                handleClearFilters={handleClearFilters}
-                                columnasFecha={columnasFecha}
-                                columnasNumericas={columnasNumericas}
-                                valorBusqueda={filtros.busqueda || ''}
-                                setValorBusqueda={(valor) =>
-                                    setFiltros((prev) => ({ ...prev, busqueda: valor }))
-                                }
-                                columnaAgrupar={columnaAgrupar}
-                                setColumnaAgrupar={setColumnaAgrupar}
-                                columnaValor={columnaValor}
-                                setColumnaValor={setColumnaValor}
+    <Layout
+        sidebar={
+            <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
+                {columnas.length > 0 ? (
+                    <>
+                        <Box sx={{ mb: 2 }}>
+                            <Typography variant="h6" gutterBottom>
+                                Filtros Rápidos
+                            </Typography>
+                            <FiltroRapidoTIC
+                                columns={columnas}
+                                setFiltrosActivos={setFiltros}
+                                filtrosActivos={filtros}
+                                data={datosFiltrados}
                             />
-                        </>
-                    ) : (
-                        <Typography variant="body2" color="textSecondary">
-                            Selecciona un archivo para ver los filtros.
-                        </Typography>
-                    )}
-                </Paper>
-            }
-        >
-            {isLoadingUpload && (
-                <Box display="flex" justifyContent="center" alignItems="center" my={4}>
-                    <CircularProgress />
-                </Box>
-            )}
+                        </Box>
 
-            <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
-                <UploadFile onFilesUploaded={handleArchivosSubidos} />
+                        <Filtros
+                            columnas={columnas}
+                            valoresUnicos={valoresUnicos}
+                            filtros={filtros}
+                            setFiltros={setFiltros}
+                            handleClearFilters={handleClearFilters}
+                            columnasFecha={columnasFecha}
+                            columnasNumericas={columnasNumericas}
+                            valorBusqueda={filtros.busqueda || ''}
+                            setValorBusqueda={(valor) =>
+                                setFiltros((prev) => ({ ...prev, busqueda: valor }))
+                            }
+                            columnaAgrupar={columnaAgrupar}
+                            setColumnaAgrupar={setColumnaAgrupar}
+                            columnaValor={columnaValor}
+                            setColumnaValor={setColumnaValor}
+                        />
+                    </>
+                ) : (
+                    <Typography variant="body2" color="textSecondary">
+                        Selecciona un archivo para ver los filtros.
+                    </Typography>
+                )}
             </Paper>
+        }
+    >
+        {isLoadingUpload && (
+            <Box display="flex" justifyContent="center" alignItems="center" my={4}>
+                <CircularProgress />
+            </Box>
+        )}
 
-            {archivos?.length > 0 && (
-                <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
-                    <Typography variant="h6" gutterBottom>Archivos Cargados</Typography>
-                    <TablaArchivos
-                        archivos={archivos}
-                        archivoSeleccionado={archivoSeleccionado}
-                        onArchivoChange={handleArchivoSeleccionadoChange}
-                    />
-                    <SelectorHojas
-                        hojas={hojasPorArchivo[archivoSeleccionado?.nombreBackend] || []}
-                        hojasSeleccionadas={hojasSeleccionadas}
-                        setHojasSeleccionadas={handleHojasSeleccionadasChange}
-                    />
-                </Paper>
-            )}
+        <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
+            <UploadFile onFilesUploaded={handleArchivosSubidos} />
+        </Paper>
 
-            {resultadosProcesadosPorHoja && (
-                <Paper elevation={2} sx={{ width: '100%' }}>
-                    <Tabs value={tabValue} onChange={handleChangeTab} aria-label="tabs example">
-                        <Tab label="Resumen TIC" id="tab-0" aria-controls="tabpanel-0" />
-                        <Tab label="Ejecución Detallada" id="tab-1" aria-controls="tabpanel-1" />
-                        <Tab label="CDP's Abiertos" id="tab-2" aria-controls="tabpanel-2" />
-                        <Tab label="PP Abiertos" id="tab-3" aria-controls="tabpanel-3" />
-                        <Tab label="Dirección de las Tics" id="tab-4" aria-controls="tabpanel-4" />
-                        <Tab label="Análisis General" id="tab-5" aria-controls="tabpanel-5" />
-                    </Tabs>
-                    <Box sx={{ p: 3 }}>
-                        {tabValue === 4 && (
-                            <Box display="flex" flexDirection="column" gap={3}>
+        {archivos?.length > 0 && (
+            <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
+                <Typography variant="h6" gutterBottom>Archivos Cargados</Typography>
+                <TablaArchivos
+                    archivos={archivos}
+                    archivoSeleccionado={archivoSeleccionado}
+                    onArchivoChange={handleArchivoSeleccionadoChange}
+                />
+                <SelectorHojas
+                    hojas={hojasPorArchivo[archivoSeleccionado?.nombreBackend] || []}
+                    hojasSeleccionadas={hojasSeleccionadas}
+                    setHojasSeleccionadas={handleHojasSeleccionadasChange}
+                />
+            </Paper>
+        )}
+
+        {resultadosProcesadosPorHoja && (
+            <Paper elevation={2} sx={{ width: '100%' }}>
+                <Tabs value={tabValue} onChange={handleChangeTab} aria-label="tabs example">
+                    <Tab label="Resumen TIC" />
+                    <Tab label="Ejecución Detallada" />
+                    <Tab label="CDP's Abiertos" />
+                    <Tab label="PP Abiertos" />
+                    <Tab label="Dirección de las Tics" />
+                    <Tab label="Análisis General" />
+                </Tabs>
+                <Box sx={{ p: 3 }}>
+                    {tabValue === 4 && (
+                        <Box display="flex" flexDirection="column" gap={3}>
                             <Typography variant="h6" gutterBottom>Dirección de las Tics</Typography>
                             {cargandoProcesamiento && (
                                 <Box display="flex" justifyContent="center">
-                                <CircularProgress />
+                                    <CircularProgress />
                                 </Box>
                             )}
                             {Object.entries(resultadosProcesadosPorHoja).map(([nombreHoja, tablas]) => (
                                 <Box key={nombreHoja} mb={3}>
-                                <Typography variant="subtitle1">Hoja: {nombreHoja}</Typography>
-                                {Array.isArray(tablas) && tablas.length > 0 ? (
-                                    tablas.map((tabla, index) => (
-                                    <Paper key={`${nombreHoja}-${index}`} elevation={1} sx={{ mt: 1, p: 2 }}>
-                                    <Typography variant="body2" fontWeight="bold">Tabla {index + 1}</Typography>
-                                    {tabla.length > 0 ? (
-                                        <TablaDatos
-                                        datos={tabla}
-                                        columnas={Object.keys(tabla[0] || {})}
-                                        />
-                                        ) : (
-                                        <Typography>No hay datos en esta tabla.</Typography>
-                                    )}
-                                    </Paper>
-                                    ))
+                                    <Typography variant="subtitle1">Hoja: {nombreHoja}</Typography>
+                                    {Array.isArray(tablas) && tablas.length > 0 ? (
+                                        tablas.map((tabla, index) => (
+                                            <Paper key={`${nombreHoja}-${index}`} elevation={1} sx={{ mt: 1, p: 2 }}>
+                                                <Typography variant="body2" fontWeight="bold">Tabla {index + 1}</Typography>
+                                                {tabla.length > 0 ? (
+                                                    <TablaDatos
+                                                        datos={tabla}
+                                                        columnas={Object.keys(tabla[0] || {})}
+                                                    />
+                                                ) : (
+                                                    <Typography>No hay datos en esta tabla.</Typography>
+                                                )}
+                                            </Paper>
+                                        ))
                                     ) : (
-                                    <Typography color="error">
-                                    {typeof tablas === 'object' && tablas?.error
-                                        ? tablas.error
-                                    : 'No se encontraron tablas para la Dirección de las Tics en esta hoja.'}
-                                    </Typography>
-                                )}
+                                        <Typography color="error">
+                                            {typeof tablas === 'object' && tablas?.error
+                                                ? tablas.error
+                                                : 'No se encontraron tablas para la Dirección de las Tics en esta hoja.'}
+                                        </Typography>
+                                    )}
                                 </Box>
                             ))}
-                            </Box>
-                        )}
+                        </Box>
+                    )}
 
-                        {tabValue === 5 && (
-                            <Box display="flex" flexDirection="column" gap={3}>
-                                <Paper elevation={2} sx={{ p: 3 }}>
-                                    <Typography variant="h6" gutterBottom>
-                                        Datos
-                                    </Typography>
-                                    {cargandoDatosHook ? (
-                                        <Box display="flex" justifyContent="center">
-                                            <CircularProgress />
-                                        </Box>
-                                    ) : (
-                                        <>
+                    {tabValue === 5 && (
+                        <Box display="flex" flexDirection="column" gap={3}>
+                            <Paper elevation={2} sx={{ p: 3 }}>
+                                <Typography variant="h6" gutterBottom>
+                                    Datos
+                                </Typography>
+                                {cargandoDatosHook ? (
+                                    <Box display="flex" justifyContent="center">
+                                        <CircularProgress />
+                                    </Box>
+                                ) : (
+                                    <>
                                         <Typography variant="subtitle1">Datos Combinados App:</Typography>
+                                        {console.log("✅ DATOS COMBINADOS APP:", datosCombinadosApp)}
+                                        {console.log("✅ COLUMNAS:", columnas)}
                                         {datosCombinadosApp && datosCombinadosApp.length > 0 ? (
                                             <>
+                                                {console.log("🧪 Primer objeto real:", datosCombinadosApp[0])}
+                                                {console.log("🧪 Claves del objeto:", Object.keys(datosCombinadosApp[0]))}
+                                                {console.log("🧪 JSON.stringify:", JSON.stringify(datosCombinadosApp[0], null, 2))}
 
-                                            {console.log("Primer objeto real:", datosCombinadosApp[0])}
-                                            {console.log("Claves del objeto:", Object.keys(datosCombinadosApp[0]))}
-                                            {console.log("Todo en JSON:", JSON.stringify(datosCombinadosApp[0], null, 2))}
-                                            <TablaDatos datos={datosCombinadosApp} columnas={columnas} />
+                                                <TablaDatos datos={datosCombinadosApp} columnas={columnas} />
                                             </>
-                                            ) : (
-                                            <p>No hay datos disponibles para mostrar.</p>
+                                        ) : (
+                                            <>
+                                                <Typography>No hay datos disponibles para mostrar.</Typography>
+                                                {console.log("❌ No hay datos en datosCombinadosApp")}
+                                            </>
                                         )}
                                         <Typography variant="subtitle1">Columnas:</Typography>
                                         <pre>{JSON.stringify(columnas, null, 2)}</pre>
-                                        </>
-                                    )}
-                                </Paper>
+                                    </>
+                                )}
+                            </Paper>
 
-                                <Paper elevation={2} sx={{ p: 3 }}>
-                                    <Typography variant="h6" gutterBottom>
-                                        Análisis
-                                    </Typography>
-                                    <SelectoresAgrupacion
-                                        columnas={columnas}
-                                        columnaAgrupar={columnaAgrupar}
-                                        setColumnaAgrupar={setColumnaAgrupar}
-                                        columnaValor={columnaValor}
-                                        setColumnaValor={setColumnaValor}
-                                        tipoGrafico={tipoGrafico}
-                                        setTipoGrafico={setTipoGrafico}
-                                        paleta={paleta}
-                                        setPaleta={setPaleta}
-                                        ordenar={ordenarGrafico}
-                                        setOrdenar={setOrdenarGrafico}
-                                        topN={topNGrafico}
-                                        setTopN={setTopNGrafico}
-                                        mostrarPorcentajeBarras={mostrarPorcentajeBarras}
-                                        setMostrarPorcentajeBarras={setMostrarPorcentajeBarras}
-                                    />
-                                    <ResumenGeneral
-                                        datos={datosFiltrados}
-                                        columnaValor={columnaValor}
-                                        resultadosProcesados={resultadosProcesadosPorHoja ? Object.values(resultadosProcesadosPorHoja).flat() : []}
-                                    />
-                                    <Graficos
-                                        datos={datosFiltrados}
-                                        columnaAgrupacion={columnaAgrupar}
-                                        columnaValor={columnaValor}
-                                        tipoGrafico={tipoGrafico}
-                                        paleta={paleta}
-                                        ordenar={ordenarGrafico}
-                                        topN={topNGrafico}
-                                        mostrarPorcentajeBarras={mostrarPorcentajeBarras}
-                                    />
-                                </Paper>
+                            <Paper elevation={2} sx={{ p: 3 }}>
+                                <Typography variant="h6" gutterBottom>
+                                    Análisis
+                                </Typography>
+                                <SelectoresAgrupacion
+                                    columnas={columnas}
+                                    columnaAgrupar={columnaAgrupar}
+                                    setColumnaAgrupar={setColumnaAgrupar}
+                                    columnaValor={columnaValor}
+                                    setColumnaValor={setColumnaValor}
+                                    tipoGrafico={tipoGrafico}
+                                    setTipoGrafico={setTipoGrafico}
+                                    paleta={paleta}
+                                    setPaleta={setPaleta}
+                                    ordenar={ordenarGrafico}
+                                    setOrdenar={setOrdenarGrafico}
+                                    topN={topNGrafico}
+                                    setTopN={setTopNGrafico}
+                                    mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+                                    setMostrarPorcentajeBarras={setMostrarPorcentajeBarras}
+                                />
+                                <ResumenGeneral
+                                    datos={datosFiltrados}
+                                    columnaValor={columnaValor}
+                                    resultadosProcesados={resultadosProcesadosPorHoja ? Object.values(resultadosProcesadosPorHoja).flat() : []}
+                                />
+                                <Graficos
+                                    datos={datosFiltrados}
+                                    columnaAgrupacion={columnaAgrupar}
+                                    columnaValor={columnaValor}
+                                    tipoGrafico={tipoGrafico}
+                                    paleta={paleta}
+                                    ordenar={ordenarGrafico}
+                                    topN={topNGrafico}
+                                    mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+                                />
+                            </Paper>
 
-                                <Paper elevation={2} sx={{ p: 2 }}>
-                                    <ExportButtons
-                                        datos={datosFiltrados}
-                                        columnas={columnas || []}
-                                        onExport={handleExportar}
-                                    />
-                                </Paper>
-                            </Box>
-                        )}
-                    </Box>
-                </Paper>
-            )}
-        </Layout>
-    );
+                            <Paper elevation={2} sx={{ p: 2 }}>
+                                <ExportButtons
+                                    datos={datosFiltrados}
+                                    columnas={columnas || []}
+                                    onExport={handleExportar}
+                                />
+                            </Paper>
+                        </Box>
+                    )}
+                </Box>
+            </Paper>
+        )}
+    </Layout>
+);
+
 };
 
 export default App;
