@@ -52,7 +52,6 @@ const App = () => {
     const [informeData, setInformeData] = useState(null);
     const [resultadosProcesadosPorHoja, setResultadosProcesadosPorHoja] = useState(null);
     const [ticProcesado, setTicProcesado] = useState(false);
-    const [datosCombinadosApp, setDatosCombinadosApp] = useState([]);
     const [ejecucionData, setEjecucionData] = useState(null);
     const [corAbiertosData, setCorAbiertosData] = useState(null);
     const [ppAbiertosData, setPpAbiertosData] = useState(null);
@@ -114,22 +113,31 @@ const App = () => {
         }
     }, [resultadosProcesadosPorHoja]);
 
-    useEffect(() => {
-        if (archivoSeleccionado?.nombreBackend && hojasSeleccionadas.length > 0 && datosPorArchivo[archivoSeleccionado.nombreBackend]?.combinado) {
-            console.log('Actualizando datosCombinadosApp con:', datosPorArchivo[archivoSeleccionado.nombreBackend].combinado);
-            setDatosCombinadosApp(datosPorArchivo[archivoSeleccionado.nombreBackend].combinado);
-        } else {
-            console.log('Estableciendo datosCombinadosApp a vacío');
-            setDatosCombinadosApp([]);
-        }
-    }, [archivoSeleccionado, hojasSeleccionadas, datosPorArchivo]);
+    const datosCombinadosApp = useMemo(() => {
+    if (archivoSeleccionado?.nombreBackend && hojasSeleccionadas.length > 0) {
+        const combinado = datosPorArchivo[archivoSeleccionado.nombreBackend]?.combinado || [];
+        console.log('Memoized datosCombinadosApp:', combinado);
+        return combinado;
+    }
+    return [];
+}, [archivoSeleccionado, hojasSeleccionadas, datosPorArchivo]);
 
-    const columnasSet = new Set();
-    datosCombinadosApp.forEach(row => Object.keys(row).forEach(col => columnasSet.add(col)));
-    const columnas = Array.from(columnasSet);
-    const columnasFecha = columnas.filter(col => col.toLowerCase().includes('fecha'));
-    const columnasNumericas = columnas.filter(col =>
+const columnas = useMemo(() => {
+    const set = new Set();
+    datosCombinadosApp.forEach(row => {
+        Object.keys(row).forEach(col => set.add(col));
+    });
+    return Array.from(set);
+}, [datosCombinadosApp]);
+
+const columnasFecha = useMemo(() => {
+    return columnas.filter(col => col.toLowerCase().includes('fecha'));
+}, [columnas]);
+
+const columnasNumericas = useMemo(() => {
+    return columnas.filter(col =>
         col.toLowerCase().match(/pago|valor|deducci|oblig|monto|total|suma|saldo/));
+}, [columnas]);
 
     useEffect(() => {
         if (columnas.length > 0 && !columnaAgrupar) setColumnaAgrupar(columnas[0]);

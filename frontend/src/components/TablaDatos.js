@@ -50,9 +50,6 @@ const TablaDatos = ({ datos, columnas }) => {
         );
     }
 
-    console.log("Recibo en TablaDatos:", datos);
-    console.log("Columnas:", columnas);
-
     return (
         <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
             <Table size="small" stickyHeader>
