@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
     Box, CircularProgress, Paper, Tab, Tabs, Typography,
 } from '@mui/material';
@@ -69,12 +69,6 @@ const App = () => {
         console.log('---------------------------------');
     }, [archivoSeleccionado, hojasSeleccionadas, datosPorArchivo, datosCombinadosApp]);
 
-    const ticKeywords = [
-        "FUNCIONAMIENTO", "INVERSION", "CUENTAS POR PAGAR", "CDP",
-        "VALOR CDP", "DIAS ABIERTOS", "RP", "VALOR INICIAL",
-        "PAGOS", "DIAS", "% GASTO"
-    ];
-
     const handleArchivoSeleccionadoChange = useCallback((archivo) => {
         setArchivoSeleccionadoFromHook(archivo);
         setHojasSeleccionadasFromHook([]);
@@ -120,11 +114,7 @@ const App = () => {
         }
     }, [resultadosProcesadosPorHoja]);
 
-
     useEffect(() => {
-        console.log('Archivo Seleccionado en useEffect:', archivoSeleccionado);
-        console.log('Hojas Seleccionadas en useEffect:', hojasSeleccionadas);
-        console.log('Datos Por Archivo en useEffect:', datosPorArchivo);
         if (archivoSeleccionado?.nombreBackend && hojasSeleccionadas.length > 0 && datosPorArchivo[archivoSeleccionado.nombreBackend]?.combinado) {
             console.log('Actualizando datosCombinadosApp con:', datosPorArchivo[archivoSeleccionado.nombreBackend].combinado);
             setDatosCombinadosApp(datosPorArchivo[archivoSeleccionado.nombreBackend].combinado);
@@ -207,15 +197,15 @@ const App = () => {
             setCargandoProcesamiento(true);
             const formData = new FormData();
             formData.append('nombreBackend', archivoSeleccionado.nombreBackend);
-            formData.append('hojas', JSON.stringify(hojasSeleccionadas)); 
-            formData.append('dependencia', 'DIRECCION DE LAS TIC'); 
+            formData.append('hojas', JSON.stringify(hojasSeleccionadas));
+            formData.append('dependencia', 'DIRECCION DE LAS TIC');
 
             try {
                 const response = await axios.post(`${API_URL}/procesar_excel`, formData, {
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 });
                 console.log("Respuesta del backend:", response.data);
-                setResultadosProcesadosPorHoja(response.data.tablas_por_hoja); 
+                setResultadosProcesadosPorHoja(response.data.tablas_por_hoja);
             } catch (error) {
                 console.error('Error al procesar los datos:', error);
             } finally {
@@ -229,7 +219,7 @@ const App = () => {
     const handleChangeTab = (event, newValue) => {
         setTabValue(newValue);
         if (newValue === 4 && archivoSeleccionado && hojasSeleccionadas.length > 0 && !ticProcesado) {
-            handleProcesarDatos(); 
+            handleProcesarDatos();
             setTicProcesado(true);
         }
     };
@@ -351,7 +341,7 @@ const App = () => {
                             ))}
                             </Box>
                         )}
-                        
+
                         {tabValue === 5 && (
                             <Box display="flex" flexDirection="column" gap={3}>
                                 <Paper elevation={2} sx={{ p: 3 }}>
