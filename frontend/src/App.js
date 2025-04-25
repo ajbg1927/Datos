@@ -52,21 +52,13 @@ const App = () => {
     const [informeData, setInformeData] = useState(null);
     const [resultadosProcesadosPorHoja, setResultadosProcesadosPorHoja] = useState(null);
     const [ticProcesado, setTicProcesado] = useState(false);
+    const [datosCombinadosApp, setDatosCombinadosApp] = useState([]);
     const [ejecucionData, setEjecucionData] = useState(null);
     const [corAbiertosData, setCorAbiertosData] = useState(null);
     const [ppAbiertosData, setPpAbiertosData] = useState(null);
     const [ticData, setTicData] = useState([]);
     const [cargandoDatosTabla, setCargandoDatosTabla] = useState(false);
     const [cargandoProcesamiento, setCargandoProcesamiento] = useState(false);
-
-    useEffect(() => {
-        console.log('--- CONTROL DE FLUJO DE DATOS ---');
-        console.log('Archivo seleccionado:', archivoSeleccionado);
-        console.log('Hojas seleccionadas:', hojasSeleccionadas);
-        console.log('Datos Por Archivo:', datosPorArchivo);
-        console.log('Datos Combinados App:', datosCombinadosApp);
-        console.log('---------------------------------');
-    }, [archivoSeleccionado, hojasSeleccionadas, datosPorArchivo, datosCombinadosApp]);
 
     const handleArchivoSeleccionadoChange = useCallback((archivo) => {
         setArchivoSeleccionadoFromHook(archivo);
@@ -94,7 +86,6 @@ const App = () => {
 
     useEffect(() => {
         if (archivoSeleccionado?.nombreBackend && hojasSeleccionadas.length > 0) {
-            console.log('Cargando datos desde App.js useEffect...');
             setCargandoDatosTabla(true);
             obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas)
                 .finally(() => setCargandoDatosTabla(false));
@@ -107,48 +98,30 @@ const App = () => {
         }
     }, [archivoSeleccionado, obtenerHojas, hojasPorArchivo]);
 
-    useEffect(() => {
-        if (resultadosProcesadosPorHoja) {
-            console.log("Resultados Procesados por Hoja:", resultadosProcesadosPorHoja);
-        }
-    }, [resultadosProcesadosPorHoja]);
+    const columnas = useMemo(() => {
+        const set = new Set();
+        datosCombinadosApp.forEach(row => Object.keys(row).forEach(col => set.add(col)));
+        return Array.from(set);
+    }, [datosCombinadosApp]);
 
-    const datosCombinadosApp = useMemo(() => {
-    if (archivoSeleccionado?.nombreBackend && hojasSeleccionadas.length > 0) {
-        const combinado = datosPorArchivo[archivoSeleccionado.nombreBackend]?.combinado || [];
-        console.log('Memoized datosCombinadosApp:', combinado);
-        return combinado;
-    }
-    return [];
-}, [archivoSeleccionado, hojasSeleccionadas, datosPorArchivo]);
+    const columnasFecha = useMemo(() => columnas.filter(col => col.toLowerCase().includes('fecha')), [columnas]);
 
-const columnas = useMemo(() => {
-    const set = new Set();
-    datosCombinadosApp.forEach(row => {
-        Object.keys(row).forEach(col => set.add(col));
-    });
-    return Array.from(set);
-}, [datosCombinadosApp]);
+    const columnasNumericas = useMemo(() => columnas.filter(col =>
+        col.toLowerCase().match(/pago|valor|deducci|oblig|monto|total|suma|saldo/)), [columnas]);
 
-const columnasFecha = useMemo(() => {
-    return columnas.filter(col => col.toLowerCase().includes('fecha'));
-}, [columnas]);
-
-const columnasNumericas = useMemo(() => {
-    return columnas.filter(col =>
-        col.toLowerCase().match(/pago|valor|deducci|oblig|monto|total|suma|saldo/));
-}, [columnas]);
+    const valoresUnicos = useMemo(() => {
+        const result = {};
+        columnas.forEach(col => {
+            const valores = datosCombinadosApp.map(row => row[col]).filter(v => v !== undefined && v !== null);
+            result[col] = [...new Set(valores)];
+        });
+        return result;
+    }, [columnas, datosCombinadosApp]);
 
     useEffect(() => {
-        if (columnas.length > 0 && !columnaAgrupar) setColumnaAgrupar(columnas[0]);
-        if (columnasNumericas.length > 0 && !columnaValor) setColumnaValor(columnasNumericas[0]);
+        if (!columnaAgrupar && columnas.length > 0) setColumnaAgrupar(columnas[0]);
+        if (!columnaValor && columnasNumericas.length > 0) setColumnaValor(columnasNumericas[0]);
     }, [columnas, columnasNumericas, columnaAgrupar, columnaValor]);
-
-    const valoresUnicos = {};
-    columnas.forEach(col => {
-        const valores = datosCombinadosApp.map(row => row[col]).filter(v => v !== undefined && v !== null);
-        valoresUnicos[col] = [...new Set(valores)];
-    });
 
     const texto = filtros.busqueda || '';
     const fechaInicio = filtros.Fecha_desde || '';
