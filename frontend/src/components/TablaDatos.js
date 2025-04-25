@@ -19,7 +19,9 @@ const TablaDatos = ({ datos = [], columnas = [] }) => {
         );
     }
 
-    if (!columnas.length) {
+    const columnasDetectadas = columnas.length ? columnas : Object.keys(datos[0] || {});
+
+    if (!columnasDetectadas.length) {
         return (
             <Typography color="warning.main" variant="body1" textAlign="center" mt={2}>
                 No se encontraron columnas para mostrar.
@@ -27,13 +29,19 @@ const TablaDatos = ({ datos = [], columnas = [] }) => {
         );
     }
 
+    console.log("Datos recibidos:", datos);
+    console.log("Columnas detectadas:", columnasDetectadas);
+
     return (
         <TableContainer component={Paper}>
             <Table size="small">
                 <TableHead>
                     <TableRow>
-                        {columnas.map((columna, idx) => (
-                            <TableCell key={columna || idx} sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>
+                        {columnasDetectadas.map((columna, idx) => (
+                            <TableCell
+                                key={columna || idx}
+                                sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}
+                            >
                                 {columna}
                             </TableCell>
                         ))}
@@ -42,7 +50,7 @@ const TablaDatos = ({ datos = [], columnas = [] }) => {
                 <TableBody>
                     {datos.map((fila, filaIndex) => (
                         <TableRow key={filaIndex}>
-                            {columnas.map((columna, colIndex) => (
+                            {columnasDetectadas.map((columna, colIndex) => (
                                 <TableCell key={`${filaIndex}-${colIndex}`}>
                                     {fila[columna] != null ? String(fila[columna]) : ''}
                                 </TableCell>
