@@ -200,8 +200,8 @@ const App = () => {
             setTicProcesado(true);
         }
     };
-
-   return (
+    
+return (
     <Layout
         sidebar={
             <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
@@ -278,44 +278,50 @@ const App = () => {
                     <Tab label="Ejecución Detallada" />
                     <Tab label="CDP's Abiertos" />
                     <Tab label="PP Abiertos" />
-                    <Tab label="Dirección de las Tics" />
+                    <Tab label="Tablas Procesadas" />
                     <Tab label="Análisis General" />
                 </Tabs>
                 <Box sx={{ p: 3 }}>
                     {tabValue === 4 && (
                         <Box display="flex" flexDirection="column" gap={3}>
-                            <Typography variant="h6" gutterBottom>Dirección de las Tics</Typography>
+                            <Typography variant="h6" gutterBottom>Tablas Procesadas</Typography>
+
                             {cargandoProcesamiento && (
                                 <Box display="flex" justifyContent="center">
                                     <CircularProgress />
                                 </Box>
                             )}
-                            {Object.entries(resultadosProcesadosPorHoja).map(([nombreHoja, tablas]) => (
-                                <Box key={nombreHoja} mb={3}>
-                                    <Typography variant="subtitle1">Hoja: {nombreHoja}</Typography>
-                                    {Array.isArray(tablas) && tablas.length > 0 ? (
-                                        tablas.map((tabla, index) => (
-                                            <Paper key={`${nombreHoja}-${index}`} elevation={1} sx={{ mt: 1, p: 2 }}>
-                                                <Typography variant="body2" fontWeight="bold">Tabla {index + 1}</Typography>
-                                                {tabla.length > 0 ? (
-                                                    <TablaDatos
-                                                        datos={tabla}
-                                                        columnas={Object.keys(tabla[0] || {})}
-                                                    />
-                                                ) : (
-                                                    <Typography>No hay datos en esta tabla.</Typography>
-                                                )}
-                                            </Paper>
-                                        ))
-                                    ) : (
-                                        <Typography color="error">
-                                            {typeof tablas === 'object' && tablas?.error
-                                                ? tablas.error
-                                                : 'No se encontraron tablas para la Dirección de las Tics en esta hoja.'}
-                                        </Typography>
-                                    )}
-                                </Box>
-                            ))}
+
+                            {resultadosProcesadosPorHoja ? (
+                                Object.entries(resultadosProcesadosPorHoja).map(([nombreHoja, tablas]) => (
+                                    <Box key={nombreHoja} mb={3}>
+                                        <Typography variant="subtitle1">Hoja: {nombreHoja}</Typography>
+                                        {Array.isArray(tablas) && tablas.length > 0 ? (
+                                            tablas.map((tabla, index) => (
+                                                <Paper key={`${nombreHoja}-${index}`} elevation={1} sx={{ mt: 1, p: 2 }}>
+                                                    <Typography variant="body2" fontWeight="bold">Tabla {index + 1}</Typography>
+                                                    {tabla.length > 0 ? (
+                                                        <TablaDatos
+                                                            datos={tabla}
+                                                            columnas={Object.keys(tabla[0] || {})}
+                                                        />
+                                                    ) : (
+                                                        <Typography>No hay datos en esta tabla.</Typography>
+                                                    )}
+                                                </Paper>
+                                            ))
+                                        ) : (
+                                            <Typography color="error">
+                                                {typeof tablas === 'object' && tablas?.error
+                                                    ? tablas.error
+                                                    : 'No se encontraron tablas en esta hoja.'}
+                                            </Typography>
+                                        )}
+                                    </Box>
+                                ))
+                            ) : (
+                                <Typography>No se ha procesado ninguna hoja aún.</Typography>
+                            )}
                         </Box>
                     )}
 
@@ -332,21 +338,10 @@ const App = () => {
                                 ) : (
                                     <>
                                         <Typography variant="subtitle1">Datos Combinados App:</Typography>
-                                        {console.log("DATOS COMBINADOS APP:", datosCombinadosApp)}
-                                        {console.log("COLUMNAS:", columnas)}
                                         {datosCombinadosApp && datosCombinadosApp.length > 0 ? (
-                                            <>
-                                                {console.log("Primer objeto real:", datosCombinadosApp[0])}
-                                                {console.log("Claves del objeto:", Object.keys(datosCombinadosApp[0]))}
-                                                {console.log("JSON.stringify:", JSON.stringify(datosCombinadosApp[0], null, 2))}
-
-                                                <TablaDatos datos={datosCombinadosApp} columnas={columnas} />
-                                            </>
+                                            <TablaDatos datos={datosCombinadosApp} columnas={columnas} />
                                         ) : (
-                                            <>
-                                                <Typography>No hay datos disponibles para mostrar.</Typography>
-                                                {console.log("No hay datos en datosCombinadosApp")}
-                                            </>
+                                            <Typography>No hay datos disponibles para mostrar.</Typography>
                                         )}
                                         <Typography variant="subtitle1">Columnas:</Typography>
                                         <pre>{JSON.stringify(columnas, null, 2)}</pre>
