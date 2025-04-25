@@ -46,7 +46,30 @@ const useFiltros = ({
     });
   }, [datos, texto, fechaInicio, fechaFin, filtrosColumnas, pagosMin, pagosMax]);
 
-  return datosFiltrados;
+  const columnas = useMemo(() => {
+    if (!Array.isArray(datos) || datos.length === 0) return [];
+    return Object.keys(datos[0]);
+  }, [datos]);
+
+  const valoresUnicos = useMemo(() => {
+    const valores = {};
+    if (!Array.isArray(datos)) return valores;
+
+    datos.forEach(row => {
+      Object.entries(row).forEach(([columna, valor]) => {
+        if (!valores[columna]) valores[columna] = new Set();
+        valores[columna].add(valor);
+      });
+    });
+
+    Object.keys(valores).forEach(key => {
+      valores[key] = Array.from(valores[key]);
+    });
+
+    return valores;
+  }, [datos]);
+
+  return { datosFiltrados, columnas, valoresUnicos };
 };
 
 export default useFiltros;
