@@ -29,11 +29,11 @@ const TablaDatos = ({ datos, columnas }) => {
     const columnasFinales = columnas && columnas.length > 0
         ? columnas
         : datos && datos.length > 0
-            ? Object.keys(datos[0]).filter(key => key && key.trim() !== '')
+            ? [...new Set(datos.flatMap(obj => Object.keys(obj)))]
             : [];
 
-    console.log("📌 Columnas Finales:", columnasFinales);
-    console.log("🧪 Ejemplo de fila:", datos[0]);
+    console.log("Columnas Finales:", columnasFinales);
+    console.log("Ejemplo de fila:", datos[0]);
 
     const datosVacios = !Array.isArray(datos) || datos.length === 0 || columnasFinales.length === 0;
 
@@ -59,7 +59,15 @@ const TablaDatos = ({ datos, columnas }) => {
                 <TableHead>
                     <TableRow>
                         {columnasFinales.map((columna) => (
-                            <TableCell key={columna} sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>
+                            <TableCell
+                                key={columna}
+                                sx={{
+                                    backgroundColor: '#f5f5f5',
+                                    fontWeight: 'bold',
+                                    whiteSpace: 'nowrap',
+                                    fontSize: '0.85rem',
+                                }}
+                            >
                                 {columna}
                             </TableCell>
                         ))}
@@ -69,16 +77,26 @@ const TablaDatos = ({ datos, columnas }) => {
                     {rowsToShow.map((fila, index) => (
                         <TableRow key={index}>
                             {columnasFinales.map((columna) => (
-                                <TableCell key={columna}>
+                                <TableCell
+                                    key={columna}
+                                    sx={{
+                                        whiteSpace: 'nowrap',
+                                        fontSize: '0.8rem',
+                                        color: typeof fila[columna] === 'number' ? 'text.primary' : 'text.secondary',
+                                    }}
+                                >
                                     {typeof fila[columna] === 'number'
                                         ? fila[columna].toLocaleString('es-CO')
-                                        : fila[columna]}
+                                        : fila[columna] !== null && fila[columna] !== undefined
+                                            ? fila[columna].toString()
+                                            : ''}
                                 </TableCell>
                             ))}
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
+
             <TablePagination
                 component="div"
                 count={datos.length}
