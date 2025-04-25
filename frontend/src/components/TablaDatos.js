@@ -27,6 +27,12 @@ const TablaDatos = ({ datos, columnas }) => {
 
     const rowsToShow = datos.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
+    const columnasFinales = columnas && columnas.length > 0 
+        ? columnas 
+        : datos.length > 0 
+            ? Object.keys(datos[0]) 
+            : [];
+
     if (!datos || datos.length === 0) {
         return (
             <Typography variant="body1" sx={{ mt: 2 }}>
@@ -40,7 +46,7 @@ const TablaDatos = ({ datos, columnas }) => {
             <Table size="small" stickyHeader>
                 <TableHead>
                     <TableRow>
-                        {columnas.map((columna) => (
+                        {columnasFinales.map((columna) => (
                             <TableCell key={columna} sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>
                                 {columna}
                             </TableCell>
@@ -50,7 +56,7 @@ const TablaDatos = ({ datos, columnas }) => {
                 <TableBody>
                     {rowsToShow.map((fila, index) => (
                         <TableRow key={index}>
-                            {columnas.map((columna) => (
+                            {columnasFinales.map((columna) => (
                                 <TableCell key={columna}>
                                     {typeof fila[columna] === 'number'
                                         ? fila[columna].toLocaleString('es-CO')
