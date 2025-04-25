@@ -1,107 +1,62 @@
-import React, { useState } from 'react';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    Typography,
-    TablePagination,
-    Box,
-} from '@mui/material';
+import React from 'react';
+import { DataGrid } from '@mui/x-data-grid';
+import { Box, Typography } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
-const limpiarTexto = (texto) => {
-    if (typeof texto !== 'string') return '';
-    return texto.trim().toLowerCase();
-};
-
 const TablaDatos = ({ datos, columnas }) => {
-    console.log("DATOS EN TABLA:", datos);
-    console.log("COLUMNAS EN TABLA (prop):", columnas);
+  const datosVacios = !datos || datos.length === 0;
 
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+  const columnasFinales = columnas && columnas.length > 0
+    ? columnas
+    : datos && datos.length > 0
+      ? Object.keys(datos[0]).filter(key => key && key.trim() !== '')
+      : [];
 
-    const handleChangePage = (event, newPage) => setPage(newPage);
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(+event.target.value);
-        setPage(0);
-    };
+  const columnasDataGrid = columnasFinales.map((columna, index) => ({
+    field: columna,
+    headerName: columna,
+    flex: 1,
+    minWidth: 150,
+    sortable: true,
+    headerAlign: 'center',
+    align: 'center',
+  }));
 
-    const columnasFinales = columnas && columnas.length > 0
-        ? columnas
-        : datos && datos.length > 0
-            ? Object.keys(datos[0]).filter(key => key && key.trim() !== '')
-            : [];
+  const filas = datos && datos.length > 0
+    ? datos.map((fila, index) => ({ id: index, ...fila }))
+    : [];
 
-    console.log("Columnas Finales:", columnasFinales);
-    console.log("Ejemplo de fila:", datos[0]);
-
-    const datosVacios = !Array.isArray(datos) || datos.length === 0 || columnasFinales.length === 0;
-
-    if (datosVacios) {
-        return (
-            <Box sx={{ textAlign: 'center', mt: 8 }}>
-                <InfoOutlinedIcon sx={{ fontSize: 80, color: 'grey.400' }} />
-                <Typography variant="h6" color="text.secondary" sx={{ mt: 2 }}>
-                    No hay datos estructurados para mostrar
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                    Selecciona un archivo y hoja para visualizar la información.
-                </Typography>
-            </Box>
-        );
-    }
-
-    const rowsToShow = datos.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-
-    console.log("Ejemplo de fila a mostrar:", rowsToShow[0]);
-
+  if (datosVacios || columnasDataGrid.length === 0) {
+    console.log("Sin datos o columnas válidas. No se mostrará tabla.");
     return (
-        <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
-            <Table size="small" stickyHeader>
-                <TableHead>
-                    <TableRow>
-                        {columnasFinales.map((columna) => (
-                            <TableCell key={columna} sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>
-                                {columna}
-                            </TableCell>
-                        ))}
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {rowsToShow.map((fila, index) => (
-                        <TableRow key={index}>
-                            {columnasFinales.map((columna) => {
-                                const keyReal = Object.keys(fila).find(k => limpiarTexto(k) === limpiarTexto(columna));
-                                const valor = keyReal ? fila[keyReal] : '';
-
-                                return (
-                                    <TableCell key={columna}>
-                                        {typeof valor === 'number'
-                                            ? valor.toLocaleString('es-CO')
-                                            : valor ?? ''}
-                                    </TableCell>
-                                );
-                            })}
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-            <TablePagination
-                component="div"
-                count={datos.length}
-                page={page}
-                onPageChange={handleChangePage}
-                rowsPerPage={rowsPerPage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-                rowsPerPageOptions={[10, 25, 50, 100]}
-            />
-        </TableContainer>
+      <Box sx={{ textAlign: 'center', mt: 8 }}>
+        <InfoOutlinedIcon sx={{ fontSize: 80, color: 'grey.400' }} />
+        <Typography variant="h6" color="text.secondary" sx={{ mt: 2 }}>
+          No hay datos estructurados para mostrar
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          Asegúrate de seleccionar una hoja con datos válidos.
+        </Typography>
+      </Box>
     );
+  }
+
+  return (
+    <Box sx={{ height: 600, width: '100%' }}>
+      <DataGrid
+        rows={filas}
+        columns={columnasDataGrid}
+        pageSize={10}
+        rowsPerPageOptions={[10, 25, 50, 100]}
+        sx={{
+          bgcolor: 'background.paper',
+          borderRadius: 2,
+          boxShadow: 2,
+          '& .MuiDataGrid-columnHeaders': { bgcolor: 'primary.light', color: 'primary.contrastText' },
+        }}
+      />
+    </Box>
+  );
 };
 
 export default TablaDatos;
