@@ -1,39 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    Typography,
-    TablePagination,
-    Box,
+    Table, TableBody, TableCell, TableContainer,
+    TableHead, TableRow, Paper, Typography,
+    TablePagination, Box,
 } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
-const TablaDatos = ({ datos, columnas }) => {
-    console.log("DATOS EN TABLA:", datos);
-    console.log("COLUMNAS EN TABLA (prop):", columnas);
+const limpiarTexto = (texto) => {
+    if (typeof texto !== 'string') return texto;
+    return texto.trim().replace(/\s+/g, ' ');
+};
 
+const TablaDatos = ({ datos, columnas }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [columnasFinales, setColumnasFinales] = useState([]);
+
+    useEffect(() => {
+        if (columnas && columnas.length > 0) {
+            setColumnasFinales(columnas.map(c => limpiarTexto(c)));
+        } else if (datos && datos.length > 0) {
+            const clavesLimpias = new Set();
+            datos.forEach(obj => {
+                Object.keys(obj).forEach(k => {
+                    const limpio = limpiarTexto(k);
+                    if (limpio) clavesLimpias.add(limpio);
+                });
+            });
+            setColumnasFinales([...clavesLimpias]);
+        }
+    }, [datos, columnas]);
 
     const handleChangePage = (event, newPage) => setPage(newPage);
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(+event.target.value);
         setPage(0);
     };
-
-    const columnasFinales = columnas && columnas.length > 0
-        ? columnas
-        : datos && datos.length > 0
-            ? [...new Set(datos.flatMap(obj => Object.keys(obj)))]
-            : [];
-
-    console.log("Columnas Finales:", columnasFinales);
-    console.log("Ejemplo de fila:", datos[0]);
 
     const datosVacios = !Array.isArray(datos) || datos.length === 0 || columnasFinales.length === 0;
 
@@ -59,15 +61,7 @@ const TablaDatos = ({ datos, columnas }) => {
                 <TableHead>
                     <TableRow>
                         {columnasFinales.map((columna) => (
-                            <TableCell
-                                key={columna}
-                                sx={{
-                                    backgroundColor: '#f5f5f5',
-                                    fontWeight: 'bold',
-                                    whiteSpace: 'nowrap',
-                                    fontSize: '0.85rem',
-                                }}
-                            >
+                            <TableCell key={columna} sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>
                                 {columna}
                             </TableCell>
                         ))}
@@ -77,19 +71,10 @@ const TablaDatos = ({ datos, columnas }) => {
                     {rowsToShow.map((fila, index) => (
                         <TableRow key={index}>
                             {columnasFinales.map((columna) => (
-                                <TableCell
-                                    key={columna}
-                                    sx={{
-                                        whiteSpace: 'nowrap',
-                                        fontSize: '0.8rem',
-                                        color: typeof fila[columna] === 'number' ? 'text.primary' : 'text.secondary',
-                                    }}
-                                >
+                                <TableCell key={columna}>
                                     {typeof fila[columna] === 'number'
                                         ? fila[columna].toLocaleString('es-CO')
-                                        : fila[columna] !== null && fila[columna] !== undefined
-                                            ? fila[columna].toString()
-                                            : ''}
+                                        : fila[columna] ?? ''}
                                 </TableCell>
                             ))}
                         </TableRow>
