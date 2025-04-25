@@ -32,8 +32,8 @@ const App = () => {
         hojasSeleccionadas,
         setHojasSeleccionadas: setHojasSeleccionadasFromHook,
         hojasPorArchivo,
-        datosPorArchivo,
-        columnasPorArchivo,
+        datosPorArchivo: datosPorArchivoHook, // Renombrar para evitar confusión
+        columnasPorArchivo: columnasPorArchivoHook, // Renombrar para evitar confusión
         obtenerDatos,
         cargarArchivos,
         obtenerHojas,
@@ -74,11 +74,18 @@ const App = () => {
         if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
             obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas)
                 .then((data) => {
-                    if (data) setDatosCombinadosApp(data);
+                    if (data) {
+                        setDatosCombinadosApp(data);
+                        console.log("DatosCombinadosApp después de obtenerDatos:", data);
+                        if (data.length > 0 && columnas.length === 0) {
+                            setColumnas(Object.keys(data[0]));
+                            console.log("Columnas iniciales seteadas:", Object.keys(data[0]));
+                        }
+                    }
                 })
                 .catch(console.error);
         }
-    }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
+    }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos, columnas.length]);
 
     useEffect(() => {
         if (archivoSeleccionado && !hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
@@ -194,7 +201,7 @@ const App = () => {
 
     if (datosFiltrados.length > 0) {
         setColumnas(Object.keys(datosFiltrados[0]));
-        console.log("Columnas seteadas:", Object.keys(datosFiltrados[0]));
+        console.log("Columnas seteadas en onSeleccionar:", Object.keys(datosFiltrados[0]));
     } else {
         setColumnas([]);
     }
