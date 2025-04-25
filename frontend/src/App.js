@@ -74,7 +74,6 @@ const App = () => {
             obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas)
                 .then((data) => {
                     if (data) {
-                        console.log("Datos recibidos de la API:", data);
                         setDatosCombinadosApp(data);
                     }
                 })
@@ -182,10 +181,7 @@ const App = () => {
             formData.append('dependencia', 'DIRECCION DE LAS TIC');
 
             try {
-                const response = await axios.post(`${API_URL}/procesar_excel`, formData, {
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                });
-                console.log("Respuesta del backend:", response.data);
+                const response = await axios.post(`${API_URL}/procesar_excel`, formData);
                 setResultadosProcesadosPorHoja(response.data.tablas_por_hoja);
             } catch (error) {
                 console.error('Error al procesar los datos:', error);
@@ -336,20 +332,20 @@ const App = () => {
                                 ) : (
                                     <>
                                         <Typography variant="subtitle1">Datos Combinados App:</Typography>
-                                        {console.log("✅ DATOS COMBINADOS APP:", datosCombinadosApp)}
-                                        {console.log("✅ COLUMNAS:", columnas)}
+                                        {console.log("DATOS COMBINADOS APP:", datosCombinadosApp)}
+                                        {console.log("COLUMNAS:", columnas)}
                                         {datosCombinadosApp && datosCombinadosApp.length > 0 ? (
                                             <>
-                                                {console.log("🧪 Primer objeto real:", datosCombinadosApp[0])}
-                                                {console.log("🧪 Claves del objeto:", Object.keys(datosCombinadosApp[0]))}
-                                                {console.log("🧪 JSON.stringify:", JSON.stringify(datosCombinadosApp[0], null, 2))}
+                                                {console.log("Primer objeto real:", datosCombinadosApp[0])}
+                                                {console.log("Claves del objeto:", Object.keys(datosCombinadosApp[0]))}
+                                                {console.log("JSON.stringify:", JSON.stringify(datosCombinadosApp[0], null, 2))}
 
                                                 <TablaDatos datos={datosCombinadosApp} columnas={columnas} />
                                             </>
                                         ) : (
                                             <>
                                                 <Typography>No hay datos disponibles para mostrar.</Typography>
-                                                {console.log("❌ No hay datos en datosCombinadosApp")}
+                                                {console.log("No hay datos en datosCombinadosApp")}
                                             </>
                                         )}
                                         <Typography variant="subtitle1">Columnas:</Typography>
