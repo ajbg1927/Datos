@@ -272,6 +272,13 @@ const App = () => {
             </Paper>
         )}
 
+        {datosFiltrados.length > 0 && columnas.length > 0 && (
+            <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+                <Typography variant="h6" gutterBottom>Datos</Typography>
+                <TablaDatos datos={datosFiltrados} columnas={columnas} />
+            </Paper>
+        )}
+
         {resultadosProcesadosPorHoja && (
             <Paper elevation={2} sx={{ width: '100%' }}>
                 <Tabs value={tabValue} onChange={handleChangeTab}>
@@ -320,17 +327,17 @@ const App = () => {
                     {tabValue === 5 && (
                         <Box display="flex" flexDirection="column" gap={3}>
                             <FiltroDependencia
-                            sheets={Object.keys(dependenciasPorHoja || {})}
-                            dependenciasPorHoja={dependenciasPorHoja}
-                            onSeleccionar={({ hoja, dependencia }) => {
-                                console.log("Seleccionado hoja:", hoja, "dependencia:", dependencia);
-                                setHojaSeleccionada(hoja);
-                                const datosOriginales = resultadosProcesadosPorHoja?.[hoja] || [];
-                                const datosFiltrados = datosOriginales
-                                .flat()
-                                .filter((row) => row?.Dependencia?.toUpperCase?.() === dependencia.toUpperCase());
-                                onSeleccionar(dependencia, datosFiltrados);
-                            }}
+                                sheets={Object.keys(dependenciasPorHoja || {})}
+                                dependenciasPorHoja={dependenciasPorHoja}
+                                onSeleccionar={({ hoja, dependencia }) => {
+                                    console.log("Seleccionado hoja:", hoja, "dependencia:", dependencia);
+                                    setHojaSeleccionada(hoja);
+                                    const datosOriginales = resultadosProcesadosPorHoja?.[hoja] || [];
+                                    const datosFiltradosInterno = datosOriginales
+                                        .flat()
+                                        .filter((row) => row?.Dependencia?.toUpperCase?.() === dependencia.toUpperCase());
+                                    onSeleccionar(dependencia, datosFiltradosInterno);
+                                }}
                             />
 
                             <Paper elevation={2} sx={{ p: 3 }}>
