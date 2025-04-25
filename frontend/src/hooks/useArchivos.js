@@ -44,12 +44,15 @@ const useArchivos = () => {
             }));
 
             if (datos.length > 0) {
+                const columnasUnicas = Array.from(
+                    new Set(datos.flatMap((fila) => Object.keys(fila)))
+                    );
                 setColumnasPorArchivo((prev) => ({
                     ...prev,
-                    [nombreBackend]: Object.keys(datos[0]),
+                    [nombreBackend]: columnasUnicas,
                 }));
             }
-
+            
             return datos;
         } catch (err) {
             console.error('Error al obtener datos:', err);
