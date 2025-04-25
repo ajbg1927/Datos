@@ -16,7 +16,6 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 const TablaDatos = ({ datos, columnas }) => {
     console.log("DATOS EN TABLA:", datos);
     console.log("COLUMNAS EN TABLA:", columnas);
-    console.log("Ejemplo de fila:", datos?.[0]);
 
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -52,46 +51,41 @@ const TablaDatos = ({ datos, columnas }) => {
     }
 
     return (
-        <Box sx={{ border: '2px dashed red', padding: 2 }}>
-            <Typography variant="caption">TablaDatos renderizado</Typography>
-            <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto', border: '2px solid red' }}>
-                <Table size="small" stickyHeader>
-                    <TableHead>
-                        <TableRow>
+        <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
+            <Table size="small" stickyHeader>
+                <TableHead>
+                    <TableRow>
+                        {columnasFinales.map((columna) => (
+                            <TableCell key={columna} sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>
+                                {columna}
+                            </TableCell>
+                        ))}
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {rowsToShow.map((fila, index) => (
+                        <TableRow key={index}>
                             {columnasFinales.map((columna) => (
-                                <TableCell key={columna} sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>
-                                    {columna}
+                                <TableCell key={columna}>
+                                    {typeof fila[columna] === 'number'
+                                        ? fila[columna].toLocaleString('es-CO')
+                                        : fila[columna]}
                                 </TableCell>
                             ))}
                         </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {rowsToShow.map((fila, index) => (
-                            <TableRow key={index}>
-                                {columnasFinales.map((columna) => (
-                                    <TableCell key={columna}>
-                                        {fila[columna] !== undefined && fila[columna] !== null
-                                            ? (typeof fila[columna] === 'number'
-                                                ? fila[columna].toLocaleString('es-CO')
-                                                : fila[columna])
-                                            : '[VACÍO]'}
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-                <TablePagination
-                    component="div"
-                    count={datos.length}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    rowsPerPage={rowsPerPage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                    rowsPerPageOptions={[10, 25, 50, 100]}
-                />
-            </TableContainer>
-        </Box>
+                    ))}
+                </TableBody>
+            </Table>
+            <TablePagination
+                component="div"
+                count={datos.length}
+                page={page}
+                onPageChange={handleChangePage}
+                rowsPerPage={rowsPerPage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                rowsPerPageOptions={[10, 25, 50, 100]}
+            />
+        </TableContainer>
     );
 };
 
