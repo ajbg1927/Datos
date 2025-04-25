@@ -60,6 +60,15 @@ const App = () => {
     const [cargandoDatosTabla, setCargandoDatosTabla] = useState(false);
     const [cargandoProcesamiento, setCargandoProcesamiento] = useState(false);
 
+useEffect(() => {
+  console.log('--- CONTROL DE FLUJO DE DATOS ---');
+  console.log('Archivo seleccionado:', archivoSeleccionado);
+  console.log('Hojas seleccionadas:', hojasSeleccionadas);
+  console.log('Datos Por Archivo:', datosPorArchivo);
+  console.log('Datos Combinados App:', datosCombinadosApp);
+  console.log('---------------------------------');
+}, [archivoSeleccionado, hojasSeleccionadas, datosPorArchivo, datosCombinadosApp]);
+
     const ticKeywords = [
         "FUNCIONAMIENTO", "INVERSION", "CUENTAS POR PAGAR", "CDP",
         "VALOR CDP", "DIAS ABIERTOS", "RP", "VALOR INICIAL",
