@@ -60,14 +60,14 @@ const App = () => {
     const [cargandoDatosTabla, setCargandoDatosTabla] = useState(false);
     const [cargandoProcesamiento, setCargandoProcesamiento] = useState(false);
 
-useEffect(() => {
-  console.log('--- CONTROL DE FLUJO DE DATOS ---');
-  console.log('Archivo seleccionado:', archivoSeleccionado);
-  console.log('Hojas seleccionadas:', hojasSeleccionadas);
-  console.log('Datos Por Archivo:', datosPorArchivo);
-  console.log('Datos Combinados App:', datosCombinadosApp);
-  console.log('---------------------------------');
-}, [archivoSeleccionado, hojasSeleccionadas, datosPorArchivo, datosCombinadosApp]);
+    useEffect(() => {
+        console.log('--- CONTROL DE FLUJO DE DATOS ---');
+        console.log('Archivo seleccionado:', archivoSeleccionado);
+        console.log('Hojas seleccionadas:', hojasSeleccionadas);
+        console.log('Datos Por Archivo:', datosPorArchivo);
+        console.log('Datos Combinados App:', datosCombinadosApp);
+        console.log('---------------------------------');
+    }, [archivoSeleccionado, hojasSeleccionadas, datosPorArchivo, datosCombinadosApp]);
 
     const ticKeywords = [
         "FUNCIONAMIENTO", "INVERSION", "CUENTAS POR PAGAR", "CDP",
@@ -331,7 +331,7 @@ useEffect(() => {
                                                 <Paper key={`${nombreHoja}-${index}`} elevation={1} sx={{ mt: 1, p: 2 }}>
                                                     <Typography variant="body2" fontWeight="bold">Tabla {index + 1}</Typography>
                                                     {tabla.length > 0 ? (
-                                                        <TablaDatos datos={tabla} columnas={Object.keys(tabla[0] || {})} />
+                                                        <TablaDatos datos={tabla} columnas={tabla && tabla.length > 0 && Object.keys(tabla[0]) ? Object.keys(tabla[0]) : []} />
                                                     ) : (
                                                         <Typography>No hay datos en esta tabla.</Typography>
                                                     )}
