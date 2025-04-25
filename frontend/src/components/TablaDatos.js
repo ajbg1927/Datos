@@ -11,11 +11,11 @@ import {
     TablePagination,
     Box,
 } from '@mui/material';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'; 
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 const TablaDatos = ({ datos, columnas }) => {
     console.log("DATOS EN TABLA:", datos);
-    console.log("COLUMNAS EN TABLA:", columnas);
+    console.log("COLUMNAS EN TABLA (prop):", columnas);
 
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -26,15 +26,13 @@ const TablaDatos = ({ datos, columnas }) => {
         setPage(0);
     };
 
-    const rowsToShow = datos.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-
-    const columnasFinales = columnas && columnas.length > 0 
-        ? columnas 
-        : datos.length > 0 
-            ? Object.keys(datos[0]) 
+    const columnasFinales = columnas && columnas.length > 0
+        ? columnas
+        : datos && datos.length > 0
+            ? Object.keys(datos[0]).filter(key => key && key.trim() !== '')
             : [];
 
-    const datosVacios = !datos || datos.length === 0 || (datos.length > 0 && Object.keys(datos[0]).length === 0);
+    const datosVacios = !Array.isArray(datos) || datos.length === 0 || columnasFinales.length === 0;
 
     if (datosVacios) {
         return (
@@ -49,6 +47,8 @@ const TablaDatos = ({ datos, columnas }) => {
             </Box>
         );
     }
+
+    const rowsToShow = datos.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
     return (
         <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
