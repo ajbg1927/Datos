@@ -1,41 +1,44 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-    Table, TableBody, TableCell, TableContainer,
-    TableHead, TableRow, Paper, Typography,
-    TablePagination, Box,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    Typography,
+    TablePagination,
+    Box,
 } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 const limpiarTexto = (texto) => {
-    if (typeof texto !== 'string') return texto;
-    return texto.trim().replace(/\s+/g, ' ');
+    if (typeof texto !== 'string') return '';
+    return texto.trim().toLowerCase();
 };
 
 const TablaDatos = ({ datos, columnas }) => {
+    console.log("DATOS EN TABLA:", datos);
+    console.log("COLUMNAS EN TABLA (prop):", columnas);
+
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [columnasFinales, setColumnasFinales] = useState([]);
-
-    useEffect(() => {
-        if (columnas && columnas.length > 0) {
-            setColumnasFinales(columnas.map(c => limpiarTexto(c)));
-        } else if (datos && datos.length > 0) {
-            const clavesLimpias = new Set();
-            datos.forEach(obj => {
-                Object.keys(obj).forEach(k => {
-                    const limpio = limpiarTexto(k);
-                    if (limpio) clavesLimpias.add(limpio);
-                });
-            });
-            setColumnasFinales([...clavesLimpias]);
-        }
-    }, [datos, columnas]);
 
     const handleChangePage = (event, newPage) => setPage(newPage);
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(+event.target.value);
         setPage(0);
     };
+
+    const columnasFinales = columnas && columnas.length > 0
+        ? columnas
+        : datos && datos.length > 0
+            ? Object.keys(datos[0]).filter(key => key && key.trim() !== '')
+            : [];
+
+    console.log("Columnas Finales:", columnasFinales);
+    console.log("Ejemplo de fila:", datos[0]);
 
     const datosVacios = !Array.isArray(datos) || datos.length === 0 || columnasFinales.length === 0;
 
@@ -55,6 +58,8 @@ const TablaDatos = ({ datos, columnas }) => {
 
     const rowsToShow = datos.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
+    console.log("Ejemplo de fila a mostrar:", rowsToShow[0]);
+
     return (
         <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
             <Table size="small" stickyHeader>
@@ -70,18 +75,22 @@ const TablaDatos = ({ datos, columnas }) => {
                 <TableBody>
                     {rowsToShow.map((fila, index) => (
                         <TableRow key={index}>
-                            {columnasFinales.map((columna) => (
-                                <TableCell key={columna}>
-                                    {typeof fila[columna] === 'number'
-                                        ? fila[columna].toLocaleString('es-CO')
-                                        : fila[columna] ?? ''}
-                                </TableCell>
-                            ))}
+                            {columnasFinales.map((columna) => {
+                                const keyReal = Object.keys(fila).find(k => limpiarTexto(k) === limpiarTexto(columna));
+                                const valor = keyReal ? fila[keyReal] : '';
+
+                                return (
+                                    <TableCell key={columna}>
+                                        {typeof valor === 'number'
+                                            ? valor.toLocaleString('es-CO')
+                                            : valor ?? ''}
+                                    </TableCell>
+                                );
+                            })}
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
-
             <TablePagination
                 component="div"
                 count={datos.length}
