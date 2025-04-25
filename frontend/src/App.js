@@ -325,79 +325,86 @@ const App = () => {
 
                         {tabValue === 5 && (
                             <Box display="flex" flexDirection="column" gap={3}>
-                                <Paper elevation={2} sx={{ p: 3 }}>
-                                    <Typography variant="h6" gutterBottom>
-                                        Datos
-                                    </Typography>
-                                    {cargandoDatosHook ? (
-                                        <Box display="flex" justifyContent="center">
-                                            <CircularProgress />
-                                        </Box>
-                                    ) : (
-                                        <>
-                                            <Typography variant="subtitle1">Datos Combinados App:</Typography>
-                                            <pre>{JSON.stringify(datosCombinadosApp, null, 2)}</pre>
-                                            <Typography variant="subtitle1">Columnas:</Typography>
-                                            <pre>{JSON.stringify(columnas, null, 2)}</pre>
-                                            {datosCombinadosApp && datosCombinadosApp.length > 0 ? (
-                                                <TablaDatos datos={datosCombinadosApp} columnas={columnas} />
-                                            ) : (
-                                                <p>No hay datos disponibles para mostrar.</p>
-                                            )}
-                                        </>
-                                    )}
-                                </Paper>
+                            <Paper elevation={2} sx={{ p: 3 }}>
+                            <Typography variant="h6" gutterBottom>
+                            Datos
+                            </Typography>
+                            {cargandoDatosHook ? (
+                                <Box display="flex" justifyContent="center">
+                                <CircularProgress />
+                                </Box>
+                                ) : (
+                                <>
 
-                                <Paper elevation={2} sx={{ p: 3 }}>
-                                    <Typography variant="h6" gutterBottom>
-                                        Análisis
-                                    </Typography>
-                                    <SelectoresAgrupacion
-                                        columnas={columnas}
-                                        columnaAgrupar={columnaAgrupar}
-                                        setColumnaAgrupar={setColumnaAgrupar}
-                                        columnaValor={columnaValor}
-                                        setColumnaValor={setColumnaValor}
-                                        tipoGrafico={tipoGrafico}
-                                        setTipoGrafico={setTipoGrafico}
-                                        paleta={paleta}
-                                        setPaleta={setPaleta}
-                                        ordenar={ordenarGrafico}
-                                        setOrdenar={setOrdenarGrafico}
-                                        topN={topNGrafico}
-                                        setTopN={setTopNGrafico}
-                                        mostrarPorcentajeBarras={mostrarPorcentajeBarras}
-                                        setMostrarPorcentajeBarras={setMostrarPorcentajeBarras}
-                                    />
-                                    <ResumenGeneral
-                                        datos={datosFiltrados}
-                                        columnaValor={columnaValor}
-                                        resultadosProcesados={resultadosProcesadosPorHoja ? Object.values(resultadosProcesadosPorHoja).flat() : []}
-                                    />
-                                    <Graficos
-                                        datos={datosFiltrados}
-                                        columnaAgrupacion={columnaAgrupar}
-                                        columnaValor={columnaValor}
-                                        tipoGrafico={tipoGrafico}
-                                        paleta={paleta}
-                                        ordenar={ordenarGrafico}
-                                        topN={topNGrafico}
-                                        mostrarPorcentajeBarras={mostrarPorcentajeBarras}
-                                    />
-                                </Paper>
+                                <Typography variant="subtitle1">Datos Combinados App:</Typography>
+                                <pre>{JSON.stringify(datosCombinadosApp, null, 2)}</pre>
+                                {datosCombinadosApp?.length > 0 && (
+                                    <>
+                                    {console.log("Primer objeto real:", datosCombinadosApp[0])}
+                                    {console.log("Claves del objeto:", Object.keys(datosCombinadosApp[0]))}
+                                    {console.log("Todo en JSON:", JSON.stringify(datosCombinadosApp[0], null, 2))}
+                                    </>
+                                )}
 
-                                <Paper elevation={2} sx={{ p: 2 }}>
-                                    <ExportButtons
-                                        datos={datosFiltrados}
-                                        columnas={columnas || []}
-                                        onExport={handleExportar}
-                                    />
-                                </Paper>
-                            </Box>
+                            <Typography variant="subtitle1">Columnas:</Typography>
+                            <pre>{JSON.stringify(columnas, null, 2)}</pre>
+
+                            {datosCombinadosApp && datosCombinadosApp.length > 0 ? (
+                                <TablaDatos datos={datosCombinadosApp} columnas={columnas} />
+                                ) : (
+                                <p>No hay datos disponibles para mostrar.</p>
+                            )}
+                            </>
                         )}
+                        </Paper>
+
+                        <Paper elevation={2} sx={{ p: 3 }}>
+                        <Typography variant="h6" gutterBottom>
+                        Análisis
+                        </Typography>
+                        <SelectoresAgrupacion
+                        columnas={columnas}
+                        columnaAgrupar={columnaAgrupar}
+                        setColumnaAgrupar={setColumnaAgrupar}
+                        columnaValor={columnaValor}
+                        setColumnaValor={setColumnaValor}
+                        tipoGrafico={tipoGrafico}
+                        setTipoGrafico={setTipoGrafico}
+                        paleta={paleta}
+                        setPaleta={setPaleta}
+                        ordenar={ordenarGrafico}
+                        setOrdenar={setOrdenarGrafico}
+                        topN={topNGrafico}
+                        setTopN={setTopNGrafico}
+                        mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+                        setMostrarPorcentajeBarras={setMostrarPorcentajeBarras}
+                        />
+                        <ResumenGeneral
+                        datos={datosFiltrados}
+                        columnaValor={columnaValor}
+                        resultadosProcesados={resultadosProcesadosPorHoja ? Object.values(resultadosProcesadosPorHoja).flat() : []}
+                        />
+                        <Graficos
+                        datos={datosFiltrados}
+                        columnaAgrupacion={columnaAgrupar}
+                        columnaValor={columnaValor}
+                        tipoGrafico={tipoGrafico}
+                        paleta={paleta}
+                        ordenar={ordenarGrafico}
+                        topN={topNGrafico}
+                        mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+                        />
+                        </Paper>
+
+                        <Paper elevation={2} sx={{ p: 2 }}>
+                        <ExportButtons
+                        datos={datosFiltrados}
+                        columnas={columnas || []}
+                        onExport={handleExportar}
+                        />
+                        </Paper>
                     </Box>
-                </Paper>
-            )}
+                )}
         </Layout>
     );
 };
