@@ -358,6 +358,7 @@ const App = () => {
                                             <pre>{JSON.stringify(datosCombinadosApp, null, 2)}</pre>
                                             <Typography variant="subtitle1">Columnas:</Typography>
                                             <pre>{JSON.stringify(columnas, null, 2)}</pre>
+                                            console.log("Ejemplo de fila real:", datosCombinadosApp[0]);
                                             {datosCombinadosApp && datosCombinadosApp.length > 0 ? (
                                                 <TablaDatos datos={datosCombinadosApp} columnas={columnas} />
                                             ) : (
