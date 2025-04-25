@@ -317,33 +317,41 @@ const App = () => {
                     <Box sx={{ p: 3 }}>
                         {tabValue === 4 && (
                             <Box display="flex" flexDirection="column" gap={3}>
-                                <Typography variant="h6" gutterBottom>Dirección de las Tics</Typography>
-                                {cargandoProcesamiento && (
-                                    <Box display="flex" justifyContent="center">
-                                        <CircularProgress />
-                                    </Box>
-                                )}
-                                {Object.entries(resultadosProcesadosPorHoja).map(([nombreHoja, tablas]) => (
-                                    <div key={nombreHoja} sx={{ mb: 3 }}>
-                                        <Typography variant="subtitle1">Hoja: {nombreHoja}</Typography>
-                                        {Array.isArray(tablas) && tablas.length > 0 ? (
-                                            tablas.map((tabla, index) => (
-                                                <Paper key={`${nombreHoja}-${index}`} elevation={1} sx={{ mt: 1, p: 2 }}>
-                                                    <Typography variant="body2" fontWeight="bold">Tabla {index + 1}</Typography>
-                                                    {tabla.length > 0 ? (
-                                                        <TablaDatos datos={tabla} columnas={tabla && tabla.length > 0 && Object.keys(tabla[0]) ? Object.keys(tabla[0]) : []} />
-                                                    ) : (
-                                                        <Typography>No hay datos en esta tabla.</Typography>
-                                                    )}
-                                                </Paper>
-                                            ))
+                            <Typography variant="h6" gutterBottom>Dirección de las Tics</Typography>
+                            {cargandoProcesamiento && (
+                                <Box display="flex" justifyContent="center">
+                                <CircularProgress />
+                                </Box>
+                            )}
+                            {Object.entries(resultadosProcesadosPorHoja).map(([nombreHoja, tablas]) => (
+                                <Box key={nombreHoja} mb={3}>
+                                <Typography variant="subtitle1">Hoja: {nombreHoja}</Typography>
+                                {Array.isArray(tablas) && tablas.length > 0 ? (
+                                    tablas.map((tabla, index) => (
+                                    <Paper key={`${nombreHoja}-${index}`} elevation={1} sx={{ mt: 1, p: 2 }}>
+                                    <Typography variant="body2" fontWeight="bold">Tabla {index + 1}</Typography>
+                                    {tabla.length > 0 ? (
+                                        <TablaDatos
+                                        datos={tabla}
+                                        columnas={Object.keys(tabla[0] || {})}
+                                        />
                                         ) : (
-                                            <Typography color="error">{tablas?.error || 'No se encontraron tablas para la Dirección de las Tics en esta hoja.'}</Typography>
-                                        )}
-                                    </div>
-                                ))}
+                                        <Typography>No hay datos en esta tabla.</Typography>
+                                    )}
+                                    </Paper>
+                                    ))
+                                    ) : (
+                                    <Typography color="error">
+                                    {typeof tablas === 'object' && tablas?.error
+                                        ? tablas.error
+                                    : 'No se encontraron tablas para la Dirección de las Tics en esta hoja.'}
+                                    </Typography>
+                                )}
+                                </Box>
+                            ))}
                             </Box>
                         )}
+                        
                         {tabValue === 5 && (
                             <Box display="flex" flexDirection="column" gap={3}>
                                 <Paper elevation={2} sx={{ p: 3 }}>
