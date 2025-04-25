@@ -32,6 +32,9 @@ const TablaDatos = ({ datos, columnas }) => {
             ? Object.keys(datos[0]).filter(key => key && key.trim() !== '')
             : [];
 
+    console.log("📌 Columnas Finales:", columnasFinales);
+    console.log("🧪 Ejemplo de fila:", datos[0]);
+
     const datosVacios = !Array.isArray(datos) || datos.length === 0 || columnasFinales.length === 0;
 
     if (datosVacios) {

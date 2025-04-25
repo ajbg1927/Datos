@@ -335,23 +335,20 @@ const App = () => {
                                         </Box>
                                     ) : (
                                         <>
-                                            <Typography variant="subtitle1">Datos Combinados App:</Typography>
-                                            <pre>{JSON.stringify(datosCombinadosApp, null, 2)}</pre>
-                                            datosCombinadosApp?.length > 0 && (
+                                        <Typography variant="subtitle1">Datos Combinados App:</Typography>
+                                        {datosCombinadosApp && datosCombinadosApp.length > 0 ? (
                                             <>
+
                                             {console.log("Primer objeto real:", datosCombinadosApp[0])}
                                             {console.log("Claves del objeto:", Object.keys(datosCombinadosApp[0]))}
                                             {console.log("Todo en JSON:", JSON.stringify(datosCombinadosApp[0], null, 2))}
+                                            <TablaDatos datos={datosCombinadosApp} columnas={columnas} />
                                             </>
-                                        )}
-
-                                            <Typography variant="subtitle1">Columnas:</Typography>
-                                            <pre>{JSON.stringify(columnas, null, 2)}</pre>
-                                            {datosCombinadosApp && datosCombinadosApp.length > 0 ? (
-                                                <TablaDatos datos={datosCombinadosApp} columnas={columnas} />
                                             ) : (
-                                                <p>No hay datos disponibles para mostrar.</p>
-                                            )}
+                                            <p>No hay datos disponibles para mostrar.</p>
+                                        )}
+                                        <Typography variant="subtitle1">Columnas:</Typography>
+                                        <pre>{JSON.stringify(columnas, null, 2)}</pre>
                                         </>
                                     )}
                                 </Paper>
