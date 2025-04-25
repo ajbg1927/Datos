@@ -14,7 +14,7 @@ import ExportButtons from './components/ExportButtons';
 import ResumenGeneral from './components/ResumenGeneral';
 import SelectoresAgrupacion from './components/SelectoresAgrupacion';
 import FiltroRapidoTIC from './components/FiltroRapidoTIC';
-import FiltroDependencia from './components/FiltroDependencia'; // ¡No olvides este!
+import FiltroDependencia from './components/FiltroDependencia'; 
 
 import useArchivos from './hooks/useArchivos';
 import useFiltrosAvanzado from './hooks/useFiltrosAvanzado';
@@ -32,8 +32,8 @@ const App = () => {
         hojasSeleccionadas,
         setHojasSeleccionadas: setHojasSeleccionadasFromHook,
         hojasPorArchivo,
-        datosPorArchivo: datosPorArchivoHook, // Renombrar para evitar confusión
-        columnasPorArchivo: columnasPorArchivoHook, // Renombrar para evitar confusión
+        datosPorArchivo: datosPorArchivoHook, 
+        columnasPorArchivo: columnasPorArchivoHook, 
         obtenerDatos,
         cargarArchivos,
         obtenerHojas,
@@ -196,7 +196,7 @@ const App = () => {
     };
 
     const onSeleccionar = (dependencia, datosFiltrados) => {
-    setDatosFiltrados(datosFiltrados); // esto es lo que se muestra en la tabla
+    setDatosFiltrados(datosFiltrados); 
     setDependenciaSeleccionada(dependencia);
 
     if (datosFiltrados.length > 0) {
