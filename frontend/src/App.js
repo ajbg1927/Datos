@@ -34,7 +34,7 @@ const App = () => {
         hojasPorArchivo,
         datosPorArchivo: datosPorArchivoHook,
         columnasPorArchivo: columnasPorArchivoHook,
-        obtenerDatos,
+        obtenerDatos, // Esta función ahora viene memoizada del hook
         cargarArchivos,
         obtenerHojas,
         cargandoDatos: cargandoDatosHook,
