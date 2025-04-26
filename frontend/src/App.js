@@ -308,7 +308,7 @@ const App = () => {
 
         {datosFiltrados.length > 0 && columnas.length > 0 && (
             <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-                <Typography variant="h6" gutterBottom>Datos</Typography>
+                <Typography variant="h6" gutterBottom></Typography>
                 <TablaDatos datosIniciales={datosFiltrados} columnasDefinidas={columnas} />
             </Paper>
         )}
