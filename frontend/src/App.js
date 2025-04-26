@@ -216,32 +216,27 @@ const App = () => {
     };
 
    return (
-        <Layout
-            sidebar={
-                <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
-                    {columnas.length > 0 ? (
-                        <>
-                            <Box sx={{ mb: 2 }}>
-                                <Typography variant="h6" gutterBottom>Buscar en todo el archivo</Typography>
-                                <Filtros
-                                    data={datosCombinadosApp}
-                                    columnas={columnas}
-                                    valoresUnicos={valoresUnicos}
-                                    filtros={filtros}
-                                    setFiltros={setFiltros}
-                                    handleClearFilters={handleClearFilters}
-                                    columnasFecha={columnasFecha}
-                                    columnasNumericas={columnasNumericas}
-                                    valorBusqueda={filtros.busqueda || ''}
-                                    setValorBusqueda={(valor) => setFiltros((prev) => ({ ...prev, busqueda: valor }))}
-                                    columnaAgrupar={columnaAgrupar}
-                                    setColumnaAgrupar={setColumnaAgrupar}
-                                    columnaValor={columnaValor}
-                                    setColumnaValor={setColumnaValor}
-                                    esBusquedaGeneral={true}
-                                />
-                            </Box>
+    <Layout
+        sidebar={
+            <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
+                {columnas.length > 0 ? (
+                    <>
+                        <Box sx={{ mb: 4 }}>
+                            <Typography variant="h6" gutterBottom>Buscar en todo el archivo</Typography>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                placeholder="Buscar..."
+                                value={filtros.busqueda || ''}
+                                onChange={(e) => setFiltros((prev) => ({ ...prev, busqueda: e.target.value }))}
+                            />
+                        </Box>
 
+                        <Divider sx={{ my: 2 }} />
+
+                        <Box sx={{ mb: 4 }}>
+                            <Typography variant="h6" gutterBottom>Filtros avanzados</Typography>
                             <Filtros
                                 data={datosCombinadosApp}
                                 columnas={columnas}
@@ -259,13 +254,14 @@ const App = () => {
                                 setColumnaValor={setColumnaValor}
                                 esBusquedaGeneral={false}
                             />
-                        </>
-                    ) : (
-                        <Typography variant="body2" color="textSecondary">
-                            Selecciona un archivo para ver los filtros.
-                        </Typography>
-                    )}
-                </Paper>
+                        </Box>
+                    </>
+                ) : (
+                    <Typography variant="body2" color="textSecondary">
+                        Selecciona un archivo para ver los filtros.
+                    </Typography>
+                )}
+            </Paper>
             }
         >
             {isLoadingUpload && (
