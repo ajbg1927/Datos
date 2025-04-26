@@ -15,7 +15,6 @@ import ResumenGeneral from './components/ResumenGeneral';
 import SelectoresAgrupacion from './components/SelectoresAgrupacion';
 import FiltroRapidoTIC from './components/FiltroRapidoTIC';
 import FiltroDependencia from './components/FiltroDependencia';
-import FiltroGeneral from './components/FiltroGeneral'; 
 
 import useArchivos from './hooks/useArchivos';
 import useFiltrosAvanzado from './hooks/useFiltrosAvanzado';
@@ -105,7 +104,7 @@ const App = () => {
                 })
                 .catch(console.error);
         } else {
-            setColumnasEstablecidas(false); // Resetear cuando se deselecciona el archivo o las hojas
+            setColumnasEstablecidas(false); 
         }
     }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos, columnasEstablecidas]);
 
@@ -231,51 +230,56 @@ const App = () => {
 
     return (
         <Layout
-            sidebar={
-                <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
-                    {columnas.length > 0 ? (
-                        <>
-                            <Box sx={{ mb: 2 }}>
-                                <Typography variant="h6" gutterBottom>Filtros Rápidos</Typography>
-                                <FiltroRapidoTIC
-                                    columns={columnas}
-                                    setFiltrosActivos={setFiltros}
-                                    filtrosActivos={filtros}
-                                    data={datosFiltrados}
-                                />
-                            </Box>
-                            <Filtros
-                                columnas={columnas}
-                                valoresUnicos={valoresUnicos}
-                                filtros={filtros}
-                                setFiltros={setFiltros}
-                                handleClearFilters={handleClearFilters}
-                                columnasFecha={columnasFecha}
-                                columnasNumericas={columnasNumericas}
-                                valorBusqueda={filtros.busqueda || ''}
-                                setValorBusqueda={(valor) => setFiltros((prev) => ({ ...prev, busqueda: valor }))}
-                                columnaAgrupar={columnaAgrupar}
-                                setColumnaAgrupar={setColumnaAgrupar}
-                                columnaValor={columnaValor}
-                                setColumnaValor={setColumnaValor}
-                            />
-                            <Box sx={{ mt: 2 }}>
-                                <Typography variant="h6" gutterBottom>Buscar en todo el archivo</Typography>
-                                <FiltroGeneral
-                                    data={datosCombinadosApp}
-                                    columnas={columnas}
-                                    onFiltrar={setDatosFiltrados}
-                                />
-                            </Box>
-                        </>
-                    ) : (
-                        <Typography variant="body2" color="textSecondary">
-                            Selecciona un archivo para ver los filtros.
-                        </Typography>
-                    )}
-                </Paper>
-            }
+        sidebar={
+            <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
+            {columnas.length > 0 ? (
+                <>
+                <Box sx={{ mb: 2 }}>
+                <Typography variant="h6" gutterBottom>Buscar en todo el archivo</Typography>
+                <FiltroGeneral
+                data={datosCombinadosApp}
+                columnas={columnas}
+                onFiltrar={setDatosFiltrados}
+                />
+                </Box>
+
+                <Box sx={{ mb: 2 }}>
+                <Typography variant="h6" gutterBottom>Filtros Rápidos</Typography>
+                <FiltroRapidoTIC
+                columns={columnas}
+                setFiltrosActivos={setFiltros}
+                filtrosActivos={filtros}
+                data={datosFiltrados}
+                />
+                </Box>
+
+                <Filtros
+                data={datosCombinadosApp} 
+                columnas={columnas}
+                valoresUnicos={valoresUnicos}
+                filtros={filtros}
+                setFiltros={setFiltros}
+                handleClearFilters={handleClearFilters}
+                columnasFecha={columnasFecha}
+                columnasNumericas={columnasNumericas}
+                valorBusqueda={filtros.busqueda || ''}
+                setValorBusqueda={(valor) => setFiltros((prev) => ({ ...prev, busqueda: valor }))}
+                columnaAgrupar={columnaAgrupar}
+                setColumnaAgrupar={setColumnaAgrupar}
+                columnaValor={columnaValor}
+                setColumnaValor={setColumnaValor}
+                />
+                </>
+                ) : (
+
+                <Typography variant="body2" color="textSecondary">
+                    Selecciona un archivo para ver los filtros.
+                </Typography>
+            )}
+            </Paper>
+        }
         >
+
             {isLoadingUpload && (
                 <Box display="flex" justifyContent="center" alignItems="center" my={4}>
                     <CircularProgress />
