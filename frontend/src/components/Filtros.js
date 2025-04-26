@@ -39,7 +39,7 @@ const Filtros = ({
     setColumnaAgrupar = () => {},
     columnaValor = '',
     setColumnaValor = () => {},
-    esBusquedaGeneral = false, 
+    esBusquedaGeneral = false,
 }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -48,6 +48,7 @@ const Filtros = ({
     const [valorBusquedaGeneral, setValorBusquedaGeneral] = useState(filtros.busqueda || '');
 
     const handleChange = (columna, valor) => {
+        console.log("Filtros.js: handleChange llamada para la columna:", columna, "con el valor:", valor);
         if (typeof setFiltros === 'function') {
             setFiltros((prev) => ({
                 ...prev,
@@ -61,6 +62,7 @@ const Filtros = ({
     const handleColumnaBusquedaGeneralChange = (event) => {
         setColumnaBusquedaGeneral(event.target.value);
         setValorBusquedaGeneral('');
+        console.log("Filtros.js: Columna de búsqueda general cambiada a:", event.target.value);
     };
 
     const handleValorBusquedaGeneralChange = (event) => {
@@ -69,9 +71,11 @@ const Filtros = ({
         if (typeof setValorBusqueda === 'function') {
             setValorBusqueda(event.target.value);
         }
+        console.log("Filtros.js: Valor de búsqueda general cambiado a:", event.target.value);
     };
 
     const handleBuscarGeneral = useCallback(() => {
+        console.log("Filtros.js: handleBuscarGeneral llamada");
         let resultados = [];
         if (columnaBusquedaGeneral && valorBusquedaGeneral) {
             resultados = data.filter(item =>
@@ -108,6 +112,7 @@ const Filtros = ({
             !columnasNumericas.includes(col)
     );
 
+    console.log("Filtros.js: Props recibidas - columnas:", columnas, "valoresUnicos:", valoresUnicos, "filtros:", filtros);
     return (
         <Paper
             elevation={1}
@@ -170,7 +175,7 @@ const Filtros = ({
 
             {!esBusquedaGeneral && (
                 <>
-                
+
                     {columnasFecha.length > 0 && (
                         <>
                             <Divider sx={{ my: 2 }} />
