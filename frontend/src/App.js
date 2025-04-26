@@ -311,7 +311,7 @@ const App = () => {
                 <Typography variant="h6" gutterBottom></Typography>
                 {console.log("App.js - datosFiltrados antes de TablaDatos:", datosFiltrados)}
                 {console.log("App.js - Longitud de datosFiltrados:", datosFiltrados.length)}
-                <TablaDatos key={`tabla-datos-${datosFiltrados.length}`} datosIniciales={datosFiltrados} columnasDefinidas={columnasMemo} />
+                <TablaDatos key={`tabla-datos-${datosFiltrados.length}`} datosIniciales={datosFiltrados} columnasDefinidas={columnas} />
             </Paper>
         )}
 
