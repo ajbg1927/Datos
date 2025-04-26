@@ -121,7 +121,6 @@ const App = () => {
     const texto = filtros.busqueda || '';
     const fechaInicio = filtros.Fecha_desde || '';
     const fechaFin = filtros.Fecha_hasta || '';
-    // Memoiza el objeto 'filtros'
     const filtrosMemoizado = useMemo(() => filtros, [filtros]);
     const filtrosColumnas = Object.fromEntries(
         Object.entries(filtrosMemoizado).filter(([key]) => !['busqueda', 'Fecha_desde', 'Fecha_hasta'].includes(key))
@@ -351,28 +350,43 @@ const App = () => {
 
                         {tabValue === 5 && (
                             <Box display="flex" flexDirection="column" gap={3}>
-                                <FiltroDependencia
-                                    sheets={Object.keys(dependenciasPorHoja || {})}
-                                    dependenciasPorHoja={dependenciasPorHoja}
-                                    onSeleccionar={({ hoja, dependencia }) => {
-                                        console.log("Seleccionado hoja:", hoja, "dependencia:", dependencia);
-                                        setHojaSeleccionada(hoja);
-                                        const datosOriginales = resultadosProcesadosPorHoja?.[hoja] || [];
-                                        const datosFiltradosInterno = datosOriginales
-                                            .flat()
-                                            .filter((row) => row?.Dependencia?.toUpperCase?.() === dependencia.toUpperCase());
-                                        setDatosFiltrados(datosFiltradosInterno);
-                                    }}
-                                />
-
-                                <Paper elevation={2} sx={{ p: 3 }}>
-                                    <Typography variant="h6">Datos Filtrados por Dependencia: {dependenciaSeleccionada}</Typography>
-                                    {datosFiltrados.length > 0 ? (
-                                        <TablaDatos datosIniciales={datosFiltrados} columnasDefinidas={columnas} />
-                                    ) : (
-                                        <Typography color="info">No hay datos para la dependencia seleccionada.</Typography>
-                                    )}
-                                </Paper>
+                                <Typography variant="h6" gutterBottom>Análisis General</Typography>
+                                {datosFiltrados.length > 0 && columnas.length > 0 ? (
+                                    <>
+                                        <SelectoresAgrupacion
+                                            columnas={columnas}
+                                            columnaAgrupar={columnaAgrupar}
+                                            setColumnaAgrupar={setColumnaAgrupar}
+                                            columnasNumericas={columnasNumericas}
+                                            columnaValor={columnaValor}
+                                            setColumnaValor={setColumnaValor}
+                                            tipoGrafico={tipoGrafico}
+                                            setTipoGrafico={setTipoGrafico}
+                                            paleta={paleta}
+                                            setPaleta={setPaleta}
+                                            ordenarGrafico={ordenarGrafico}
+                                            setOrdenarGrafico={setOrdenarGrafico}
+                                            topNGrafico={topNGrafico}
+                                            setTopNGrafico={setTopNGrafico}
+                                            mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+                                            setMostrarPorcentajeBarras={setMostrarPorcentajeBarras}
+                                        />
+                                        <Graficos
+                                            datos={datosFiltrados}
+                                            columnaAgrupacion={columnaAgrupar}
+                                            columnaValor={columnaValor}
+                                            tipoGrafico={tipoGrafico}
+                                            paleta={paleta}
+                                            ordenar={ordenarGrafico}
+                                            topN={topNGrafico}
+                                            mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+                                        />
+                                        <ResumenGeneral datos={datosFiltrados} columnaValor={[columnaValor]} resultadosProcesados={resultadosProcesadosPorHoja} />
+                                        <ExportButtons onExportar={handleExportar} />
+                                    </>
+                                ) : (
+                                    <Typography color="info">No hay datos para mostrar el análisis general.</Typography>
+                                )}
                             </Box>
                         )}
                     </Box>
