@@ -217,57 +217,78 @@ const App = () => {
         <Toaster position="bottom-right" />
 
     <Layout
-        sidebar={
-            <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
-                {columnas.length > 0 ? (
-                    <>
-                        <Box sx={{ mb: 2 }}>
-                            <Typography variant="h6" gutterBottom>Buscar en todo el archivo</Typography>
-                            <Filtros
-                                data={datosCombinadosApp}
-                                columnas={columnas}
-                                valoresUnicos={valoresUnicos}
-                                filtros={filtros}
-                                setFiltros={setFiltros}
-                                handleClearFilters={handleClearFilters}
-                                columnasFecha={columnasFecha}
-                                columnasNumericas={columnasNumericas}
-                                valorBusqueda={filtros.busqueda || ''}
-                                setValorBusqueda={(valor) => setFiltros((prev) => ({ ...prev, busqueda: valor }))}
-                                columnaAgrupar={columnaAgrupar}
-                                setColumnaAgrupar={setColumnaAgrupar}
-                                columnaValor={columnaValor}
-                                setColumnaValor={setColumnaValor}
-                                esBusquedaGeneral={true}
-                            />
-                        </Box>
+    sidebar={
+        <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
+            {columnas.length > 0 ? (
+                <>
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="h6" gutterBottom>Buscar en todo el archivo</Typography>
 
-                        <Filtros
-                            data={datosCombinadosApp}
-                            columnas={columnas}
-                            valoresUnicos={valoresUnicos}
-                            filtros={filtros}
-                            setFiltros={setFiltros}
-                            handleClearFilters={handleClearFilters}
-                            columnasFecha={columnasFecha}
-                            columnasNumericas={columnasNumericas}
-                            valorBusqueda={filtros.busqueda || ''}
-                            setValorBusqueda={(valor) => setFiltros((prev) => ({ ...prev, busqueda: valor }))}
-                            columnaAgrupar={columnaAgrupar}
-                            setColumnaAgrupar={setColumnaAgrupar}
-                            columnaValor={columnaValor}
-                            setColumnaValor={setColumnaValor}
-                            esBusquedaGeneral={false}
+                        <FormControl fullWidth size="small" variant="outlined" sx={{ mb: 2 }}>
+                            <InputLabel>Buscar en columna (opcional)</InputLabel>
+                            <Select
+                                value={columnaAgrupar || ''}
+                                onChange={(e) => setColumnaAgrupar(e.target.value)}
+                                label="Buscar en columna (opcional)"
+                                sx={{
+                                    borderRadius: 2,
+                                }}
+                            >
+                                {columnas.map((columna) => (
+                                    <MenuItem key={columna} value={columna}>
+                                        {columna}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+
+                        <TextField
+                            fullWidth
+                            size="small"
+                            variant="outlined"
+                            placeholder="Buscar en todos los campos"
+                            value={filtros.busqueda || ''}
+                            onChange={(e) => setFiltros((prev) => ({ ...prev, busqueda: e.target.value }))}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <SearchIcon color="action" />
+                                    </InputAdornment>
+                                ),
+                            }}
+                            sx={{
+                                borderRadius: 2,
+                            }}
                         />
-                    </>
-                ) : (
-                    <Typography variant="body2" color="textSecondary">
-                        Selecciona un archivo para ver los filtros.
-                    </Typography>
-                )}
-            </Paper>
-        }
-    >
+                    </Box>
+
+                    <Filtros
+                        data={datosCombinadosApp}
+                        columnas={columnas}
+                        valoresUnicos={valoresUnicos}
+                        filtros={filtros}
+                        setFiltros={setFiltros}
+                        handleClearFilters={handleClearFilters}
+                        columnasFecha={columnasFecha}
+                        columnasNumericas={columnasNumericas}
+                        valorBusqueda={filtros.busqueda || ''}
+                        setValorBusqueda={(valor) => setFiltros((prev) => ({ ...prev, busqueda: valor }))}
+                        columnaAgrupar={columnaAgrupar}
+                        setColumnaAgrupar={setColumnaAgrupar}
+                        columnaValor={columnaValor}
+                        setColumnaValor={setColumnaValor}
+                        esBusquedaGeneral={false}
+                    />
+                </>
+            ) : (
+                <Typography variant="body2" color="textSecondary">
+                    Selecciona un archivo para ver los filtros.
+                </Typography>
+            )}
+        </Paper>
+    }
+>
+
         {isLoadingUpload && (
             <Box display="flex" justifyContent="center" alignItems="center" my={4}>
                 <CircularProgress />
