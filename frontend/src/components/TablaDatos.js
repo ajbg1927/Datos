@@ -127,6 +127,37 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
         );
     }
 
+    const TablePaginationActions = ({ count, page, rowsPerPage, onPageChange }) => {
+    const handleBackButtonClick = (event) => {
+        onPageChange(event, page - 1);
+    };
+
+    const handleNextButtonClick = (event) => {
+        onPageChange(event, page + 1);
+    };
+
+    const isLastPage = rowsPerPage === -1 ? true : page >= Math.ceil(count / rowsPerPage) - 1;
+
+    return (
+        <Box sx={{ flexShrink: 0, ml: 2.5 }}>
+            <IconButton
+                onClick={handleBackButtonClick}
+                disabled={page === 0}
+                aria-label="página anterior"
+            >
+                {'<'}
+            </IconButton>
+            <IconButton
+                onClick={handleNextButtonClick}
+                disabled={isLastPage}
+                aria-label="próxima página"
+            >
+                {'>'}
+            </IconButton>
+        </Box>
+    );
+};
+
     return (
         <TableContainer component={Paper} sx={{ width: '100%', overflowX: 'auto' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
@@ -224,10 +255,13 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
             </Table>
             <TablePagination
                 rowsPerPageOptions={[5, 10, 25, 50, { label: 'Todos', value: -1 }]}
+                component="div"
                 colSpan={columnasVisiblesActuales.length}
                 count={datosOrdenados.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
                 SelectProps={{
                     inputProps: { 'aria-label': 'filas por página' },
                     native: true,
