@@ -269,7 +269,7 @@ const App = () => {
                             setColumnaAgrupar={setColumnaAgrupar}
                             columnaValor={columnaValor}
                             setColumnaValor={setColumnaValor}
-                            esBusquedaGeneral={false} 
+                            esBusquedaGeneral={false}
                         />
                     </>
                 ) : (
@@ -370,7 +370,7 @@ const App = () => {
                                     const datosFiltradosInterno = datosOriginales
                                         .flat()
                                         .filter((row) => row?.Dependencia?.toUpperCase?.() === dependencia.toUpperCase());
-                                    onSeleccionar(dependencia, datosFiltradosInterno);
+                                    setDatosFiltrados(datosFiltradosInterno);
                                 }}
                             />
 
@@ -379,7 +379,7 @@ const App = () => {
                                 {cargandoDatosHook ? (
                                     <Box display="flex" justifyContent="center"><CircularProgress /></Box>
                                 ) : (
-                                    <TablaDatos datos={datosFiltrados} columnas={columnas} />
+                                    <TablaDatos datosIniciales={datosFiltrados} columnasDefinidas={columnas} />
                                 )}
                             </Paper>
 
@@ -411,14 +411,14 @@ const App = () => {
                                 {console.log("Columna de Agrupación:", columnaAgrupar)}
                                 {console.log("Columna de Valor:", columnaValor)}
                                 <Graficos
-                                datos={datosFiltrados}
-                                columnaAgrupacion={columnaAgrupar}
-                                columnaValor={columnaValor}
-                                tipoGrafico={tipoGrafico}
-                                paleta={paleta}
-                                ordenar={ordenarGrafico}
-                                topN={topNGrafico}
-                                mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+                                    datos={datosFiltrados}
+                                    columnaAgrupacion={columnaAgrupar}
+                                    columnaValor={columnaValor}
+                                    tipoGrafico={tipoGrafico}
+                                    paleta={paleta}
+                                    ordenar={ordenarGrafico}
+                                    topN={topNGrafico}
+                                    mostrarPorcentajeBarras={mostrarPorcentajeBarras}
                                 />
                             </Paper>
 
