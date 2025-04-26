@@ -102,8 +102,10 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
         setPage(0);
     };
 
-    const emptyRows =
-        rowsPerPage - Math.min(rowsPerPage, datosOrdenados.length - page * rowsPerPage);
+    const emptyRows = useMemo(() => {
+    if (rowsPerPage === -1) return 0;
+    return Math.max(0, (1 + page) * rowsPerPage - datosOrdenados.length);
+}, [rowsPerPage, page, datosOrdenados.length]);
 
     const columnasVisiblesActuales = columnasDetectadasInicial.filter(col => columnasVisibles.includes(col));
 
@@ -219,7 +221,7 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
                 </TableBody>
             </Table>
             <TablePagination
-                rowsPerPageOptions={[5, 10, 25, { label: 'Todos', value: -1 }]}
+                rowsPerPageOptions={[5, 10, 25, 50, { label: 'Todos', value: -1 }]}
                 colSpan={columnasVisiblesActuales.length}
                 count={datosOrdenados.length}
                 rowsPerPage={rowsPerPage}
