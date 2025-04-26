@@ -407,15 +407,18 @@ const App = () => {
                                     columnaValor={columnaValor}
                                     resultadosProcesados={resultadosProcesadosPorHoja ? Object.values(resultadosProcesadosPorHoja).flat() : []}
                                 />
+                                {console.log("Datos que se pasan a Graficos:", datosFiltrados)}
+                                {console.log("Columna de Agrupación:", columnaAgrupar)}
+                                {console.log("Columna de Valor:", columnaValor)}
                                 <Graficos
-                                    datos={datosFiltrados}
-                                    columnaAgrupacion={columnaAgrupar}
-                                    columnaValor={columnaValor}
-                                    tipoGrafico={tipoGrafico}
-                                    paleta={paleta}
-                                    ordenar={ordenarGrafico}
-                                    topN={topNGrafico}
-                                    mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+                                datos={datosFiltrados}
+                                columnaAgrupacion={columnaAgrupar}
+                                columnaValor={columnaValor}
+                                tipoGrafico={tipoGrafico}
+                                paleta={paleta}
+                                ordenar={ordenarGrafico}
+                                topN={topNGrafico}
+                                mostrarPorcentajeBarras={mostrarPorcentajeBarras}
                                 />
                             </Paper>
 
