@@ -5,7 +5,7 @@ import {
     FormControlLabel, Checkbox, Popover, Button, FormGroup, IconButton
 } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
-import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material'; 
+import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
 
 const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
     const [ordenDireccion, setOrdenDireccion] = useState('asc');
@@ -227,7 +227,7 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
             <TablePagination
                 rowsPerPageOptions={[5, 10, 25, 50, { label: 'Todos', value: -1 }]}
                 component="div"
-                count={datosOrdenados.length}
+                count={datosOrdenados.length} // Asegúrate de que el conteo sea la longitud de datosOrdenados
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={handleChangePage}
