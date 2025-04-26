@@ -103,9 +103,9 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
     };
 
     const emptyRows = useMemo(() => {
-    if (rowsPerPage === -1) return 0;
-    return Math.max(0, (1 + page) * rowsPerPage - datosOrdenados.length);
-}, [rowsPerPage, page, datosOrdenados.length]);
+        if (rowsPerPage === -1) return 0;
+        return Math.max(0, (1 + page) * rowsPerPage - datosOrdenados.length);
+    }, [rowsPerPage, page, datosOrdenados.length]);
 
     const columnasVisiblesActuales = columnasDetectadasInicial.filter(col => columnasVisibles.includes(col));
 
@@ -201,9 +201,9 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {(rowsPerPage > 0
-                        ? datosOrdenados.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                        : datosOrdenados
+                    {(rowsPerPage === -1
+                        ? datosOrdenados
+                        : datosOrdenados.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     ).map((fila, filaIndex) => (
                         <TableRow key={filaIndex}>
                             {columnasVisiblesActuales.map((columna, colIndex) => (
