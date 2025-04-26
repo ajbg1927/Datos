@@ -72,6 +72,7 @@ const Graficos = ({
         }
 
         setDataAgrupada(nuevoData);
+        console.log("Graficos - dataAgrupada:", nuevoData);
     }, [datos, columnaAgrupacion, columnaValor, ordenar, topN]);
 
     const coloresUsar = PALETAS[paleta] || PALETAS['Institucional'];
@@ -79,6 +80,7 @@ const Graficos = ({
 
     return (
         <Box mt={4}>
+            {console.log("Graficos - Longitud de dataAgrupada:", dataAgrupada.length)}
             <Typography
                 variant="h6"
                 sx={{
