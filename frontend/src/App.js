@@ -1,30 +1,77 @@
-import { useState, useEffect, useMemo } from "react";
-import { Layout } from "./components/Layout";
-import { useArchivos } from "./hooks/useArchivos";
-import { useHojas } from "./hooks/useHojas";
-import { useDatos } from "./hooks/useDatos";
-import { SelectorArchivo } from "./components/SelectorArchivo";
-import { SelectorHojas } from "./components/SelectorHojas";
-import { SelectorDependencia } from "./components/SelectorDependencia";
-import { FiltrosDinamicos } from "./components/FiltrosDinamicos";
-import { TablaDatos } from "./components/TablaDatos";
-import { ExportarExcel } from "./components/ExportarExcel";
-import { Paper, Typography } from "@mui/material";
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import {
+    Box, CircularProgress, Paper, Tab, Tabs, Typography, TextField, Divider
+} from '@mui/material';
 
-function App() {
-  const { archivos, obtenerArchivos } = useArchivos();
-  const { hojasPorArchivo, obtenerHojas } = useHojas();
-  const { datosCombinadosApp, setDatosCombinadosApp, obtenerDatos } = useDatos();
+import Layout from './components/Layout';
+import UploadFile from './components/UploadFile';
+import TablaArchivos from './components/TablaArchivos';
+import SelectorHojas from './components/SelectorHojas';
+import Filtros from './components/Filtros';
+import TablaDatos from './components/TablaDatos';
+import Graficos from './components/Graficos';
+import ExportButtons from './components/ExportButtons';
+import ResumenGeneral from './components/ResumenGeneral';
+import SelectoresAgrupacion from './components/SelectoresAgrupacion';
+import FiltroDependencia from './components/FiltroDependencia';
 
-  const [archivoSeleccionado, setArchivoSeleccionado] = useState(null);
-  const [hojasSeleccionadas, setHojasSeleccionadas] = useState([]);
-  const [dependenciaSeleccionada, setDependenciaSeleccionada] = useState("");
-  const [columnas, setColumnas] = useState([]);
-  const [columnasEstablecidas, setColumnasEstablecidas] = useState(false);
-  const [datosFiltrados, setDatosFiltrados] = useState([]);
-  const [filtros, setFiltros] = useState({});
+import useArchivos from './hooks/useArchivos';
+import useFiltrosAvanzado from './hooks/useFiltrosAvanzado';
+import useExportaciones from './hooks/useExportaciones';
+import useGraficos from './hooks/useGraficos'
+import axios from 'axios';
 
-  useEffect(() => {
+const API_URL = 'https://backend-flask-u76y.onrender.com';
+
+const App = () => {
+    const {
+        archivos,
+        setArchivos,
+        archivoSeleccionado,
+        setArchivoSeleccionado: setArchivoSeleccionadoFromHook,
+        hojasSeleccionadas,
+        setHojasSeleccionadas: setHojasSeleccionadasFromHook,
+        hojasPorArchivo,
+        datosPorArchivo: datosPorArchivoHook,
+        columnasPorArchivo: columnasPorArchivoHook,
+        obtenerDatos, 
+        cargarArchivos,
+        obtenerHojas,
+        cargandoDatos: cargandoDatosHook,
+    } = useArchivos();
+
+    const [filtros, setFiltros] = useState({});
+    const [columnaAgrupar, setColumnaAgrupar] = useState('');
+    const [columnaValor, setColumnaValor] = useState('');
+    const [isLoadingUpload, setIsLoadingUpload] = useState(false);
+    const [tipoGrafico, setTipoGrafico] = useState('Barras');
+    const [paleta, setPaleta] = useState('Institucional');
+    const [ordenarGrafico, setOrdenarGrafico] = useState(true);
+    const [topNGrafico, setTopNGrafico] = useState(10);
+    const [mostrarPorcentajeBarras, setMostrarPorcentajeBarras] = useState(false);
+    const [tabValue, setTabValue] = useState(0);
+    const [resultadosProcesadosPorHoja, setResultadosProcesadosPorHoja] = useState(null);
+    const [ticProcesado, setTicProcesado] = useState(false);
+    const [datosCombinadosApp, setDatosCombinadosApp] = useState([]);
+    const [cargandoProcesamiento, setCargandoProcesamiento] = useState(false);
+
+    const [datosFiltrados, setDatosFiltrados] = useState([]);
+    const [dependenciasPorHoja, setDependenciasPorHoja] = useState({});
+    const [hojaSeleccionada, setHojaSeleccionada] = useState('');
+    const [dependenciaSeleccionada, setDependenciaSeleccionada] = useState('');
+    const [columnas, setColumnas] = useState([]);
+    const [columnasEstablecidas, setColumnasEstablecidas] = useState(false);
+
+    const handleArchivoSeleccionadoChange = useCallback((archivo) => {
+        setArchivoSeleccionadoFromHook(archivo);
+        setHojasSeleccionadasFromHook([]);
+    }, [setArchivoSeleccionadoFromHook, setHojasSeleccionadasFromHook]);
+
+    const handleHojasSeleccionadasChange = useCallback((hojas) => {
+        setHojasSeleccionadasFromHook(hojas);
+    }, [setHojasSeleccionadasFromHook]);
+
+    useEffect(() => {
     obtenerArchivos();
   }, [obtenerArchivos]);
 
