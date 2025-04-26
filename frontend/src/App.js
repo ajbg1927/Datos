@@ -254,7 +254,6 @@ const App = () => {
                             />
                         </Box>
 
-                        <Typography variant="h6" gutterBottom>Otros Filtros</Typography>
                         <Filtros
                             data={datosCombinadosApp}
                             columnas={columnas}
