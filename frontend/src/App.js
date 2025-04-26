@@ -228,7 +228,6 @@ const App = () => {
                 </Typography>
 
                 <FormControl fullWidth size="small" variant="outlined" sx={{ mb: 2 }}>
-  <InputLabel shrink={false}>Buscar en columna (opcional)</InputLabel>
   <Select
     value={columnaAgrupar || ''}
     onChange={(e) => setColumnaAgrupar(e.target.value)}
@@ -259,7 +258,6 @@ const App = () => {
     ))}
   </Select>
 </FormControl>
-
 
                 <TextField
                   fullWidth
