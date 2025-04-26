@@ -13,7 +13,6 @@ import Graficos from './components/Graficos';
 import ExportButtons from './components/ExportButtons';
 import ResumenGeneral from './components/ResumenGeneral';
 import SelectoresAgrupacion from './components/SelectoresAgrupacion';
-import FiltroRapidoTIC from './components/FiltroRapidoTIC';
 import FiltroDependencia from './components/FiltroDependencia';
 
 import useArchivos from './hooks/useArchivos';
@@ -252,16 +251,6 @@ const App = () => {
                                 columnaValor={columnaValor}
                                 setColumnaValor={setColumnaValor}
                                 esBusquedaGeneral={true} // Prop para indicar que esta es la búsqueda general
-                            />
-                        </Box>
-
-                        <Box sx={{ mb: 2 }}>
-                            <Typography variant="h6" gutterBottom>Filtros Rápidos</Typography>
-                            <FiltroRapidoTIC
-                                columns={columnas}
-                                setFiltrosActivos={setFiltros}
-                                filtrosActivos={filtros}
-                                data={datosFiltrados}
                             />
                         </Box>
 

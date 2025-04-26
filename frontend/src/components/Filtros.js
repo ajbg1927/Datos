@@ -170,10 +170,7 @@ const Filtros = ({
 
             {!esBusquedaGeneral && (
                 <>
-                    <Button variant="contained" color="secondary" sx={{ mb: 3 }}>
-                        DIRECCIÓN DE LAS TIC
-                    </Button>
-
+                
                     {columnasFecha.length > 0 && (
                         <>
                             <Divider sx={{ my: 2 }} />
