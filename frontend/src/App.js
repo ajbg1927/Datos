@@ -218,60 +218,99 @@ const App = () => {
         <Layout
             sidebar={
                 <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
-                    {columnas.length > 0 ? (
-                        <>
-                            {[
-                                { tipo: 'busqueda' },
-                                { tipo: 'filtrosAvanzados' }
-                            ].map((config, index) => (
-                                <Box key={index} sx={{ mb: 4 }}>
-                                    {config.tipo === 'busqueda' ? (
-                                        <>
-                                            <Typography variant="h6" gutterBottom>Buscar en todo el archivo</Typography>
-                                            <TextField
-                                                fullWidth
-                                                size="small"
-                                                variant="outlined"
-                                                placeholder="Buscar..."
-                                                value={filtros.busqueda || ''}
-                                                onChange={(e) => setFiltros((prev) => ({ ...prev, busqueda: e.target.value }))}
-                                            />
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Divider sx={{ my: 2 }} />
-                                            <Typography variant="h6" gutterBottom>Filtros avanzados</Typography>
-                                            <Filtros
-                                                data={datosCombinadosApp}
-                                                columnas={columnas}
-                                                valoresUnicos={valoresUnicos}
-                                                filtros={filtros}
-                                                setFiltros={setFiltros}
-                                                handleClearFilters={handleClearFilters}
-                                                columnasFecha={columnasFecha}
-                                                columnasNumericas={columnasNumericas}
-                                                valorBusqueda={filtros.busqueda || ''}
-                                                setValorBusqueda={(valor) => setFiltros((prev) => ({ ...prev, busqueda: valor }))}
-                                                columnaAgrupar={columnaAgrupar}
-                                                setColumnaAgrupar={setColumnaAgrupar}
-                                                columnaValor={columnaValor}
-                                                setColumnaValor={setColumnaValor}
-                                                esBusquedaGeneral={false}
-                                            />
-                                        </>
-                                    )}
-                                </Box>
-                            ))}
-                        </>
-                    ) : (
-                        <Typography variant="body2" color="textSecondary">
-                            Selecciona un archivo para ver los filtros.
-                        </Typography>
-                    )}
-                </Paper>
+  {columnas.length > 0 ? (
+    <>
+      {[
+        { tipo: 'busqueda' },
+        { tipo: 'selectores' }, 
+        { tipo: 'filtrosAvanzados' }
+      ].map((config, index) => (
+        <Box key={index} sx={{ mb: 4 }}>
+          {config.tipo === 'busqueda' ? (
+            <>
+              <Typography variant="h6" gutterBottom>Buscar en todo el archivo</Typography>
+              <TextField
+                fullWidth
+                size="small"
+                variant="outlined"
+                placeholder="Buscar..."
+                value={filtros.busqueda || ''}
+                onChange={(e) => setFiltros((prev) => ({ ...prev, busqueda: e.target.value }))}
+              />
+            </>
+          ) : config.tipo === 'selectores' ? ( 
+            <>
+              <Typography variant="h6" gutterBottom>Configuración de columnas</Typography>
+
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="subtitle2" gutterBottom>Columna para Agrupar</Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  select
+                  value={columnaAgrupar || ''}
+                  onChange={(e) => setColumnaAgrupar(e.target.value)}
+                >
+                  {columnas.map((columna) => (
+                    <MenuItem key={columna} value={columna}>
+                      {columna}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Box>
+
+              <Box sx={{ mt: 3 }}>
+                <Typography variant="subtitle2" gutterBottom>Columna de Valor numérico</Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  select
+                  value={columnaValor || ''}
+                  onChange={(e) => setColumnaValor(e.target.value)}
+                >
+                  {columnasNumericas.map((columna) => (
+                    <MenuItem key={columna} value={columna}>
+                      {columna}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Box>
+            </>
+          ) : (
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="h6" gutterBottom>Filtros avanzados</Typography>
+              <Filtros
+                data={datosCombinadosApp}
+                columnas={columnas}
+                valoresUnicos={valoresUnicos}
+                filtros={filtros}
+                setFiltros={setFiltros}
+                handleClearFilters={handleClearFilters}
+                columnasFecha={columnasFecha}
+                columnasNumericas={columnasNumericas}
+                valorBusqueda={filtros.busqueda || ''}
+                setValorBusqueda={(valor) => setFiltros((prev) => ({ ...prev, busqueda: valor }))}
+                columnaAgrupar={columnaAgrupar}
+                setColumnaAgrupar={setColumnaAgrupar}
+                columnaValor={columnaValor}
+                setColumnaValor={setColumnaValor}
+                esBusquedaGeneral={false}
+              />
+            </>
+          )}
+        </Box>
+      ))}
+    </>
+  ) : (
+    <Typography variant="body2" color="textSecondary">
+      Selecciona un archivo para ver los filtros.
+    </Typography>
+  )}
+</Paper>
+
             }
         >
-            {/* Lo demás queda igual */}
             {isLoadingUpload && (
                 <Box display="flex" justifyContent="center" alignItems="center" my={4}>
                     <CircularProgress />
