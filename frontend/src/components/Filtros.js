@@ -27,7 +27,7 @@ import EventIcon from '@mui/icons-material/Event';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import LabelIcon from '@mui/icons-material/Label'; // Importa el icono
+import LabelIcon from '@mui/icons-material/Label'; 
 
 const Filtros = ({
     data = [],
@@ -117,7 +117,6 @@ const Filtros = ({
             !columnasNumericas.includes(col)
     );
 
-    console.log("Filtros.js: Props recibidas - columnas:", columnas, "valoresUnicos:", valoresUnicos, "filtros:", filtros);
     return (
         <Paper
             elevation={1}

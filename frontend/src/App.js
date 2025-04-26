@@ -78,23 +78,6 @@ const App = () => {
                     if (data) {
                         setDatosCombinadosApp(data);
                         console.log("DatosCombinadosApp después de obtenerDatos:", data);
-                        if (data.length > 0 && columnas.length === 0) {
-                            setColumnas(Object.keys(data[0]));
-                            console.log("Columnas iniciales seteadas:", Object.keys(data[0]));
-                        }
-                    }
-                })
-                .catch(console.error);
-        }
-    }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos, columnas.length]);
-
-    useEffect(() => {
-        if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
-            obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas)
-                .then((data) => {
-                    if (data) {
-                        setDatosCombinadosApp(data);
-                        console.log("DatosCombinadosApp después de obtenerDatos:", data);
                         if (data.length > 0 && !columnasEstablecidas) {
                             setColumnas(Object.keys(data[0]));
                             setColumnasEstablecidas(true);
@@ -104,7 +87,9 @@ const App = () => {
                 })
                 .catch(console.error);
         } else {
-            setColumnasEstablecidas(false); 
+            setColumnasEstablecidas(false);
+            setDatosCombinadosApp([]);
+            setColumnas([]);
         }
     }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos, columnasEstablecidas]);
 
