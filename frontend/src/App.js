@@ -228,35 +228,38 @@ const App = () => {
                 </Typography>
 
                 <FormControl fullWidth size="small" variant="outlined" sx={{ mb: 2 }}>
-                  <InputLabel>Buscar en columna (opcional)</InputLabel>
-                  <Select
-                    value={columnaAgrupar || ""}
-                    onChange={(e) => setColumnaAgrupar(e.target.value)}
-                    label="Buscar en columna (opcional)"
-                    displayEmpty
-                    sx={{
-                      borderRadius: 2,
-                      "& .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "#1976d2", 
-                      },
-                      "&:hover .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "#1565c0", 
-                      },
-                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "#2e7d32", 
-                      },
-                    }}
-                  >
-                    <MenuItem value="">
-                      <em>Buscar en columna (opcional)</em>
-                    </MenuItem>
-                    {columnas.map((columna) => (
-                      <MenuItem key={columna} value={columna}>
-                        {columna}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+  <InputLabel shrink={false}>Buscar en columna (opcional)</InputLabel>
+  <Select
+    value={columnaAgrupar || ''}
+    onChange={(e) => setColumnaAgrupar(e.target.value)}
+    displayEmpty
+    renderValue={(selected) => {
+      if (!selected) {
+        return <span style={{ color: '#aaa' }}>Buscar en columna (opcional)</span>;
+      }
+      return selected;
+    }}
+    sx={{
+      borderRadius: 2,
+      "& .MuiOutlinedInput-notchedOutline": {
+        borderColor: "green",
+      },
+      "&:hover .MuiOutlinedInput-notchedOutline": {
+        borderColor: "darkgreen",
+      },
+      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+        borderColor: "green",
+      },
+    }}
+  >
+    {columnas.map((columna) => (
+      <MenuItem key={columna} value={columna}>
+        {columna}
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
+
 
                 <TextField
                   fullWidth
