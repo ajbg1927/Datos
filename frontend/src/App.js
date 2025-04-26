@@ -309,7 +309,9 @@ const App = () => {
         {datosFiltrados.length > 0 && columnas.length > 0 && (
             <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
                 <Typography variant="h6" gutterBottom></Typography>
-                <TablaDatos key={`tabla-datos-${datosFiltrados.length}`} datosIniciales={datosFiltrados} columnasDefinidas={columnas} />
+                {console.log("App.js - datosFiltrados antes de TablaDatos:", datosFiltrados)}
+                {console.log("App.js - Longitud de datosFiltrados:", datosFiltrados.length)}
+                <TablaDatos key={`tabla-datos-${datosFiltrados.length}`} datosIniciales={datosFiltrados} columnasDefinidas={columnasMemo} />
             </Paper>
         )}
 
