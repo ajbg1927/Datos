@@ -25,7 +25,7 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import BarChartIcon from '@mui/icons-material/BarChart';
 
 const Filtros = ({
-    data = [], 
+    data = [],
     columnas = [],
     valoresUnicos = {},
     filtros = {},
@@ -33,12 +33,13 @@ const Filtros = ({
     handleClearFilters = () => {},
     columnasFecha = [],
     columnasNumericas = [],
-    valorBusqueda = '', 
-    setValorBusqueda = () => {}, 
+    valorBusqueda = '',
+    setValorBusqueda = () => {},
     columnaAgrupar = '',
     setColumnaAgrupar = () => {},
     columnaValor = '',
     setColumnaValor = () => {},
+    esBusquedaGeneral = false, 
 }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -71,36 +72,33 @@ const Filtros = ({
     };
 
     const handleBuscarGeneral = useCallback(() => {
+        let resultados = [];
         if (columnaBusquedaGeneral && valorBusquedaGeneral) {
-            const resultados = data.filter(item =>
+            resultados = data.filter(item =>
                 String(item[columnaBusquedaGeneral])?.toLowerCase().includes(valorBusquedaGeneral.toLowerCase())
             );
-
             console.log('Filtrando por columna:', columnaBusquedaGeneral, 'con valor:', valorBusquedaGeneral, resultados.length, 'resultados');
         } else if (valorBusquedaGeneral) {
-            const resultados = data.filter(item =>
+            resultados = data.filter(item =>
                 Object.values(item).some(value =>
                     String(value)?.toLowerCase().includes(valorBusquedaGeneral.toLowerCase())
                 )
             );
-
             console.log('Buscando en todas las columnas con valor:', valorBusquedaGeneral, resultados.length, 'resultados');
         } else {
-    
-            console.log('Mostrando todos los datos');
+            console.log('Mostrando todos los datos (sin filtro general activo)');
         }
-    }, [data, columnaBusquedaGeneral, valorBusquedaGeneral /*, onFiltrar */]);
+    }, [data, columnaBusquedaGeneral, valorBusquedaGeneral]);
 
     const handleLimpiarBusquedaGeneral = useCallback(() => {
         setColumnaBusquedaGeneral('');
         setValorBusquedaGeneral('');
-        handleChange('busqueda', ''); 
+        handleChange('busqueda', '');
         if (typeof setValorBusqueda === 'function') {
             setValorBusqueda('');
         }
-    
         console.log('Limpiando filtro general');
-    }, [/* data, onFiltrar, */ setValorBusqueda, handleChange]);
+    }, [setValorBusqueda, handleChange]);
 
     const columnasFiltrables = columnas.filter(
         (col) =>
@@ -120,218 +118,226 @@ const Filtros = ({
                 boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
             }}
         >
-            <Typography variant="h6" sx={{ fontWeight: 'bold', color: theme.palette.success.main, mb: 2 }}>
-                Panel de Filtros
-            </Typography>
-
-            {/* Sección de Búsqueda General Integrada */}
-            <FormControl fullWidth margin="normal">
-                <InputLabel id="filtro-columna-label">Buscar en columna (opcional)</InputLabel>
-                <Select
-                    labelId="filtro-columna-label"
-                    id="filtro-columna"
-                    value={columnaBusquedaGeneral}
-                    label="Buscar en columna (opcional)"
-                    onChange={handleColumnaBusquedaGeneralChange}
-                >
-                    <MenuItem value="">Todas las columnas</MenuItem>
-                    {columnas.map((col) => (
-                        <MenuItem key={col} value={col}>{col}</MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
-            <TextField
-                fullWidth
-                margin="normal"
-                label={`Buscar ${columnaBusquedaGeneral ? `en ${columnaBusquedaGeneral}` : 'en todos los campos'}`}
-                value={valorBusquedaGeneral}
-                onChange={handleValorBusquedaGeneralChange}
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <SearchIcon />
-                        </InputAdornment>
-                    ),
-                }}
-                aria-label={`Buscar ${columnaBusquedaGeneral ? `en ${columnaBusquedaGeneral}` : 'en todos los campos'}`}
-                sx={{ mb: 3 }}
-            />
-            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                <Button variant="contained" color="primary" onClick={handleBuscarGeneral}>
-                    Buscar
-                </Button>
-                <Button variant="outlined" onClick={handleLimpiarBusquedaGeneral}>
-                    Limpiar Búsqueda
-                </Button>
-            </Box>
-
-            {/* Botón "DIRECCIÓN DE LAS TIC" - Asegúrate de tener la lógica y el estilo definidos */}
-            <Button variant="contained" color="secondary" sx={{ mb: 3 }}>
-                DIRECCIÓN DE LAS TIC
-            </Button>
-
-            {columnasFecha.length > 0 && (
-                <>
-                    <Divider sx={{ my: 2 }} />
-                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2, display: 'flex', alignItems: 'center' }}>
-                        <EventIcon sx={{ mr: 1 }} />
-                        Filtrar por Fecha
-                    </Typography>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6} md={4}>
-                            <TextField
-                                fullWidth
-                                type="date"
-                                label="Fecha desde"
-                                InputLabelProps={{ shrink: true }}
-                                value={filtros.Fecha_desde || ''}
-                                onChange={(e) => handleChange('Fecha_desde', e.target.value)}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6} md={4}>
-                            <TextField
-                                fullWidth
-                                type="date"
-                                label="Fecha hasta"
-                                InputLabelProps={{ shrink: true }}
-                                value={filtros.Fecha_hasta || ''}
-                                onChange={(e) => handleChange('Fecha_hasta', e.target.value)}
-                            />
-                        </Grid>
-                    </Grid>
-                </>
-            )}
-
-            {columnasNumericas.length > 0 && (
-                <>
-                    <Divider sx={{ my: 2 }} />
-                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2, display: 'flex', alignItems: 'center' }}>
-                        <FilterAltIcon sx={{ mr: 1 }} />
-                        Rango de Valores
-                    </Typography>
-                    <Grid container spacing={2}>
-                        {columnasNumericas.map((col) => (
-                            <React.Fragment key={col}>
-                                <Grid item xs={12} sm={6} md={4}>
-                                    <TextField
-                                        fullWidth
-                                        type="number"
-                                        label={`${col} mínimo`}
-                                        value={filtros[`${col}_min`] || ''}
-                                        onChange={(e) => handleChange(`${col}_min`, e.target.value)}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={6} md={4}>
-                                    <TextField
-                                        fullWidth
-                                        type="number"
-                                        label={`${col} máximo`}
-                                        value={filtros[`${col}_max`] || ''}
-                                        onChange={(e) => handleChange(`${col}_max`, e.target.value)}
-                                    />
-                                </Grid>
-                            </React.Fragment>
-                        ))}
-                    </Grid>
-                </>
-            )}
-
-            <Divider sx={{ my: 3 }} />
-            <Paper variant="outlined" sx={{ p: 2, mb: 3, bgcolor: '#f5f5f5' }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2, display: 'flex', alignItems: 'center', color: theme.palette.success.main }}>
-                    <BarChartIcon sx={{ mr: 1 }} />
-                    Visualización de Gráficos
+            {!esBusquedaGeneral && (
+                <Typography variant="h6" sx={{ fontWeight: 'bold', color: theme.palette.success.main, mb: 2 }}>
+                    Panel de Filtros
                 </Typography>
+            )}
 
-                <Grid container spacing={2}>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            select
-                            label="Agrupar por"
-                            value={columnaAgrupar || ''}
-                            onChange={(e) => setColumnaAgrupar(e.target.value)}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <GroupIcon />
-                                    </InputAdornment>
-                                ),
-                            }}
+            {esBusquedaGeneral && (
+                <>
+                    <FormControl fullWidth margin="normal">
+                        <InputLabel id="filtro-columna-label">Buscar en columna (opcional)</InputLabel>
+                        <Select
+                            labelId="filtro-columna-label"
+                            id="filtro-columna"
+                            value={columnaBusquedaGeneral}
+                            label="Buscar en columna (opcional)"
+                            onChange={handleColumnaBusquedaGeneralChange}
                         >
+                            <MenuItem value="">Todas las columnas</MenuItem>
                             {columnas.map((col) => (
-                                <MenuItem key={col} value={col}>
-                                    {col}
-                                </MenuItem>
+                                <MenuItem key={col} value={col}>{col}</MenuItem>
                             ))}
-                        </TextField>
-                    </Grid>
+                        </Select>
+                    </FormControl>
+                    <TextField
+                        fullWidth
+                        margin="normal"
+                        label={`Buscar ${columnaBusquedaGeneral ? `en ${columnaBusquedaGeneral}` : 'en todos los campos'}`}
+                        value={valorBusquedaGeneral}
+                        onChange={handleValorBusquedaGeneralChange}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon />
+                                </InputAdornment>
+                            ),
+                        }}
+                        aria-label={`Buscar ${columnaBusquedaGeneral ? `en ${columnaBusquedaGeneral}` : 'en todos los campos'}`}
+                        sx={{ mb: 3 }}
+                    />
+                    <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                        <Button variant="contained" color="primary" onClick={handleBuscarGeneral}>
+                            Buscar
+                        </Button>
+                        <Button variant="outlined" onClick={handleLimpiarBusquedaGeneral}>
+                            Limpiar Búsqueda
+                        </Button>
+                    </Box>
+                </>
+            )}
 
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            select
-                            label="Columna de valor"
-                            value={columnaValor || ''}
-                            onChange={(e) => setColumnaValor(e.target.value)}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <AttachMoneyIcon />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        >
-                            {columnas.map((col) => (
-                                <MenuItem key={col} value={col}>
-                                    {col}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </Grid>
-                </Grid>
-            </Paper>
+            {!esBusquedaGeneral && (
+                <>
+                    <Button variant="contained" color="secondary" sx={{ mb: 3 }}>
+                        DIRECCIÓN DE LAS TIC
+                    </Button>
 
-            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2 }}>
-                Filtrar por Categorías
-            </Typography>
-            <Grid container spacing={2}>
-                {columnasFiltrables.map((col) => {
-                    const opciones = valoresUnicos[col] || [];
-                    return (
-                        <Grid item xs={12} sm={6} md={4} key={col}>
-                            <Tooltip title={`Filtrar por ${col}`} arrow>
+                    {columnasFecha.length > 0 && (
+                        <>
+                            <Divider sx={{ my: 2 }} />
+                            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2, display: 'flex', alignItems: 'center' }}>
+                                <EventIcon sx={{ mr: 1 }} />
+                                Filtrar por Fecha
+                            </Typography>
+                            <Grid container spacing={2}>
+                                <Grid item xs={12} sm={6} md={4}>
+                                    <TextField
+                                        fullWidth
+                                        type="date"
+                                        label="Fecha desde"
+                                        InputLabelProps={{ shrink: true }}
+                                        value={filtros.Fecha_desde || ''}
+                                        onChange={(e) => handleChange('Fecha_desde', e.target.value)}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={6} md={4}>
+                                    <TextField
+                                        fullWidth
+                                        type="date"
+                                        label="Fecha hasta"
+                                        InputLabelProps={{ shrink: true }}
+                                        value={filtros.Fecha_hasta || ''}
+                                        onChange={(e) => handleChange('Fecha_hasta', e.target.value)}
+                                    />
+                                </Grid>
+                            </Grid>
+                        </>
+                    )}
+
+                    {columnasNumericas.length > 0 && (
+                        <>
+                            <Divider sx={{ my: 2 }} />
+                            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2, display: 'flex', alignItems: 'center' }}>
+                                <FilterAltIcon sx={{ mr: 1 }} />
+                                Rango de Valores
+                            </Typography>
+                            <Grid container spacing={2}>
+                                {columnasNumericas.map((col) => (
+                                    <React.Fragment key={col}>
+                                        <Grid item xs={12} sm={6} md={4}>
+                                            <TextField
+                                                fullWidth
+                                                type="number"
+                                                label={`${col} mínimo`}
+                                                value={filtros[`${col}_min`] || ''}
+                                                onChange={(e) => handleChange(`${col}_min`, e.target.value)}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={6} md={4}>
+                                            <TextField
+                                                fullWidth
+                                                type="number"
+                                                label={`${col} máximo`}
+                                                value={filtros[`${col}_max`] || ''}
+                                                onChange={(e) => handleChange(`${col}_max`, e.target.value)}
+                                            />
+                                        </Grid>
+                                    </React.Fragment>
+                                ))}
+                            </Grid>
+                        </>
+                    )}
+
+                    <Divider sx={{ my: 3 }} />
+                    <Paper variant="outlined" sx={{ p: 2, mb: 3, bgcolor: '#f5f5f5' }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2, display: 'flex', alignItems: 'center', color: theme.palette.success.main }}>
+                            <BarChartIcon sx={{ mr: 1 }} />
+                            Visualización de Gráficos
+                        </Typography>
+
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} md={6}>
                                 <TextField
-                                    select
                                     fullWidth
-                                    label={`Filtrar por ${col}`}
-                                    value={filtros[col] || ''}
-                                    onChange={(e) => handleChange(col, e.target.value)}
+                                    select
+                                    label="Agrupar por"
+                                    value={columnaAgrupar || ''}
+                                    onChange={(e) => setColumnaAgrupar(e.target.value)}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <GroupIcon />
+                                            </InputAdornment>
+                                        ),
+                                    }}
                                 >
-                                    <MenuItem value="">Todos</MenuItem>
-                                    {opciones.map((opcion, index) => (
-                                        <MenuItem key={index} value={opcion}>
-                                            {opcion}
+                                    {columnas.map((col) => (
+                                        <MenuItem key={col} value={col}>
+                                            {col}
                                         </MenuItem>
                                     ))}
                                 </TextField>
-                            </Tooltip>
-                        </Grid>
-                    );
-                })}
-            </Grid>
+                            </Grid>
 
-            <Box mt={4} textAlign="center">
-                <Button
-                    variant="contained"
-                    color="error"
-                    fullWidth={isMobile}
-                    startIcon={<ClearAllIcon />}
-                    onClick={handleClearFilters}
-                >
-                    Limpiar Filtros
-                </Button>
-            </Box>
+                            <Grid item xs={12} md={6}>
+                                <TextField
+                                    fullWidth
+                                    select
+                                    label="Columna de valor"
+                                    value={columnaValor || ''}
+                                    onChange={(e) => setColumnaValor(e.target.value)}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <AttachMoneyIcon />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                >
+                                    {columnas.map((col) => (
+                                        <MenuItem key={col} value={col}>
+                                            {col}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </Grid>
+                        </Grid>
+                    </Paper>
+
+                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2 }}>
+                        Filtrar por Categorías
+                    </Typography>
+                    <Grid container spacing={2}>
+                        {columnasFiltrables.map((col) => {
+                            const opciones = valoresUnicos[col] || [];
+                            return (
+                                <Grid item xs={12} sm={6} md={4} key={col}>
+                                    <Tooltip title={`Filtrar por ${col}`} arrow>
+                                        <TextField
+                                            select
+                                            fullWidth
+                                            label={`Filtrar por ${col}`}
+                                            value={filtros[col] || ''}
+                                            onChange={(e) => handleChange(col, e.target.value)}
+                                        >
+                                            <MenuItem value="">Todos</MenuItem>
+                                            {opciones.map((opcion, index) => (
+                                                <MenuItem key={index} value={opcion}>
+                                                    {opcion}
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
+                                    </Tooltip>
+                                </Grid>
+                            );
+                        })}
+                    </Grid>
+
+                    <Box mt={4} textAlign="center">
+                        <Button
+                            variant="contained"
+                            color="error"
+                            fullWidth={isMobile}
+                            startIcon={<ClearAllIcon />}
+                            onClick={handleClearFilters}
+                        >
+                            Limpiar Filtros
+                        </Button>
+                    </Box>
+                </>
+            )}
         </Paper>
     );
 };
