@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
     Table,
     TableBody,
@@ -56,18 +56,8 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
             ...prevFiltros,
             [name]: value.toLowerCase(),
         }));
-        setPage(0); 
+        setPage(0); // Resetear la página al filtrar
     }, []);
-
-    const datosFiltrados = React.useMemo(() => {
-        return datosIniciales.filter(fila => {
-            return Object.keys(filtros).every(columna => {
-                if (!filtros[columna]) return true;
-                const valorFila = String(fila[columna]).toLowerCase();
-                return valorFila.includes(filtros[columna]);
-            });
-        });
-    }, [datosIniciales, filtros]);
 
     const ordenarDatos = useCallback((data, propiedad, direccion) => {
         return [...data].sort((a, b) => {
@@ -83,7 +73,23 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
         });
     }, []);
 
-    const datosOrdenados = React.useMemo(() => {
+    const handleSolicitarOrden = useCallback((propiedad) => () => {
+        const esAsc = ordenColumna === propiedad && ordenDireccion === 'asc';
+        setOrdenDireccion(esAsc ? 'desc' : 'asc');
+        setOrdenColumna(propiedad);
+    }, [ordenColumna, ordenDireccion]);
+
+    const datosFiltrados = useMemo(() => {
+        return datosIniciales.filter(fila => {
+            return Object.keys(filtros).every(columna => {
+                if (!filtros[columna]) return true;
+                const valorFila = String(fila[columna]).toLowerCase();
+                return valorFila.includes(filtros[columna]);
+            });
+        });
+    }, [datosIniciales, filtros]);
+
+    const datosOrdenados = useMemo(() => {
         return ordenColumna ? ordenarDatos(datosFiltrados, ordenColumna, ordenDireccion) : datosFiltrados;
     }, [datosFiltrados, ordenColumna, ordenDireccion, ordenarDatos]);
 
@@ -213,7 +219,7 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
                 </TableBody>
             </Table>
             <TablePagination
-                rowsPerPageOptions={[5, 10, 25, 50, { label: 'Todos', value: -1 }]}
+                rowsPerPageOptions={[5, 10, 25, { label: 'Todos', value: -1 }]}
                 colSpan={columnasVisiblesActuales.length}
                 count={datosOrdenados.length}
                 rowsPerPage={rowsPerPage}
