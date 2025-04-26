@@ -16,6 +16,7 @@ import {
     Popover,
     Button,
     FormGroup,
+    IconButton
 } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
 
@@ -128,35 +129,35 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
     }
 
     const TablePaginationActions = ({ count, page, rowsPerPage, onPageChange }) => {
-    const handleBackButtonClick = (event) => {
-        onPageChange(event, page - 1);
+        const handleBackButtonClick = (event) => {
+            onPageChange(event, page - 1);
+        };
+
+        const handleNextButtonClick = (event) => {
+            onPageChange(event, page + 1);
+        };
+
+        const isLastPage = rowsPerPage === -1 ? true : page >= Math.ceil(count / rowsPerPage) - 1;
+
+        return (
+            <Box sx={{ flexShrink: 0, ml: 2.5 }}>
+                <IconButton
+                    onClick={handleBackButtonClick}
+                    disabled={page === 0}
+                    aria-label="página anterior"
+                >
+                    {'<'}
+                </IconButton>
+                <IconButton
+                    onClick={handleNextButtonClick}
+                    disabled={isLastPage}
+                    aria-label="próxima página"
+                >
+                    {'>'}
+                </IconButton>
+            </Box>
+        );
     };
-
-    const handleNextButtonClick = (event) => {
-        onPageChange(event, page + 1);
-    };
-
-    const isLastPage = rowsPerPage === -1 ? true : page >= Math.ceil(count / rowsPerPage) - 1;
-
-    return (
-        <Box sx={{ flexShrink: 0, ml: 2.5 }}>
-            <IconButton
-                onClick={handleBackButtonClick}
-                disabled={page === 0}
-                aria-label="página anterior"
-            >
-                {'<'}
-            </IconButton>
-            <IconButton
-                onClick={handleNextButtonClick}
-                disabled={isLastPage}
-                aria-label="próxima página"
-            >
-                {'>'}
-            </IconButton>
-        </Box>
-    );
-};
 
     return (
         <TableContainer component={Paper} sx={{ width: '100%', overflowX: 'auto' }}>
@@ -256,40 +257,15 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
             <TablePagination
                 rowsPerPageOptions={[5, 10, 25, 50, { label: 'Todos', value: -1 }]}
                 component="div"
-                colSpan={columnasVisiblesActuales.length}
                 count={datosOrdenados.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
+                ActionsComponent={TablePaginationActions}
                 SelectProps={{
                     inputProps: { 'aria-label': 'filas por página' },
                     native: true,
-                }}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-                ActionsComponent={({ count, page, rowsPerPage, onPageChange }) => {
-                    const totalPages = rowsPerPage === -1 ? 1 : Math.ceil(count / rowsPerPage);
-                    return (
-                        <Box sx={{ flexShrink: 0, ml: 2.5 }}>
-                            <button
-                                onClick={(event) => onPageChange(event, Math.max(0, page - 1))}
-                                disabled={page === 0}
-                                aria-label="página anterior"
-                                style={{ margin: '0 8px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-                            >
-                                {'<'}
-                            </button>
-                            <button
-                                onClick={(event) => onPageChange(event, Math.min(totalPages - 1, page + 1))}
-                                disabled={page >= totalPages - 1}
-                                aria-label="próxima página"
-                                style={{ margin: '0 8px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-                            >
-                                {'>'}
-                            </button>
-                        </Box>
-                    );
                 }}
             />
         </TableContainer>
