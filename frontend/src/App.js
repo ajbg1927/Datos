@@ -72,26 +72,26 @@ const App = () => {
     }, [setHojasSeleccionadasFromHook]);
 
     useEffect(() => {
-        if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
-            obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas)
-                .then((data) => {
-                    if (data) {
-                        setDatosCombinadosApp(data);
-                        console.log("DatosCombinadosApp después de obtenerDatos:", data);
-                        if (data.length > 0 && !columnasEstablecidas) {
-                            setColumnas(Object.keys(data[0]));
-                            setColumnasEstablecidas(true);
-                            console.log("Columnas iniciales seteadas:", Object.keys(data[0]));
-                        }
+    if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
+        obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas)
+            .then((data) => {
+                if (data) {
+                    setDatosCombinadosApp(data);
+                    console.log("DatosCombinadosApp después de obtenerDatos:", data);
+                    if (data.length > 0) {
+                        setColumnas(Object.keys(data[0]));
+                        setColumnasEstablecidas(true);
+                        console.log("Columnas iniciales seteadas:", Object.keys(data[0]));
                     }
-                })
-                .catch(console.error);
-        } else {
-            setColumnasEstablecidas(false);
-            setDatosCombinadosApp([]);
-            setColumnas([]);
-        }
-    }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos, columnasEstablecidas]);
+                }
+            })
+            .catch(console.error);
+    } else {
+        setColumnasEstablecidas(false);
+        setDatosCombinadosApp([]);
+        setColumnas([]);
+    }
+}, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
 
     useEffect(() => {
         if (archivoSeleccionado && !hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
