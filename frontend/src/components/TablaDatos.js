@@ -56,7 +56,7 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
             ...prevFiltros,
             [name]: value.toLowerCase(),
         }));
-        setPage(0); // Resetear la página al filtrar
+        setPage(0); 
     }, []);
 
     const ordenarDatos = useCallback((data, propiedad, direccion) => {
