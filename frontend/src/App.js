@@ -250,7 +250,7 @@ const App = () => {
                                 setColumnaAgrupar={setColumnaAgrupar}
                                 columnaValor={columnaValor}
                                 setColumnaValor={setColumnaValor}
-                                esBusquedaGeneral={true} // Prop para indicar que esta es la búsqueda general
+                                esBusquedaGeneral={true}
                             />
                         </Box>
 
@@ -270,7 +270,7 @@ const App = () => {
                             setColumnaAgrupar={setColumnaAgrupar}
                             columnaValor={columnaValor}
                             setColumnaValor={setColumnaValor}
-                            esBusquedaGeneral={false} // Prop para indicar que no es la búsqueda general
+                            esBusquedaGeneral={false} 
                         />
                     </>
                 ) : (
@@ -310,7 +310,7 @@ const App = () => {
         {datosFiltrados.length > 0 && columnas.length > 0 && (
             <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
                 <Typography variant="h6" gutterBottom>Datos</Typography>
-                <TablaDatos datos={datosFiltrados} columnas={columnas} />
+                <TablaDatos datosIniciales={datosFiltrados} columnasDefinidas={columnas} />
             </Paper>
         )}
 
