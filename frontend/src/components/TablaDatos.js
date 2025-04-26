@@ -56,7 +56,7 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
             ...prevFiltros,
             [name]: value.toLowerCase(),
         }));
-        setPage(0); 
+        setPage(0);
     }, []);
 
     const ordenarDatos = useCallback((data, propiedad, direccion) => {
@@ -238,6 +238,7 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
                             onClick={(event) => onPageChange(event, page - 1)}
                             disabled={page === 0}
                             aria-label="página anterior"
+                            style={{ margin: '0 8px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
                         >
                             {'<'}
                         </button>
@@ -245,6 +246,7 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
                             onClick={(event) => onPageChange(event, page + 1)}
                             disabled={page >= Math.ceil(count / rowsPerPage) - 1}
                             aria-label="próxima página"
+                            style={{ margin: '0 8px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
                         >
                             {'>'}
                         </button>
