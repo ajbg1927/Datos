@@ -388,6 +388,7 @@ const App = () => {
                 </Paper>
             )}
         </Layout>
+        </>
     );
 };
 
