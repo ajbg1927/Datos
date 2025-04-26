@@ -254,6 +254,16 @@ const App = () => {
                             />
                         </Box>
 
+                        <Box sx={{ mb: 2 }}>
+                            <Typography variant="h6" gutterBottom>Filtros Rápidos</Typography>
+                            <FiltroRapidoTIC
+                                columns={columnas}
+                                setFiltrosActivos={setFiltros}
+                                filtrosActivos={filtros}
+                                data={datosFiltrados}
+                            />
+                        </Box>
+
                         <Typography variant="h6" gutterBottom>Otros Filtros</Typography>
                         <Filtros
                             data={datosCombinadosApp}
