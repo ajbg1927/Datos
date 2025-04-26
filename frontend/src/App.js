@@ -209,6 +209,7 @@ const App = () => {
     }, [archivoSeleccionado, hojasSeleccionadas]);
 
     const handleChangeTab = (event, newValue) => {
+        console.log("handleChangeTab - Nuevo valor:", newValue);
         setTabValue(newValue);
         if (newValue === 4 && archivoSeleccionado && hojasSeleccionadas.length > 0 && !ticProcesado) {
             handleProcesarDatos();
