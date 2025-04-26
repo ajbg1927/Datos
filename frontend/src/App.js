@@ -18,6 +18,7 @@ import FiltroDependencia from './components/FiltroDependencia';
 import useArchivos from './hooks/useArchivos';
 import useFiltrosAvanzado from './hooks/useFiltrosAvanzado';
 import useExportaciones from './hooks/useExportaciones';
+import useGraficos from './hooks/useGraficos'
 import axios from 'axios';
 
 const API_URL = 'https://backend-flask-u76y.onrender.com';
