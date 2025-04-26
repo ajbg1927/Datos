@@ -1,24 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    Typography,
-    TableSortLabel,
-    Box,
-    TablePagination,
-    FormControlLabel,
-    Checkbox,
-    Popover,
-    Button,
-    FormGroup,
-    IconButton
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+    Paper, Typography, TableSortLabel, Box, TablePagination,
+    FormControlLabel, Checkbox, Popover, Button, FormGroup, IconButton
 } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
+import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material'; 
 
 const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
     const [ordenDireccion, setOrdenDireccion] = useState('asc');
@@ -35,14 +22,8 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
         setColumnasVisibles(columnasDetectadasInicial);
     }, [columnasDetectadasInicial]);
 
-    const handlePopoverOpen = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handlePopoverClose = () => {
-        setAnchorEl(null);
-    };
-
+    const handlePopoverOpen = (event) => setAnchorEl(event.currentTarget);
+    const handlePopoverClose = () => setAnchorEl(null);
     const open = Boolean(anchorEl);
 
     const handleVisibilidadColumnaChange = useCallback((event) => {
@@ -54,8 +35,8 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
 
     const handleFiltroChange = useCallback((event) => {
         const { name, value } = event.target;
-        setFiltros(prevFiltros => ({
-            ...prevFiltros,
+        setFiltros(prev => ({
+            ...prev,
             [name]: value.toLowerCase(),
         }));
         setPage(0);
@@ -65,12 +46,8 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
         return [...data].sort((a, b) => {
             const aValue = a[propiedad];
             const bValue = b[propiedad];
-            if (aValue < bValue) {
-                return direccion === 'asc' ? -1 : 1;
-            }
-            if (aValue > bValue) {
-                return direccion === 'asc' ? 1 : -1;
-            }
+            if (aValue < bValue) return direccion === 'asc' ? -1 : 1;
+            if (aValue > bValue) return direccion === 'asc' ? 1 : -1;
             return 0;
         });
     }, []);
@@ -82,13 +59,13 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
     }, [ordenColumna, ordenDireccion]);
 
     const datosFiltrados = useMemo(() => {
-        return datosIniciales.filter(fila => {
-            return Object.keys(filtros).every(columna => {
+        return datosIniciales.filter(fila =>
+            Object.keys(filtros).every(columna => {
                 if (!filtros[columna]) return true;
                 const valorFila = String(fila[columna]).toLowerCase();
                 return valorFila.includes(filtros[columna]);
-            });
-        });
+            })
+        );
     }, [datosIniciales, filtros]);
 
     const datosOrdenados = useMemo(() => {
@@ -105,11 +82,7 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
         setPage(0);
     };
 
-    const emptyRows =
-        rowsPerPage > 0
-            ? Math.max(0, (1 + page) * rowsPerPage - datosOrdenados.length)
-            : 0;
-
+    const emptyRows = rowsPerPage > 0 ? Math.max(0, (1 + page) * rowsPerPage - datosOrdenados.length) : 0;
     const columnasVisiblesActuales = columnasDetectadasInicial.filter(col => columnasVisibles.includes(col));
 
     if (!datosIniciales.length) {
@@ -129,35 +102,35 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
     }
 
     const TablePaginationActions = ({ count, page, rowsPerPage, onPageChange }) => {
-        const handleBackButtonClick = () => {
-            onPageChange(null, page - 1);
+        const handleBackButtonClick = (event) => {
+            onPageChange(event, page - 1);
         };
 
-        const handleNextButtonClick = () => {
-            onPageChange(null, page + 1);
+        const handleNextButtonClick = (event) => {
+            onPageChange(event, page + 1);
         };
 
         const isLastPage = page >= Math.ceil(count / rowsPerPage) - 1;
 
-    return (
-        <Box sx={{ flexShrink: 0, ml: 2.5 }}>
-            <IconButton
-                onClick={handleBackButtonClick}
-                disabled={page === 0}
-                aria-label="página anterior"
-            >
-                {'<'}
-            </IconButton>
-            <IconButton
-                onClick={handleNextButtonClick}
-                disabled={isLastPage}
-                aria-label="próxima página"
-            >
-                {'>'}
-            </IconButton>
-        </Box>
-    );
-};
+        return (
+            <Box sx={{ flexShrink: 0, ml: 2.5 }}>
+                <IconButton
+                    onClick={handleBackButtonClick}
+                    disabled={page === 0}
+                    aria-label="Página anterior"
+                >
+                    <KeyboardArrowLeft />
+                </IconButton>
+                <IconButton
+                    onClick={handleNextButtonClick}
+                    disabled={isLastPage}
+                    aria-label="Próxima página"
+                >
+                    <KeyboardArrowRight />
+                </IconButton>
+            </Box>
+        );
+    };
 
     return (
         <TableContainer component={Paper} sx={{ width: '100%', overflowX: 'auto' }}>
@@ -171,14 +144,11 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
                     open={open}
                     anchorEl={anchorEl}
                     onClose={handlePopoverClose}
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'left',
-                    }}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
                 >
                     <Box sx={{ p: 2 }}>
                         <FormGroup>
-                            {columnasDetectadasInicial.map((columna) => (
+                            {columnasDetectadasInicial.map(columna => (
                                 <FormControlLabel
                                     key={columna}
                                     control={
@@ -210,17 +180,17 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
                                     onClick={handleSolicitarOrden(columna)}
                                 >
                                     {columna}
-                                    {ordenColumna === columna ? (
+                                    {ordenColumna === columna && (
                                         <Box component="span" sx={visuallyHidden}>
                                             {ordenDireccion === 'desc' ? 'sorted descending' : 'sorted ascending'}
                                         </Box>
-                                    ) : null}
+                                    )}
                                 </TableSortLabel>
                             </TableCell>
                         ))}
                     </TableRow>
                     <TableRow>
-                        {columnasVisiblesActuales.map((columna) => (
+                        {columnasVisiblesActuales.map(columna => (
                             <TableCell key={`filtro-${columna}`}>
                                 <input
                                     type="text"
