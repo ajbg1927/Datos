@@ -129,35 +129,35 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
     }
 
     const TablePaginationActions = ({ count, page, rowsPerPage, onPageChange }) => {
-        const handleBackButtonClick = (event) => {
-            onPageChange(event, page - 1);
+        const handleBackButtonClick = () => {
+            onPageChange(null, page - 1);
         };
 
-        const handleNextButtonClick = (event) => {
-            onPageChange(event, page + 1);
+        const handleNextButtonClick = () => {
+            onPageChange(null, page + 1);
         };
 
-        const isLastPage = rowsPerPage === -1 ? true : page >= Math.ceil(count / rowsPerPage) - 1;
+        const isLastPage = page >= Math.ceil(count / rowsPerPage) - 1;
 
-        return (
-            <Box sx={{ flexShrink: 0, ml: 2.5 }}>
-                <IconButton
-                    onClick={handleBackButtonClick}
-                    disabled={page === 0}
-                    aria-label="página anterior"
-                >
-                    {'<'}
-                </IconButton>
-                <IconButton
-                    onClick={handleNextButtonClick}
-                    disabled={isLastPage}
-                    aria-label="próxima página"
-                >
-                    {'>'}
-                </IconButton>
-            </Box>
-        );
-    };
+    return (
+        <Box sx={{ flexShrink: 0, ml: 2.5 }}>
+            <IconButton
+                onClick={handleBackButtonClick}
+                disabled={page === 0}
+                aria-label="página anterior"
+            >
+                {'<'}
+            </IconButton>
+            <IconButton
+                onClick={handleNextButtonClick}
+                disabled={isLastPage}
+                aria-label="próxima página"
+            >
+                {'>'}
+            </IconButton>
+        </Box>
+    );
+};
 
     return (
         <TableContainer component={Paper} sx={{ width: '100%', overflowX: 'auto' }}>
