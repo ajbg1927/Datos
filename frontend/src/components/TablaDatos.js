@@ -121,7 +121,7 @@ const TablaDatos = ({ datos = [], columnas = [] }) => {
                 </TableBody>
             </Table>
             <TablePagination
-                rowsPerPageOptions={[5, 10, 25, 50, 100 { label: 'Todos', value: -1 }]}
+                rowsPerPageOptions={[5, 10, 25, 50, 100, { label: 'Todos', value: -1 }]}
                 colSpan={columnasDetectadas.length}
                 count={datosOrdenados.length}
                 rowsPerPage={rowsPerPage}
