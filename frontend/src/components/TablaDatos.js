@@ -29,6 +29,7 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
     const [anchorEl, setAnchorEl] = useState(null);
 
     const columnasDetectadasInicial = columnasDefinidas.length ? columnasDefinidas : Object.keys(datosIniciales[0] || {});
+
     useEffect(() => {
         setColumnasVisibles(columnasDetectadasInicial);
     }, [columnasDetectadasInicial]);
@@ -98,14 +99,15 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
     };
 
     const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
+        const value = parseInt(event.target.value, 10);
+        setRowsPerPage(value);
         setPage(0);
     };
 
-    const emptyRows = useMemo(() => {
-        if (rowsPerPage === -1) return 0;
-        return Math.max(0, (1 + page) * rowsPerPage - datosOrdenados.length);
-    }, [rowsPerPage, page, datosOrdenados.length]);
+    const emptyRows =
+        rowsPerPage > 0
+            ? Math.max(0, (1 + page) * rowsPerPage - datosOrdenados.length)
+            : 0;
 
     const columnasVisiblesActuales = columnasDetectadasInicial.filter(col => columnasVisibles.includes(col));
 
@@ -201,9 +203,9 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {(rowsPerPage === -1
-                        ? datosOrdenados
-                        : datosOrdenados.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    {(rowsPerPage > 0
+                        ? datosOrdenados.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                        : datosOrdenados
                     ).map((fila, filaIndex) => (
                         <TableRow key={filaIndex}>
                             {columnasVisiblesActuales.map((columna, colIndex) => (
@@ -227,33 +229,34 @@ const TablaDatos = ({ datosIniciales = [], columnasDefinidas = [] }) => {
                 rowsPerPage={rowsPerPage}
                 page={page}
                 SelectProps={{
-                    inputProps: {
-                        'aria-label': 'filas por página',
-                    },
+                    inputProps: { 'aria-label': 'filas por página' },
                     native: true,
                 }}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
-                ActionsComponent={({ count, page, rowsPerPage, onPageChange }) => (
-                    <Box sx={{ flexShrink: 0, ml: 2.5 }}>
-                        <button
-                            onClick={(event) => onPageChange(event, page - 1)}
-                            disabled={page === 0}
-                            aria-label="página anterior"
-                            style={{ margin: '0 8px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-                        >
-                            {'<'}
-                        </button>
-                        <button
-                            onClick={(event) => onPageChange(event, page + 1)}
-                            disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-                            aria-label="próxima página"
-                            style={{ margin: '0 8px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-                        >
-                            {'>'}
-                        </button>
-                    </Box>
-                )}
+                ActionsComponent={({ count, page, rowsPerPage, onPageChange }) => {
+                    const totalPages = rowsPerPage === -1 ? 1 : Math.ceil(count / rowsPerPage);
+                    return (
+                        <Box sx={{ flexShrink: 0, ml: 2.5 }}>
+                            <button
+                                onClick={(event) => onPageChange(event, Math.max(0, page - 1))}
+                                disabled={page === 0}
+                                aria-label="página anterior"
+                                style={{ margin: '0 8px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                            >
+                                {'<'}
+                            </button>
+                            <button
+                                onClick={(event) => onPageChange(event, Math.min(totalPages - 1, page + 1))}
+                                disabled={page >= totalPages - 1}
+                                aria-label="próxima página"
+                                style={{ margin: '0 8px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                            >
+                                {'>'}
+                            </button>
+                        </Box>
+                    );
+                }}
             />
         </TableContainer>
     );
