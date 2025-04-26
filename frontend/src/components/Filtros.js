@@ -166,6 +166,7 @@ const Filtros = ({
                         }}
                         aria-label={`Buscar ${columnaBusquedaGeneral ? `en ${columnaBusquedaGeneral}` : 'en todos los campos'}`}
                         sx={{ mb: 3 }}
+                        placeholder={columnaBusquedaGeneral ? `Buscar en ${columnaBusquedaGeneral}...` : 'Buscar en todos los campos...'}
                     />
                     <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
                         <Button variant="contained" color="primary" onClick={handleBuscarGeneral}>
@@ -242,6 +243,7 @@ const Filtros = ({
                                                     label={`${col} mínimo`}
                                                     value={filtros[`${col}_min`] || ''}
                                                     onChange={(e) => handleChange(`${col}_min`, e.target.value)}
+                                                    placeholder="Mín."
                                                 />
                                             </Grid>
                                             <Grid item xs={12} sm={6} md={4}>
@@ -251,6 +253,7 @@ const Filtros = ({
                                                     label={`${col} máximo`}
                                                     value={filtros[`${col}_max`] || ''}
                                                     onChange={(e) => handleChange(`${col}_max`, e.target.value)}
+                                                    placeholder="Máx."
                                                 />
                                             </Grid>
                                         </React.Fragment>
