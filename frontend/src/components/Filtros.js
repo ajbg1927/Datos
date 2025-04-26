@@ -27,6 +27,7 @@ import EventIcon from '@mui/icons-material/Event';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import LabelIcon from '@mui/icons-material/Label'; // Importa el icono
 
 const Filtros = ({
     data = [],
@@ -180,77 +181,91 @@ const Filtros = ({
             {!esBusquedaGeneral && (
                 <>
                     {columnasFecha.length > 0 && (
-                        <>
-                            <Divider sx={{ my: 2 }} />
-                            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2, display: 'flex', alignItems: 'center' }}>
-                                <EventIcon sx={{ mr: 1 }} />
-                                Filtrar por Fecha
-                            </Typography>
-                            <Grid container spacing={2}>
-                                <Grid item xs={12} sm={6} md={4}>
-                                    <TextField
-                                        fullWidth
-                                        type="date"
-                                        label="Fecha desde"
-                                        InputLabelProps={{ shrink: true }}
-                                        value={filtros.Fecha_desde || ''}
-                                        onChange={(e) => handleChange('Fecha_desde', e.target.value)}
-                                    />
+                        <Accordion defaultExpanded>
+                            <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="fecha-content"
+                                id="fecha-header"
+                            >
+                                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                    <EventIcon sx={{ mr: 1 }} />
+                                    Filtrar por Fecha
+                                </Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12} sm={6} md={4}>
+                                        <TextField
+                                            fullWidth
+                                            type="date"
+                                            label="Fecha desde"
+                                            InputLabelProps={{ shrink: true }}
+                                            value={filtros.Fecha_desde || ''}
+                                            onChange={(e) => handleChange('Fecha_desde', e.target.value)}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6} md={4}>
+                                        <TextField
+                                            fullWidth
+                                            type="date"
+                                            label="Fecha hasta"
+                                            InputLabelProps={{ shrink: true }}
+                                            value={filtros.Fecha_hasta || ''}
+                                            onChange={(e) => handleChange('Fecha_hasta', e.target.value)}
+                                        />
+                                    </Grid>
                                 </Grid>
-                                <Grid item xs={12} sm={6} md={4}>
-                                    <TextField
-                                        fullWidth
-                                        type="date"
-                                        label="Fecha hasta"
-                                        InputLabelProps={{ shrink: true }}
-                                        value={filtros.Fecha_hasta || ''}
-                                        onChange={(e) => handleChange('Fecha_hasta', e.target.value)}
-                                    />
-                                </Grid>
-                            </Grid>
-                        </>
+                            </AccordionDetails>
+                        </Accordion>
                     )}
 
                     {columnasNumericas.length > 0 && (
-                        <>
-                            <Divider sx={{ my: 2 }} />
-                            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2, display: 'flex', alignItems: 'center' }}>
-                                <FilterAltIcon sx={{ mr: 1 }} />
-                                Rango de Valores
-                            </Typography>
-                            <Grid container spacing={2}>
-                                {columnasNumericas.map((col) => (
-                                    <React.Fragment key={col}>
-                                        <Grid item xs={12} sm={6} md={4}>
-                                            <TextField
-                                                fullWidth
-                                                type="number"
-                                                label={`${col} mínimo`}
-                                                value={filtros[`${col}_min`] || ''}
-                                                onChange={(e) => handleChange(`${col}_min`, e.target.value)}
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6} md={4}>
-                                            <TextField
-                                                fullWidth
-                                                type="number"
-                                                label={`${col} máximo`}
-                                                value={filtros[`${col}_max`] || ''}
-                                                onChange={(e) => handleChange(`${col}_max`, e.target.value)}
-                                            />
-                                        </Grid>
-                                    </React.Fragment>
-                                ))}
-                            </Grid>
-                        </>
+                        <Accordion defaultExpanded>
+                            <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="numerico-content"
+                                id="numerico-header"
+                            >
+                                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                    <FilterAltIcon sx={{ mr: 1 }} />
+                                    Rango de Valores
+                                </Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <Grid container spacing={2}>
+                                    {columnasNumericas.map((col) => (
+                                        <React.Fragment key={col}>
+                                            <Grid item xs={12} sm={6} md={4}>
+                                                <TextField
+                                                    fullWidth
+                                                    type="number"
+                                                    label={`${col} mínimo`}
+                                                    value={filtros[`${col}_min`] || ''}
+                                                    onChange={(e) => handleChange(`${col}_min`, e.target.value)}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} sm={6} md={4}>
+                                                <TextField
+                                                    fullWidth
+                                                    type="number"
+                                                    label={`${col} máximo`}
+                                                    value={filtros[`${col}_max`] || ''}
+                                                    onChange={(e) => handleChange(`${col}_max`, e.target.value)}
+                                                />
+                                            </Grid>
+                                        </React.Fragment>
+                                    ))}
+                                </Grid>
+                            </AccordionDetails>
+                        </Accordion>
                     )}
 
                     <Divider sx={{ my: 3 }} />
                     <Accordion defaultExpanded>
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
-                            aria-controls="panel1a-content"
-                            id="panel1a-header"
+                            aria-controls="categoria-content"
+                            id="categoria-header"
                         >
                             <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
                                 Filtrar por Categorías
@@ -269,6 +284,13 @@ const Filtros = ({
                                                     label={`Filtrar por ${col}`}
                                                     value={filtros[col] || ''}
                                                     onChange={(e) => handleChange(col, e.target.value)}
+                                                    InputProps={{
+                                                        startAdornment: (
+                                                            <InputAdornment position="start">
+                                                                <LabelIcon />
+                                                            </InputAdornment>
+                                                        ),
+                                                    }}
                                                 >
                                                     <MenuItem value="">Todos</MenuItem>
                                                     {opciones.map((opcion, index) => (
