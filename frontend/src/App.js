@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
     Box, CircularProgress, Paper, Tab, Tabs, Typography, TextField, Divider
 } from '@mui/material';
+import { Toaster, toast } from 'react-hot-toast';
 
 import Layout from './components/Layout';
 import UploadFile from './components/UploadFile';
@@ -18,7 +19,7 @@ import FiltroDependencia from './components/FiltroDependencia';
 import useArchivos from './hooks/useArchivos';
 import useFiltrosAvanzado from './hooks/useFiltrosAvanzado';
 import useExportaciones from './hooks/useExportaciones';
-import useGraficos from './hooks/useGraficos'
+import useGraficos from './hooks/useGraficos';
 import axios from 'axios';
 
 const API_URL = 'https://backend-flask-u76y.onrender.com';
@@ -72,26 +73,25 @@ const App = () => {
     }, [setHojasSeleccionadasFromHook]);
 
     useEffect(() => {
-    if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
-        obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas)
-            .then((data) => {
-                if (data) {
-                    setDatosCombinadosApp(data);
-                    console.log("DatosCombinadosApp después de obtenerDatos:", data);
-                    if (data.length > 0) {
-                        setColumnas(Object.keys(data[0]));
-                        setColumnasEstablecidas(true);
-                        console.log("Columnas iniciales seteadas:", Object.keys(data[0]));
+        if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
+            obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas)
+                .then((data) => {
+                    if (data) {
+                        setDatosCombinadosApp(data);
+                        toast.success(`Datos cargados: ${data.length} registros`);
+                        if (data.length > 0) {
+                            setColumnas(Object.keys(data[0]));
+                            setColumnasEstablecidas(true);
+                        }
                     }
-                }
-            })
-            .catch(console.error);
-    } else {
-        setColumnasEstablecidas(false);
-        setDatosCombinadosApp([]);
-        setColumnas([]);
-    }
-}, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
+                })
+                .catch(console.error);
+        } else {
+            setColumnasEstablecidas(false);
+            setDatosCombinadosApp([]);
+            setColumnas([]);
+        }
+    }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
 
     useEffect(() => {
         if (archivoSeleccionado && !hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
@@ -100,7 +100,6 @@ const App = () => {
     }, [archivoSeleccionado, obtenerHojas, hojasPorArchivo]);
 
     const columnasFecha = useMemo(() => columnas.filter(col => col.toLowerCase().includes('fecha')), [columnas]);
-
     const columnasNumericas = useMemo(() => columnas.filter(col =>
         col.toLowerCase().match(/pago|valor|deducci|oblig|monto|total|suma|saldo/)), [columnas]);
 
@@ -195,7 +194,6 @@ const App = () => {
     }, [archivoSeleccionado, hojasSeleccionadas]);
 
     const handleChangeTab = (event, newValue) => {
-        console.log("handleChangeTab - Nuevo valor:", newValue);
         setTabValue(newValue);
         if (newValue === 4 && archivoSeleccionado && hojasSeleccionadas.length > 0 && !ticProcesado) {
             handleProcesarDatos();
@@ -209,13 +207,14 @@ const App = () => {
 
         if (datosFiltrados.length > 0) {
             setColumnas(Object.keys(datosFiltrados[0]));
-            console.log("Columnas seteadas en onSeleccionar:", Object.keys(datosFiltrados[0]));
         } else {
             setColumnas([]);
         }
     };
 
-   return (
+    return (
+        <>
+            <Toaster position="bottom-right" />
     <Layout
         sidebar={
             <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
