@@ -302,23 +302,39 @@ const App = () => {
         </Paper>
       )}
 
-      {/* 🚀 Resumen y gráficos rápidos 🚀 */}
       {hojaSeleccionada && columnaAgrupar && (
         <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-          <Typography variant="h6" gutterBottom>Análisis Rápido</Typography>
-          <ResumenGeneral
-            datos={checkboxResumenGraficos ? datosFiltrados : datosCombinadosApp}
-            columnaAgrupar={columnaAgrupar}
-            columnaValor={columnaValor}
-            titulo="Resumen General"
-          />
-          <Graficos
-            datos={checkboxResumenGraficos ? datosFiltrados : datosCombinadosApp}
-            columnaAgrupar={columnaAgrupar}
-            columnaValor={columnaValor}
-          />
-        </Paper>
-      )}
+        <Typography variant="h6" gutterBottom>Análisis Rápido</Typography>
+
+        <Box
+        sx={{
+        display: 'grid',
+        gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+        gap: 3,
+        mt: 2,
+    }}
+    >
+
+    <Paper elevation={1} sx={{ p: 2, borderRadius: 3 }}>
+    <Typography variant="subtitle1" gutterBottom>Resumen General</Typography>
+    <ResumenGeneral
+    datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+    columnaAgrupar={columnaAgrupar}
+    columnaValor={columnaValor}
+    />
+    </Paper>
+
+    <Paper elevation={1} sx={{ p: 2, borderRadius: 3 }}>
+    <Typography variant="subtitle1" gutterBottom>Gráficos</Typography>
+    <Graficos
+    datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+    columnaAgrupar={columnaAgrupar}
+    columnaValor={columnaValor}
+    />
+    </Paper>
+    </Box>
+  </Paper>
+)}
 
       {resultadosProcesadosPorHoja && (
         <Paper elevation={2} sx={{ width: '100%' }}>
