@@ -17,7 +17,10 @@ import {
   LabelList,
 } from 'recharts';
 import InsertChartIcon from '@mui/icons-material/InsertChart';
-import { ensureArray } from '../utils/arrayUtils'; // 👈 Importa aquí
+
+const ensureArray = (input) => {
+  return Array.isArray(input) ? input : [];
+};
 
 const PALETAS = {
   Institucional: ['#4caf50', '#fdd835', '#ff9800', '#2196f3', '#9c27b0', '#ff5722'],
