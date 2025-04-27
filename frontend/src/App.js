@@ -73,26 +73,30 @@ const App = () => {
         setHojasSeleccionadasFromHook(hojas);
     }, [setHojasSeleccionadasFromHook]);
 
-    useEffect(() => {
-        if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
-            obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas)
-                .then((data) => {
-                    if (data) {
-                        setDatosCombinadosApp(data);
-                        toast.success(`Datos cargados: ${data.length} registros`);
-                        if (data.length > 0) {
-                            setColumnas(Object.keys(data[0]));
-                            setColumnasEstablecidas(true);
-                        }
-                    }
-                })
-                .catch(console.error);
-        } else {
-            setColumnasEstablecidas(false);
-            setDatosCombinadosApp([]);
-            setColumnas([]);
-        }
-    }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
+     useEffect(() => {
+    if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
+      obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas)
+        .then((data) => {
+          if (data) {
+            setDatosCombinadosApp(data);
+            toast.success(`Datos cargados: ${data.length} registros`);
+            if (data.length > 0) {
+              setColumnas(Object.keys(data[0]));
+              setColumnasEstablecidas(true);
+
+              setFiltros({}); 
+              setDatosFiltrados(data); 
+            }
+          }
+        })
+        .catch(console.error);
+    } else {
+      setColumnasEstablecidas(false);
+      setDatosCombinadosApp([]);
+      setDatosFiltrados([]); // 
+      setColumnas([]);
+    }
+  }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
 
     useEffect(() => {
         if (archivoSeleccionado && !hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
@@ -138,6 +142,12 @@ const App = () => {
         pagosMax,
         columnaValor
     );
+
+    useEffect(() => {
+    if (Object.keys(filtros).length > 0) { 
+      setDatosFiltrados(datosFiltradosHook);
+    }
+  }, [datosFiltradosHook, filtros]);
 
     useEffect(() => setDatosFiltrados(datosFiltradosHook), [datosFiltradosHook]);
 
@@ -336,30 +346,28 @@ const App = () => {
             )}
 
             {tabValue === 5 && (
-              <Box display="flex" flexDirection="column" gap={3}>
+                <Box display="flex" flexDirection="column" gap={3}>
                 <FiltroDependencia
-  sheets={Object.keys(dependenciasPorHoja || {})}
-  dependenciasPorHoja={dependenciasPorHoja}
-  onSeleccionar={({ hoja, dependencia }) => {
-    setHojaSeleccionada(hoja);
-    setDependenciaSeleccionada(dependencia);
+                sheets={Object.keys(dependenciasPorHoja || {})}
+                dependenciasPorHoja={dependenciasPorHoja}
+                onSeleccionar={({ hoja, dependencia }) => {
+                    setHojaSeleccionada(hoja);
+                    setDependenciaSeleccionada(dependencia);
 
-    // Filtrar los datos originales de la hoja procesada
-    const datosOriginales = resultadosProcesadosPorHoja?.[hoja] || [];
-    const datosFiltradosInterno = datosOriginales
-      .flat()
-      .filter((row) => row?.Dependencia?.toUpperCase?.() === dependencia.toUpperCase());
+                    const datosOriginales = resultadosProcesadosPorHoja?.[hoja] || [];
+                    const datosFiltradosInterno = datosOriginales
+                    .flat()
+                    .filter((row) => row?.Dependencia?.toUpperCase?.() === dependencia.toUpperCase());
 
-    setDatosFiltrados(datosFiltradosInterno);
+                    setDatosFiltrados(datosFiltradosInterno);
 
-    // ⚡ Muy importante: actualizar columnas basado en datos filtrados
-    if (datosFiltradosInterno.length > 0) {
-      setColumnas(Object.keys(datosFiltradosInterno[0]));
-    } else {
-      setColumnas([]);
-    }
-  }}
-/>
+                    if (datosFiltradosInterno.length > 0) {
+                        setColumnas(Object.keys(datosFiltradosInterno[0]));
+                    } else {
+                        setColumnas([]);
+                    }
+                }}
+                />
 
                 <Paper elevation={2} sx={{ p: 3 }}>
                   <Typography variant="h6" gutterBottom>Datos</Typography>
