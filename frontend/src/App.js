@@ -419,7 +419,7 @@ const App = () => {
                 )}
 
                   <ResumenGeneral
-                  datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+                  datos={datosCombinadosApp}
                   columnaValor={columnaValor}
                   resultadosProcesados={resultadosProcesadosPorHoja ? Object.values(resultadosProcesadosPorHoja).flat() : []}
                   />
