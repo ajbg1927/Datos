@@ -63,6 +63,8 @@ const App = () => {
     const [dependenciaSeleccionada, setDependenciaSeleccionada] = useState('');
     const [columnas, setColumnas] = useState([]);
     const [columnasEstablecidas, setColumnasEstablecidas] = useState(false);
+    const [usarDatosFiltrados, setUsarDatosFiltrados] = useState(false);
+
 
     const handleArchivoSeleccionadoChange = useCallback((archivo) => {
         setArchivoSeleccionadoFromHook(archivo);
@@ -397,21 +399,36 @@ const App = () => {
                     mostrarPorcentajeBarras={mostrarPorcentajeBarras}
                     setMostrarPorcentajeBarras={setMostrarPorcentajeBarras}
                   />
+
+                  <div className="flex items-center gap-2 mb-4">
+                  <input
+                  type="checkbox"
+                  id="usarDatosFiltrados"
+                  checked={usarDatosFiltrados}
+                  onChange={(e) => setUsarDatosFiltrados(e.target.checked)}
+                  />
+                  <label htmlFor="usarDatosFiltrados" className="text-sm">
+                  Aplicar filtros también al Resumen y Gráficos
+                  </label>
+                  </div>
+
                   <ResumenGeneral
-                    datos={datosFiltrados}
-                    columnaValor={columnaValor}
-                    resultadosProcesados={resultadosProcesadosPorHoja ? Object.values(resultadosProcesadosPorHoja).flat() : []}
+                  datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+                  columnaValor={columnaValor}
+                  resultadosProcesados={resultadosProcesadosPorHoja ? Object.values(resultadosProcesadosPorHoja).flat() : []}
                   />
+
                   <Graficos
-                    datos={datosFiltrados}
-                    columnaAgrupacion={columnaAgrupar}
-                    columnaValor={columnaValor}
-                    tipoGrafico={tipoGrafico}
-                    paleta={paleta}
-                    ordenar={ordenarGrafico}
-                    topN={topNGrafico}
-                    mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+                  datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+                  columnaAgrupacion={columnaAgrupar}
+                  columnaValor={columnaValor}
+                  tipoGrafico={tipoGrafico}
+                  paleta={paleta}
+                  ordenar={ordenarGrafico}
+                  topN={topNGrafico}
+                  mostrarPorcentajeBarras={mostrarPorcentajeBarras}
                   />
+
                 </Paper>
 
                 <Paper elevation={2} sx={{ p: 2 }}>
