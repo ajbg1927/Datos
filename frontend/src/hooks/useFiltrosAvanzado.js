@@ -5,10 +5,10 @@ const useFiltrosAvanzado = (
   texto,
   fechaInicio,
   fechaFin,
-  filtrosDinamicos = {}, 
+  filtrosDinamicos = {},
   minValor,
   maxValor,
-  columnaValor = 'Pagos' 
+  columnaValor = 'Pagos'
 ) => {
   const datosFiltrados = useMemo(() => {
     if (!Array.isArray(datos)) return [];
@@ -33,9 +33,9 @@ const useFiltrosAvanzado = (
         return celda === String(valor).toLowerCase();
       });
 
-      const valor = parseFloat(row[columnaValor]) || 0;
-      const cumpleValorMin = minValor === '' || valor >= parseFloat(minValor);
-      const cumpleValorMax = maxValor === '' || valor <= parseFloat(maxValor);
+      const valorNumerico = parseFloat(row[columnaValor]) || 0;
+      const cumpleValorMin = minValor === '' || valorNumerico >= parseFloat(minValor);
+      const cumpleValorMax = maxValor === '' || valorNumerico <= parseFloat(maxValor);
 
       return contieneTexto && dentroDeRango && cumpleFiltros && cumpleValorMin && cumpleValorMax;
     });
@@ -46,32 +46,32 @@ const useFiltrosAvanzado = (
 
 const verificarCoincidenciaParcial = (valorFila, valorFiltro) => {
   if (!valorFila || !valorFiltro) return false;
-  
+
   const valorFilaStr = valorFila.toString().toLowerCase();
   const valorFiltroStr = valorFiltro.toString().toLowerCase();
-  
+
   if (valorFiltroStr.includes('tic')) {
     return valorFilaStr.includes('tic');
   }
-  
+
   return valorFilaStr === valorFiltroStr;
 };
 
-const aplicarFiltros = (data, filtrosActivos) => {
+export const aplicarFiltros = (data, filtrosActivos) => {
   if (Object.keys(filtrosActivos).length === 0) return data;
-  
+
   return data.filter(row => {
     return Object.keys(filtrosActivos).every(key => {
       const valores = filtrosActivos[key];
       if (!valores || valores.length === 0) return true;
-      
+
       const esColumnaDependencia = ['dependencia', 'direccion', 'area', 'sector', 'oficina']
         .some(dep => key.toLowerCase().includes(dep.toLowerCase()));
-      
-      if (esColumnaDependencia && valores.some(v => v && v.toString().toLowerCase().includes('tic'))) {
+
+      if (esColumnaDependencia && valores.some(v => v?.toString().toLowerCase().includes('tic'))) {
         return valores.some(valor => verificarCoincidenciaParcial(row[key], valor));
       }
-      
+
       return valores.includes(row[key]);
     });
   });
