@@ -13,7 +13,10 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
-import { ensureArray } from '../utils/arrayUtils'; // 👈 Importa aquí
+
+const ensureArray = (input) => {
+  return Array.isArray(input) ? input : [];
+};
 
 const calcularMediana = (valores) => {
   if (valores.length === 0) return 0;
