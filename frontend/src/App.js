@@ -412,6 +412,12 @@ const App = () => {
                   </label>
                   </div>
 
+                  {usarDatosFiltrados && (
+                    <div className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-xl mb-4">
+                    Mostrando datos filtrados
+                    </div>
+                )}
+
                   <ResumenGeneral
                   datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
                   columnaValor={columnaValor}
