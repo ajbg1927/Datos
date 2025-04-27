@@ -13,6 +13,7 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
+import { ensureArray } from '../utils/arrayUtils'; // 👈 Importa aquí
 
 const calcularMediana = (valores) => {
   if (valores.length === 0) return 0;
@@ -48,7 +49,7 @@ const getColorForMetric = (tipo) => {
 };
 
 const ResumenGeneral = React.memo(({ datos, columnaValor, resultadosProcesados }) => {
-  if (!datos || datos.length === 0 || !columnaValor) return null; 
+  if (!ensureArray(datos).length || !columnaValor) return null;
 
   const theme = useTheme();
   const formatter = new Intl.NumberFormat('es-CO', {
@@ -57,8 +58,8 @@ const ResumenGeneral = React.memo(({ datos, columnaValor, resultadosProcesados }
     minimumFractionDigits: 0,
   });
 
-  const metricas = (columnaValor || []).flatMap((columna) => { 
-    const valoresNumericos = datos
+  const metricas = ensureArray(columnaValor).flatMap((columna) => {
+    const valoresNumericos = ensureArray(datos)
       .map((fila) => parseFloat(fila[columna]))
       .filter((val) => !isNaN(val));
 
