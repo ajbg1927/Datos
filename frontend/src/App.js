@@ -225,13 +225,6 @@ const App = () => {
         }
     };
 
-console.log('----------- DEBUG INFO -----------');
-console.log('hojaSeleccionada:', hojaSeleccionada);
-console.log('columnaAgrupar:', columnaAgrupar);
-console.log('datosCombinadosApp:', datosCombinadosApp?.length);
-console.log('datosFiltrados:', datosFiltrados?.length);
-console.log('-----------------------------------');
-
     return (
   <>
     <Toaster position="bottom-right" />
