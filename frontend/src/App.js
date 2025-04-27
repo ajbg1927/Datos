@@ -64,7 +64,7 @@ const App = () => {
     const [columnas, setColumnas] = useState([]);
     const [columnasEstablecidas, setColumnasEstablecidas] = useState(false);
     const [usarDatosFiltrados, setUsarDatosFiltrados] = useState(false);
-
+    const [checkboxResumenGraficos, setCheckboxResumenGraficos] = useState(false);
 
     const handleArchivoSeleccionadoChange = useCallback((archivo) => {
         setArchivoSeleccionadoFromHook(archivo);
