@@ -232,7 +232,6 @@ console.log('datosCombinadosApp:', datosCombinadosApp?.length);
 console.log('datosFiltrados:', datosFiltrados?.length);
 console.log('-----------------------------------');
 
-
     return (
   <>
     <Toaster position="bottom-right" />
@@ -331,6 +330,27 @@ console.log('-----------------------------------');
             Selecciona una columna para agrupar y ver gráficos y resumen.
             </Typography>
         )}
+        </Box>
+    )}
+
+    {columnaAgrupar && (
+        <Box>
+        <ResumenGeneral
+        datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+        columnaAgrupar={columnaAgrupar}
+        columnaValor={columnaValor}
+        titulo="Resumen General"
+        />
+        <Graficos
+        datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+        columnaAgrupacion={columnaAgrupar}
+        columnaValor={columnaValor}
+        tipoGrafico={tipoGrafico}
+        paleta={paleta}
+        ordenar={ordenarGrafico}
+        topN={topNGrafico}
+        mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+        />
         </Box>
     )}
 
