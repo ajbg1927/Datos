@@ -302,6 +302,24 @@ const App = () => {
         </Paper>
       )}
 
+      {/* 🚀 Resumen y gráficos rápidos 🚀 */}
+      {hojaSeleccionada && columnaAgrupar && (
+        <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+          <Typography variant="h6" gutterBottom>Análisis Rápido</Typography>
+          <ResumenGeneral
+            datos={checkboxResumenGraficos ? datosFiltrados : datosCombinadosApp}
+            columnaAgrupar={columnaAgrupar}
+            columnaValor={columnaValor}
+            titulo="Resumen General"
+          />
+          <Graficos
+            datos={checkboxResumenGraficos ? datosFiltrados : datosCombinadosApp}
+            columnaAgrupar={columnaAgrupar}
+            columnaValor={columnaValor}
+          />
+        </Paper>
+      )}
+
       {resultadosProcesadosPorHoja && (
         <Paper elevation={2} sx={{ width: '100%' }}>
           <Tabs value={tabValue} onChange={handleChangeTab}>
@@ -348,27 +366,27 @@ const App = () => {
             )}
 
             {tabValue === 5 && (
-                <Box display="flex" flexDirection="column" gap={3}>
+              <Box display="flex" flexDirection="column" gap={3}>
                 <FiltroDependencia
-                sheets={Object.keys(dependenciasPorHoja || {})}
-                dependenciasPorHoja={dependenciasPorHoja}
-                onSeleccionar={({ hoja, dependencia }) => {
+                  sheets={Object.keys(dependenciasPorHoja || {})}
+                  dependenciasPorHoja={dependenciasPorHoja}
+                  onSeleccionar={({ hoja, dependencia }) => {
                     setHojaSeleccionada(hoja);
                     setDependenciaSeleccionada(dependencia);
 
                     const datosOriginales = resultadosProcesadosPorHoja?.[hoja] || [];
                     const datosFiltradosInterno = datosOriginales
-                    .flat()
-                    .filter((row) => row?.Dependencia?.toUpperCase?.() === dependencia.toUpperCase());
+                      .flat()
+                      .filter((row) => row?.Dependencia?.toUpperCase?.() === dependencia.toUpperCase());
 
                     setDatosFiltrados(datosFiltradosInterno);
 
                     if (datosFiltradosInterno.length > 0) {
-                        setColumnas(Object.keys(datosFiltradosInterno[0]));
+                      setColumnas(Object.keys(datosFiltradosInterno[0]));
                     } else {
-                        setColumnas([]);
+                      setColumnas([]);
                     }
-                }}
+                  }}
                 />
 
                 <Paper elevation={2} sx={{ p: 3 }}>
@@ -401,40 +419,39 @@ const App = () => {
                   />
 
                   <div className="flex items-center gap-2 mb-4">
-                  <input
-                  type="checkbox"
-                  id="usarDatosFiltrados"
-                  checked={usarDatosFiltrados}
-                  onChange={(e) => setUsarDatosFiltrados(e.target.checked)}
-                  />
-                  <label htmlFor="usarDatosFiltrados" className="text-sm">
-                  Aplicar filtros también al Resumen y Gráficos
-                  </label>
+                    <input
+                      type="checkbox"
+                      id="usarDatosFiltrados"
+                      checked={usarDatosFiltrados}
+                      onChange={(e) => setUsarDatosFiltrados(e.target.checked)}
+                    />
+                    <label htmlFor="usarDatosFiltrados" className="text-sm">
+                      Aplicar filtros también al Resumen y Gráficos
+                    </label>
                   </div>
 
                   {usarDatosFiltrados && (
                     <div className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-xl mb-4">
-                    Mostrando datos filtrados
+                      Mostrando datos filtrados
                     </div>
-                )}
+                  )}
 
                   <ResumenGeneral
-                  datos={datosCombinadosApp}
-                  columnaValor={columnaValor}
-                  resultadosProcesados={resultadosProcesadosPorHoja ? Object.values(resultadosProcesadosPorHoja).flat() : []}
+                    datos={datosCombinadosApp}
+                    columnaValor={columnaValor}
+                    resultadosProcesados={resultadosProcesadosPorHoja ? Object.values(resultadosProcesadosPorHoja).flat() : []}
                   />
 
                   <Graficos
-                  datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
-                  columnaAgrupacion={columnaAgrupar}
-                  columnaValor={columnaValor}
-                  tipoGrafico={tipoGrafico}
-                  paleta={paleta}
-                  ordenar={ordenarGrafico}
-                  topN={topNGrafico}
-                  mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+                    datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+                    columnaAgrupacion={columnaAgrupar}
+                    columnaValor={columnaValor}
+                    tipoGrafico={tipoGrafico}
+                    paleta={paleta}
+                    ordenar={ordenarGrafico}
+                    topN={topNGrafico}
+                    mostrarPorcentajeBarras={mostrarPorcentajeBarras}
                   />
-
                 </Paper>
 
                 <Paper elevation={2} sx={{ p: 2 }}>
