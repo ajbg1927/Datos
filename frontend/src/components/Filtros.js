@@ -63,15 +63,13 @@ const Filtros = ({
 
     const handleBuscarGeneral = useCallback(() => {
         console.log("Filtros.js: handleBuscarGeneral llamada");
-        // En este componente, no necesitamos aplicar filtro real aquí
-        // Solo actualizar valor para que el padre filtre los datos
     }, []);
 
     const handleLimpiarBusquedaGeneral = useCallback(() => {
         setColumnaBusquedaGeneral('');
         setValorBusquedaGeneral('');
         setValorBusqueda('');
-        handleClearFilters(); // Centralizamos limpieza
+        handleClearFilters(); 
     }, [handleClearFilters, setValorBusqueda]);
 
     const columnasFiltrables = columnas.filter(
@@ -142,7 +140,6 @@ const Filtros = ({
                 </>
             ) : (
                 <>
-                    {/* Filtro por fechas */}
                     {columnasFecha.length > 0 && (
                         <Accordion defaultExpanded>
                             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -170,7 +167,6 @@ const Filtros = ({
                         </Accordion>
                     )}
 
-                    {/* Filtro numérico */}
                     {columnasNumericas.length > 0 && (
                         <Accordion defaultExpanded>
                             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -203,7 +199,6 @@ const Filtros = ({
                         </Accordion>
                     )}
 
-                    {/* Filtro por categorías */}
                     <Divider sx={{ my: 3 }} />
                     <Accordion defaultExpanded>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -244,7 +239,6 @@ const Filtros = ({
                         </AccordionDetails>
                     </Accordion>
 
-                    {/* Botón limpiar */}
                     <Box mt={4} textAlign="center">
                         <Button
                             variant="contained"

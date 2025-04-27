@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -18,9 +18,7 @@ import {
 } from 'recharts';
 import InsertChartIcon from '@mui/icons-material/InsertChart';
 
-const ensureArray = (input) => {
-  return Array.isArray(input) ? input : [];
-};
+const ensureArray = (input) => Array.isArray(input) ? input : [];
 
 const PALETAS = {
   Institucional: ['#4caf50', '#fdd835', '#ff9800', '#2196f3', '#9c27b0', '#ff5722'],
@@ -60,7 +58,7 @@ const Graficos = ({
     const agrupado = {};
     datosValidos.forEach((fila) => {
       const clave = fila[columnaAgrupacion];
-      const valor = parseFloat(fila[columnaValor]) || 0;
+      const valor = isNaN(parseFloat(fila[columnaValor])) ? 0 : parseFloat(fila[columnaValor]);
       if (clave) agrupado[clave] = (agrupado[clave] || 0) + valor;
     });
 
@@ -81,7 +79,11 @@ const Graficos = ({
   }, [datos, columnaAgrupacion, columnaValor, ordenar, topN]);
 
   const coloresUsar = PALETAS[paleta] || PALETAS['Institucional'];
-  const total = dataAgrupada.reduce((acc, cur) => acc + cur.value, 0);
+
+  const total = useMemo(
+    () => dataAgrupada.reduce((acc, cur) => acc + cur.value, 0),
+    [dataAgrupada]
+  );
 
   return (
     <Box mt={4}>
@@ -99,7 +101,14 @@ const Graficos = ({
         }}
       >
         <InsertChartIcon fontSize="medium" />
-        Análisis por <strong>&nbsp;{columnaAgrupacion}</strong> — Total de <strong>&nbsp;{columnaValor}</strong>
+        Análisis por{' '}
+        <Typography component="strong" sx={{ fontWeight: 'bold', display: 'inline' }}>
+          {columnaAgrupacion}
+        </Typography>{' '}
+        — Total de{' '}
+        <Typography component="strong" sx={{ fontWeight: 'bold', display: 'inline' }}>
+          {columnaValor}
+        </Typography>
       </Typography>
 
       {dataAgrupada.length === 0 ? (
@@ -124,7 +133,7 @@ const Graficos = ({
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip
-                  formatter={(value, name, props) => [
+                  formatter={(value = 0, name, props) => [
                     `${value.toLocaleString()} (${((value / total) * 100).toFixed(1)}%)`,
                     columnaValor,
                   ]}
@@ -134,7 +143,12 @@ const Graficos = ({
                     fontSize: '0.85rem',
                   }}
                 />
-                <Bar dataKey="value" fill={coloresUsar[0]} animationDuration={1000}>
+                <Bar
+                  dataKey="value"
+                  fill={coloresUsar[0]}
+                  animationDuration={1500}
+                  animationEasing="ease-out"
+                >
                   <LabelList
                     dataKey="value"
                     position="top"
@@ -162,7 +176,8 @@ const Graficos = ({
                   label={({ name, percent }) =>
                     `${name} (${(percent * 100).toFixed(1)}%)`
                   }
-                  animationDuration={1000}
+                  animationDuration={1500}
+                  animationEasing="ease-out"
                 >
                   {dataAgrupada.map((entry, index) => (
                     <Cell
@@ -172,7 +187,7 @@ const Graficos = ({
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value) =>
+                  formatter={(value = 0) =>
                     `${value.toLocaleString()} (${((value / total) * 100).toFixed(1)}%)`
                   }
                   contentStyle={{
