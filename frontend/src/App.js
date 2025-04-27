@@ -338,17 +338,28 @@ const App = () => {
             {tabValue === 5 && (
               <Box display="flex" flexDirection="column" gap={3}>
                 <FiltroDependencia
-                  sheets={Object.keys(dependenciasPorHoja || {})}
-                  dependenciasPorHoja={dependenciasPorHoja}
-                  onSeleccionar={({ hoja, dependencia }) => {
-                    setHojaSeleccionada(hoja);
-                    const datosOriginales = resultadosProcesadosPorHoja?.[hoja] || [];
-                    const datosFiltradosInterno = datosOriginales
-                      .flat()
-                      .filter((row) => row?.Dependencia?.toUpperCase?.() === dependencia.toUpperCase());
-                    setDatosFiltrados(datosFiltradosInterno);
-                  }}
-                />
+  sheets={Object.keys(dependenciasPorHoja || {})}
+  dependenciasPorHoja={dependenciasPorHoja}
+  onSeleccionar={({ hoja, dependencia }) => {
+    setHojaSeleccionada(hoja);
+    setDependenciaSeleccionada(dependencia);
+
+    // Filtrar los datos originales de la hoja procesada
+    const datosOriginales = resultadosProcesadosPorHoja?.[hoja] || [];
+    const datosFiltradosInterno = datosOriginales
+      .flat()
+      .filter((row) => row?.Dependencia?.toUpperCase?.() === dependencia.toUpperCase());
+
+    setDatosFiltrados(datosFiltradosInterno);
+
+    // ⚡ Muy importante: actualizar columnas basado en datos filtrados
+    if (datosFiltradosInterno.length > 0) {
+      setColumnas(Object.keys(datosFiltradosInterno[0]));
+    } else {
+      setColumnas([]);
+    }
+  }}
+/>
 
                 <Paper elevation={2} sx={{ p: 3 }}>
                   <Typography variant="h6" gutterBottom>Datos</Typography>
