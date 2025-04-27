@@ -1,33 +1,20 @@
 import React, { useState, useCallback } from 'react';
 import {
-    Box,
-    Typography,
-    Paper,
-    TextField,
-    MenuItem,
-    Divider,
-    Button,
-    InputAdornment,
-    Grid,
-    useTheme,
-    useMediaQuery,
-    Tooltip,
-    FormControl,
-    InputLabel,
-    Select,
-    Accordion,
-    AccordionSummary,
-    AccordionDetails,
+    Box, Typography, Paper, TextField, MenuItem, Divider, Button,
+    InputAdornment, Grid, useTheme, useMediaQuery, Tooltip, FormControl,
+    InputLabel, Select, Accordion, AccordionSummary, AccordionDetails,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import GroupIcon from '@mui/icons-material/Group';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import ClearAllIcon from '@mui/icons-material/ClearAll';
-import EventIcon from '@mui/icons-material/Event';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import LabelIcon from '@mui/icons-material/Label'; 
+import {
+    Search as SearchIcon,
+    Group as GroupIcon,
+    AttachMoney as AttachMoneyIcon,
+    ClearAll as ClearAllIcon,
+    Event as EventIcon,
+    FilterAlt as FilterAltIcon,
+    BarChart as BarChartIcon,
+    ExpandMore as ExpandMoreIcon,
+    Label as LabelIcon,
+} from '@mui/icons-material';
 
 const Filtros = ({
     data = [],
@@ -50,64 +37,42 @@ const Filtros = ({
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const [columnaBusquedaGeneral, setColumnaBusquedaGeneral] = useState('');
-    const [valorBusquedaGeneral, setValorBusquedaGeneral] = useState(filtros.busqueda || '');
+    const [valorBusquedaGeneral, setValorBusquedaGeneral] = useState('');
 
     const handleChange = (columna, valor) => {
-        console.log("Filtros.js: handleChange llamada para la columna:", columna, "con el valor:", valor);
-        if (typeof setFiltros === 'function') {
-            setFiltros((prev) => ({
-                ...prev,
-                [columna]: valor,
-            }));
-        } else {
-            console.warn('setFiltros no es una función');
-        }
+        setFiltros((prev) => ({
+            ...prev,
+            [columna]: valor,
+        }));
     };
 
     const handleColumnaBusquedaGeneralChange = (event) => {
-        setColumnaBusquedaGeneral(event.target.value);
+        const newCol = event.target.value;
+        setColumnaBusquedaGeneral(newCol);
         setValorBusquedaGeneral('');
-        console.log("Filtros.js: Columna de búsqueda general cambiada a:", event.target.value);
+        setValorBusqueda('');  // Sincronizamos búsqueda general
+        handleChange('busqueda', '');
     };
 
     const handleValorBusquedaGeneralChange = (event) => {
-        setValorBusquedaGeneral(event.target.value);
-        handleChange('busqueda', event.target.value);
-        if (typeof setValorBusqueda === 'function') {
-            setValorBusqueda(event.target.value);
-        }
-        console.log("Filtros.js: Valor de búsqueda general cambiado a:", event.target.value);
+        const newValor = event.target.value;
+        setValorBusquedaGeneral(newValor);
+        setValorBusqueda(newValor);
+        handleChange('busqueda', newValor);
     };
 
     const handleBuscarGeneral = useCallback(() => {
         console.log("Filtros.js: handleBuscarGeneral llamada");
-        let resultados = [];
-        if (columnaBusquedaGeneral && valorBusquedaGeneral) {
-            resultados = data.filter(item =>
-                String(item[columnaBusquedaGeneral])?.toLowerCase().includes(valorBusquedaGeneral.toLowerCase())
-            );
-            console.log('Filtrando por columna:', columnaBusquedaGeneral, 'con valor:', valorBusquedaGeneral, resultados.length, 'resultados');
-        } else if (valorBusquedaGeneral) {
-            resultados = data.filter(item =>
-                Object.values(item).some(value =>
-                    String(value)?.toLowerCase().includes(valorBusquedaGeneral.toLowerCase())
-                )
-            );
-            console.log('Buscando en todas las columnas con valor:', valorBusquedaGeneral, resultados.length, 'resultados');
-        } else {
-            console.log('Mostrando todos los datos (sin filtro general activo)');
-        }
-    }, [data, columnaBusquedaGeneral, valorBusquedaGeneral]);
+        // En este componente, no necesitamos aplicar filtro real aquí
+        // Solo actualizar valor para que el padre filtre los datos
+    }, []);
 
     const handleLimpiarBusquedaGeneral = useCallback(() => {
         setColumnaBusquedaGeneral('');
         setValorBusquedaGeneral('');
-        handleChange('busqueda', '');
-        if (typeof setValorBusqueda === 'function') {
-            setValorBusqueda('');
-        }
-        console.log('Limpiando filtro general');
-    }, [setValorBusqueda, handleChange]);
+        setValorBusqueda('');
+        handleClearFilters(); // Centralizamos limpieza
+    }, [handleClearFilters, setValorBusqueda]);
 
     const columnasFiltrables = columnas.filter(
         (col) =>
@@ -133,7 +98,7 @@ const Filtros = ({
                 </Typography>
             )}
 
-            {esBusquedaGeneral && (
+            {esBusquedaGeneral ? (
                 <>
                     <FormControl fullWidth margin="normal">
                         <InputLabel id="filtro-columna-label">Buscar en columna (opcional)</InputLabel>
@@ -163,9 +128,8 @@ const Filtros = ({
                                 </InputAdornment>
                             ),
                         }}
-                        aria-label={`Buscar ${columnaBusquedaGeneral ? `en ${columnaBusquedaGeneral}` : 'en todos los campos'}`}
-                        sx={{ mb: 3 }}
                         placeholder={columnaBusquedaGeneral ? `Buscar en ${columnaBusquedaGeneral}...` : 'Buscar en todos los campos...'}
+                        sx={{ mb: 3 }}
                     />
                     <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
                         <Button variant="contained" color="primary" onClick={handleBuscarGeneral}>
@@ -176,17 +140,12 @@ const Filtros = ({
                         </Button>
                     </Box>
                 </>
-            )}
-
-            {!esBusquedaGeneral && (
+            ) : (
                 <>
+                    {/* Filtro por fechas */}
                     {columnasFecha.length > 0 && (
                         <Accordion defaultExpanded>
-                            <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
-                                aria-controls="fecha-content"
-                                id="fecha-header"
-                            >
+                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                 <Typography variant="subtitle1" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                     <EventIcon sx={{ mr: 1 }} />
                                     Filtrar por Fecha
@@ -194,38 +153,27 @@ const Filtros = ({
                             </AccordionSummary>
                             <AccordionDetails>
                                 <Grid container spacing={2}>
-                                    <Grid item xs={12} sm={6} md={4}>
-                                        <TextField
-                                            fullWidth
-                                            type="date"
-                                            label="Fecha desde"
-                                            InputLabelProps={{ shrink: true }}
-                                            value={filtros.Fecha_desde || ''}
-                                            onChange={(e) => handleChange('Fecha_desde', e.target.value)}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} sm={6} md={4}>
-                                        <TextField
-                                            fullWidth
-                                            type="date"
-                                            label="Fecha hasta"
-                                            InputLabelProps={{ shrink: true }}
-                                            value={filtros.Fecha_hasta || ''}
-                                            onChange={(e) => handleChange('Fecha_hasta', e.target.value)}
-                                        />
-                                    </Grid>
+                                    {['Fecha_desde', 'Fecha_hasta'].map((tipoFecha) => (
+                                        <Grid item xs={12} sm={6} md={4} key={tipoFecha}>
+                                            <TextField
+                                                fullWidth
+                                                type="date"
+                                                label={tipoFecha === 'Fecha_desde' ? 'Fecha desde' : 'Fecha hasta'}
+                                                InputLabelProps={{ shrink: true }}
+                                                value={filtros[tipoFecha] || ''}
+                                                onChange={(e) => handleChange(tipoFecha, e.target.value)}
+                                            />
+                                        </Grid>
+                                    ))}
                                 </Grid>
                             </AccordionDetails>
                         </Accordion>
                     )}
 
+                    {/* Filtro numérico */}
                     {columnasNumericas.length > 0 && (
                         <Accordion defaultExpanded>
-                            <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
-                                aria-controls="numerico-content"
-                                id="numerico-header"
-                            >
+                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                 <Typography variant="subtitle1" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                     <FilterAltIcon sx={{ mr: 1 }} />
                                     Rango de Valores
@@ -235,26 +183,19 @@ const Filtros = ({
                                 <Grid container spacing={2}>
                                     {columnasNumericas.map((col) => (
                                         <React.Fragment key={col}>
-                                            <Grid item xs={12} sm={6} md={4}>
-                                                <TextField
-                                                    fullWidth
-                                                    type="number"
-                                                    label={`${col} mínimo`}
-                                                    value={filtros[`${col}_min`] || ''}
-                                                    onChange={(e) => handleChange(`${col}_min`, e.target.value)}
-                                                    placeholder="Mín."
-                                                />
-                                            </Grid>
-                                            <Grid item xs={12} sm={6} md={4}>
-                                                <TextField
-                                                    fullWidth
-                                                    type="number"
-                                                    label={`${col} máximo`}
-                                                    value={filtros[`${col}_max`] || ''}
-                                                    onChange={(e) => handleChange(`${col}_max`, e.target.value)}
-                                                    placeholder="Máx."
-                                                />
-                                            </Grid>
+                                            {['min', 'max'].map((tipo) => (
+                                                <Grid item xs={12} sm={6} md={4} key={`${col}_${tipo}`}>
+                                                    <TextField
+                                                        fullWidth
+                                                        type="number"
+                                                        label={`${col} ${tipo === 'min' ? 'mínimo' : 'máximo'}`}
+                                                        value={filtros[`${col}_${tipo}`] || ''}
+                                                        onChange={(e) => handleChange(`${col}_${tipo}`, e.target.value)}
+                                                        placeholder={tipo === 'min' ? 'Mín.' : 'Máx.'}
+                                                        InputProps={{ inputProps: { min: 0 } }}
+                                                    />
+                                                </Grid>
+                                            ))}
                                         </React.Fragment>
                                     ))}
                                 </Grid>
@@ -262,53 +203,48 @@ const Filtros = ({
                         </Accordion>
                     )}
 
+                    {/* Filtro por categorías */}
                     <Divider sx={{ my: 3 }} />
                     <Accordion defaultExpanded>
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="categoria-content"
-                            id="categoria-header"
-                        >
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                             <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
                                 Filtrar por Categorías
                             </Typography>
                         </AccordionSummary>
                         <AccordionDetails>
                             <Grid container spacing={2}>
-                                {columnasFiltrables.map((col) => {
-                                    const opciones = valoresUnicos[col] || [];
-                                    return (
-                                        <Grid item xs={12} sm={6} md={4} key={col}>
-                                            <Tooltip title={`Filtrar por ${col}`} arrow>
-                                                <TextField
-                                                    select
-                                                    fullWidth
-                                                    label={`Filtrar por ${col}`}
-                                                    value={filtros[col] || ''}
-                                                    onChange={(e) => handleChange(col, e.target.value)}
-                                                    InputProps={{
-                                                        startAdornment: (
-                                                            <InputAdornment position="start">
-                                                                <LabelIcon />
-                                                            </InputAdornment>
-                                                        ),
-                                                    }}
-                                                >
-                                                    <MenuItem value="">Todos</MenuItem>
-                                                    {opciones.map((opcion, index) => (
-                                                        <MenuItem key={index} value={opcion}>
-                                                            {opcion}
-                                                        </MenuItem>
-                                                    ))}
-                                                </TextField>
-                                            </Tooltip>
-                                        </Grid>
-                                    );
-                                })}
+                                {columnasFiltrables.map((col) => (
+                                    <Grid item xs={12} sm={6} md={4} key={col}>
+                                        <Tooltip title={`Filtrar por ${col}`} arrow>
+                                            <TextField
+                                                select
+                                                fullWidth
+                                                label={`Filtrar por ${col}`}
+                                                value={filtros[col] || ''}
+                                                onChange={(e) => handleChange(col, e.target.value)}
+                                                InputProps={{
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <LabelIcon />
+                                                        </InputAdornment>
+                                                    ),
+                                                }}
+                                            >
+                                                <MenuItem value="">Todos</MenuItem>
+                                                {(valoresUnicos[col] || []).map((opcion, index) => (
+                                                    <MenuItem key={index} value={opcion}>
+                                                        {opcion}
+                                                    </MenuItem>
+                                                ))}
+                                            </TextField>
+                                        </Tooltip>
+                                    </Grid>
+                                ))}
                             </Grid>
                         </AccordionDetails>
                     </Accordion>
 
+                    {/* Botón limpiar */}
                     <Box mt={4} textAlign="center">
                         <Button
                             variant="contained"
