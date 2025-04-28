@@ -214,30 +214,34 @@ const App = () => {
                   {titulo && (
                     <Typography variant="h6" gutterBottom>{titulo}</Typography>
                   )}
-                    <Filtros
-              data={datosCombinados}
-              columnas={columnas}
-              valoresUnicos={valoresUnicos}
-              filtros={filtros}
-              setFiltros={setFiltros}
-              handleClearFilters={handleClearFilters}
-              columnasFecha={columnasFecha}
-              columnasNumericas={columnasNumericas}
-              valorBusqueda={filtros.busqueda || ''}
-              setValorBusqueda={(valor) => setFiltros(prev => ({ ...prev, busqueda: valor }))}
-              columnaAgrupar={columnaAgrupar}
-              setColumnaAgrupar={setColumnaAgrupar}
-              columnaValor={columnaValor}
-              setColumnaValor={setColumnaValor}
-              esBusquedaGeneral
-            />
+                  <Filtros
+                    data={datosCombinados}
+                    columnas={columnas}
+                    valoresUnicos={valoresUnicos}
+                    filtros={filtros}
+                    setFiltros={setFiltros}
+                    handleClearFilters={handleClearFilters}
+                    columnasFecha={columnasFecha}
+                    columnasNumericas={columnasNumericas}
+                    valorBusqueda={filtros.busqueda || ''}
+                    setValorBusqueda={(valor) => setFiltros(prev => ({ ...prev, busqueda: valor }))}
+                    columnaAgrupar={columnaAgrupar}
+                    setColumnaAgrupar={setColumnaAgrupar}
+                    columnaValor={columnaValor}
+                    setColumnaValor={setColumnaValor}
+                    esBusquedaGeneral={esBusquedaGeneral}
+                  />
+                </Box>
+              ))}
+            </>
           ) : (
             <Typography variant="body2" color="textSecondary">
               Selecciona un archivo para ver los filtros.
             </Typography>
           )}
         </Paper>
-      >
+      }
+    >
 
       {isLoadingUpload && (
         <Box display="flex" justifyContent="center" alignItems="center" my={4}>
