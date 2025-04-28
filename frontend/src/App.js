@@ -420,7 +420,6 @@ const App = () => {
                   Seleccione un cuadro para comenzar.
                   </Typography>
                 )}
-                </Box>
 
                 <Paper elevation={2} sx={{ p: 3 }}>
                   <Typography variant="h6" gutterBottom>Datos</Typography>
