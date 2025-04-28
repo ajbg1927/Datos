@@ -381,6 +381,13 @@ const App = () => {
             )}
 
             {tabValue === 5 && (
+
+                  {console.log('--- DEBUG DATOS ---');}
+                  {console.log('datosFiltrados:', datosFiltrados);}
+                  {console.log('datosCombinadosApp:', datosCombinadosApp);}
+                  {console.log('usarDatosFiltrados:', usarDatosFiltrados);}
+                  {console.log('--------------------');}
+
               <Box display="flex" flexDirection="column" gap={3}>
                 <FiltroDependencia
                   sheets={Object.keys(dependenciasPorHoja || {})}
@@ -450,12 +457,6 @@ const App = () => {
                       Mostrando datos filtrados
                     </div>
                   )}
-
-                  console.log('--- DEBUG DATOS ---');
-                  console.log('datosFiltrados:', datosFiltrados);
-                  console.log('datosCombinadosApp:', datosCombinadosApp);
-                  console.log('usarDatosFiltrados:', usarDatosFiltrados);
-                  console.log('--------------------');
 
                   <ResumenGeneral
                     datos={datosCombinadosApp}
