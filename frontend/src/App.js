@@ -29,21 +29,21 @@ import axios from 'axios';
 const API_URL = 'https://backend-flask-u76y.onrender.com';
 
 const App = () => {
-    const {
-        archivos,
-        setArchivos,
-        archivoSeleccionado,
-        setArchivoSeleccionado: setArchivoSeleccionadoFromHook,
-        hojasSeleccionadas,
-        setHojasSeleccionadas: setHojasSeleccionadasFromHook,
-        hojasPorArchivo,
-        datosPorArchivo: datosPorArchivoHook,
-        columnasPorArchivo: columnasPorArchivoHook,
-        obtenerDatos, 
-        cargarArchivos,
-        obtenerHojas,
-        cargandoDatos: cargandoDatosHook,
-    } = useArchivos();
+  const {
+    archivos,
+    setArchivos,
+    archivoSeleccionado,
+    setArchivoSeleccionado: setArchivoSeleccionadoFromHook,
+    hojasSeleccionadas,
+    setHojasSeleccionadas: setHojasSeleccionadasFromHook,
+    hojasPorArchivo,
+    datosPorArchivo: datosPorArchivoHook,
+    columnasPorArchivo: columnasPorArchivoHook,
+    obtenerDatos, 
+    cargarArchivos,
+    obtenerHojas,
+    cargandoDatos: cargandoDatosHook,
+  } = useArchivos();
 
   const [datosCombinados, setDatosCombinados] = useState([]);
   const [isLoadingUpload, setIsLoadingUpload] = useState(false);
@@ -66,8 +66,8 @@ const App = () => {
   const [checkboxResumenGraficos, setCheckboxResumenGraficos] = useState(false);
   const [datosCombinadosApp, setDatosCombinadosApp] = useState([]);
   const [datosFiltrados, setDatosFiltrados] = useState([]);
-  const [columnas, setColumnas] = useState([]);
 
+  // --- Memoized columnas ---
   const columnas = useMemo(() => (datosCombinados.length > 0 ? Object.keys(datosCombinados[0]) : []), [datosCombinados]);
 
   const columnasFecha = useMemo(
@@ -94,7 +94,7 @@ const App = () => {
     [filtros]
   );
 
-  const datosFiltrados = useFiltrosAvanzado(
+  const datosFiltradosHook = useFiltrosAvanzado(
     datosCombinados,
     filtros.busqueda || '',
     filtros.Fecha_desde || '',
@@ -104,6 +104,10 @@ const App = () => {
     filtros[`${columnaValor}_max`] || '',
     columnaValor
   );
+
+  useEffect(() => {
+    setDatosFiltrados(datosFiltradosHook);
+  }, [datosFiltradosHook]);
 
   useEffect(() => {
     if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
