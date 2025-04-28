@@ -122,12 +122,14 @@ const App = () => {
         .then((data) => {
           if (data) {
             setDatosCombinados(data);
+            setDatosCombinadosApp(data);
             toast.success(`Datos cargados: ${data.length} registros`);
           }
         })
         .catch(console.error);
     } else {
       setDatosCombinados([]);
+      setDatosCombinadosApp([]);
     }
   }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
 
@@ -458,14 +460,14 @@ const App = () => {
                   />
 
                   <Graficos
-                    datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
-                    columnaAgrupar={columnaAgrupar}
-                    columnaValor={columnaValor}
-                    tipoGrafico={tipoGrafico}
-                    paleta={paleta}
-                    ordenar={ordenarGrafico}
-                    topN={topNGrafico}
-                    mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+                  datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+                  columnaAgrupar={columnaAgrupar} 
+                  columnaValor={columnaValor}
+                  tipoGrafico={tipoGrafico}
+                  paleta={paleta}
+                  ordenar={ordenarGrafico}
+                  topN={topNGrafico}
+                  mostrarPorcentajeBarras={mostrarPorcentajeBarras}
                   />
                 </Paper>
 
