@@ -16,6 +16,9 @@ import ExportButtons from './components/ExportButtons';
 import ResumenGeneral from './components/ResumenGeneral';
 import SelectoresAgrupacion from './components/SelectoresAgrupacion';
 import FiltroDependencia from './components/FiltroDependencia';
+import SelectAnálisisPor from './components/SelectAnálisisPor';
+import SelectTotalDe from './components/SelectTotalDe';
+import SelectTipoDeGrafico from './components/SelectTipoDeGrafico';
 
 import useArchivos from './hooks/useArchivos';
 import useFiltrosAvanzado from './hooks/useFiltrosAvanzado';
@@ -225,7 +228,7 @@ const App = () => {
         }
     };
 
-    return (
+return (
   <>
     <Toaster position="bottom-right" />
 
@@ -234,10 +237,7 @@ const App = () => {
         <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
           {columnas.length > 0 ? (
             <>
-              {[
-                { esBusquedaGeneral: true, titulo: 'Buscar en todo el archivo' },
-                { esBusquedaGeneral: false }
-              ].map(({ esBusquedaGeneral, titulo }, index) => (
+              {[{ esBusquedaGeneral: true, titulo: 'Buscar en todo el archivo' }, { esBusquedaGeneral: false }].map(({ esBusquedaGeneral, titulo }, index) => (
                 <Box key={index} sx={{ mb: 2 }}>
                   {titulo && (
                     <Typography variant="h6" gutterBottom>{titulo}</Typography>
@@ -304,48 +304,52 @@ const App = () => {
 
       {hojaSeleccionada && (
         <Box>
-        {columnaAgrupar ? (
-            <>
-            <ResumenGeneral
-            datos={checkboxResumenGraficos ? datosFiltrados : datosCombinadosApp}
-            columnaAgrupar={columnaAgrupar}
-            columnaValor={columnaValor}
-            titulo="Resumen General"
-            />
-            <Graficos
-            datos={checkboxResumenGraficos ? datosFiltrados : datosCombinadosApp}
-            columnaAgrupar={columnaAgrupar}
-            columnaValor={columnaValor}
-            />
-            </>
-            ) : (
-            <Typography variant="body2" color="textSecondary">
-            Selecciona una columna para agrupar y ver gráficos y resumen.
-            </Typography>
-        )}
-        </Box>
-    )}
+          <div style={{ marginBottom: "2rem" }}>
+            <Typography variant="h6" gutterBottom>Configuración Manual de Gráficos</Typography>
+            <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+              <SelectAnálisisPor 
+                columnas={columnas}
+                columnaAgrupar={columnaAgrupar}
+                setColumnaAgrupar={setColumnaAgrupar}
+              />
+              <SelectTotalDe 
+                columnas={columnas}
+                columnaValor={columnaValor}
+                setColumnaValor={setColumnaValor}
+              />
+              <SelectTipoDeGrafico 
+                tipoGrafico={tipoGrafico}
+                setTipoGrafico={setTipoGrafico}
+              />
+            </div>
+          </div>
 
-    {columnaAgrupar && (
-        <Box>
-        <ResumenGeneral
-        datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
-        columnaAgrupar={columnaAgrupar}
-        columnaValor={columnaValor}
-        titulo="Resumen General"
-        />
-        <Graficos
-        datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
-        columnaAgrupacion={columnaAgrupar}
-        columnaValor={columnaValor}
-        tipoGrafico={tipoGrafico}
-        paleta={paleta}
-        ordenar={ordenarGrafico}
-        topN={topNGrafico}
-        mostrarPorcentajeBarras={mostrarPorcentajeBarras}
-        />
+          {columnaAgrupar ? (
+            <>
+              <ResumenGeneral
+                datos={checkboxResumenGraficos ? datosFiltrados : datosCombinadosApp}
+                columnaAgrupar={columnaAgrupar}
+                columnaValor={columnaValor}
+                titulo="Resumen General"
+              />
+              <Graficos
+                datos={checkboxResumenGraficos ? datosFiltrados : datosCombinadosApp}
+                columnaAgrupacion={columnaAgrupar}
+                columnaValor={columnaValor}
+                tipoGrafico={tipoGrafico}
+                paleta={paleta}
+                ordenar={ordenarGrafico}
+                topN={topNGrafico}
+                mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+              />
+            </>
+          ) : (
+            <Typography variant="body2" color="textSecondary">
+              Selecciona una columna para agrupar y ver gráficos y resumen.
+            </Typography>
+          )}
         </Box>
-    )}
+      )}
 
       {resultadosProcesadosPorHoja && (
         <Paper elevation={2} sx={{ width: '100%' }}>
