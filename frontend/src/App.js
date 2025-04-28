@@ -344,54 +344,60 @@ return (
         Configuración de Gráficos
         </Typography>
 
-<FormControl fullWidth margin="normal">
-  <InputLabel>Columna para gráficos manuales</InputLabel>
-  <Select
-    value={columnaGraficosManuales}
-    onChange={(e) => setColumnaGraficosManuales(e.target.value)}
-    label="Columna para gráficos manuales"
-  >
-    {columnasDisponibles.map((columna) => (
-      <MenuItem key={columna} value={columna}>
-        {columna}
-      </MenuItem>
-    ))}
-  </Select>
-</FormControl>
+        <FormControl fullWidth margin="normal">
+        <InputLabel>Columna para gráficos manuales</InputLabel>
+        <Select
+        value={columnaGraficosManuales}
+        onChange={(e) => setColumnaGraficosManuales(e.target.value)}
+        label="Columna para gráficos manuales"
+        >
+        {columnasDisponibles.map((columna) => (
+          <MenuItem key={columna} value={columna}>
+          {columna}
+          </MenuItem>
+        ))}
+        </Select>
+        </FormControl>
 
-<FormControl fullWidth margin="normal">
-  <InputLabel>Columna de valores a analizar</InputLabel>
-  <Select
-    value={columnaValor}
-    onChange={(e) => setColumnaValor(e.target.value)}
-    label="Columna de valores a analizar"
-  >
-    {columnasNumericas.map((columna) => (
-      <MenuItem key={columna} value={columna}>
-        {columna}
-      </MenuItem>
-    ))}
-  </Select>
-</FormControl>
-
+        <FormControl fullWidth margin="normal">
+        <InputLabel>Columna de valores a analizar</InputLabel>
+        <Select
+        value={columnaValor}
+        onChange={(e) => setColumnaValor(e.target.value)}
+        label="Columna de valores a analizar"
+        >
+        {columnasNumericas.map((columna) => (
+          <MenuItem key={columna} value={columna}>
+          {columna}
+          </MenuItem>
+        ))}
+        </Select>
+        </FormControl>
         </Box>
 
-        {columnaGraficosManuales && columnaValor ? (
-          <Graficos
-          datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
-          columnaAgrupar={columnaGraficosManuales}
-          columnaValor={columnaValor}
-          tipoGrafico={tipoGrafico}
-          paleta={paleta}
-          ordenar={ordenarGrafico}
-          topN={topNGrafico}
-          mostrarPorcentajeBarras={mostrarPorcentajeBarras}
-          />
-          ) : (
-          <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
-          Selecciona tanto "Columna para gráficos manuales" como "Valor a analizar" para mostrar el gráfico.
-          </Typography>
-        )}
+        {columnasGraficosManuales.length > 0 &&
+ columnaGraficosManuales &&
+ (usarDatosFiltrados ? datosFiltrados : datosCombinadosApp).filter(
+    (item) => item[columnaGraficosManuales] != null && item[columnaValor] != null && !isNaN(item[columnaValor])
+ ).length > 0 ? (
+  <Graficos
+    datos={(usarDatosFiltrados ? datosFiltrados : datosCombinadosApp).filter(
+      (item) => item[columnaGraficosManuales] != null && item[columnaValor] != null && !isNaN(item[columnaValor])
+    )}
+    columnaAgrupar={columnaGraficosManuales}
+    columnaValor={columnaValor}
+    tipoGrafico={tipoGrafico}
+    paleta={paleta}
+    ordenar={ordenarGrafico}
+    topN={topNGrafico}
+    mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+  />
+) : (
+  <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
+    No hay datos suficientes para mostrar el gráfico.
+  </Typography>
+)}
+
         </Box>
       )}
 
