@@ -392,24 +392,21 @@ const App = () => {
             {tabValue === 5 && (
   <Box display="flex" flexDirection="column" gap={3}>
     <FiltroDependencia
-      sheets={Object.keys(dependenciasPorHoja || {})}
-      dependenciasPorHoja={dependenciasPorHoja}
-      onSeleccionar={({ hoja }) => {
-        setHojaSeleccionada(hoja);
+  sheets={Object.keys(dependenciasPorHoja || {})}
+  onSeleccionarHoja={(hoja) => {
+    setHojaSeleccionada(hoja);
 
-        const datosOriginales = resultadosProcesadosPorHoja?.[hoja] || [];
+    const datosOriginales = resultadosProcesadosPorHoja?.[hoja] || [];
+    const datosTodos = datosOriginales.flat();
+    setDatosFiltrados(datosTodos);
 
-        const datosTodos = datosOriginales.flat();
-
-        setDatosFiltrados(datosTodos);
-
-        if (datosTodos.length > 0) {
-          setColumnas(Object.keys(datosTodos[0]));
-        } else {
-          setColumnas([]);
-        }
-      }}
-    />
+    if (datosTodos.length > 0) {
+      setColumnas(Object.keys(datosTodos[0]));
+    } else {
+      setColumnas([]);
+    }
+  }}
+/>
 
     <SelectorDeCuadro cuadros={cuadros} onSelect={seleccionarCuadro} />
 
