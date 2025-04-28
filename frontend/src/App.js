@@ -390,110 +390,107 @@ const App = () => {
             )}
 
             {tabValue === 5 && (
-              <Box display="flex" flexDirection="column" gap={3}>
-                <FiltroDependencia
-                  sheets={Object.keys(dependenciasPorHoja || {})}
-                  dependenciasPorHoja={dependenciasPorHoja}
-                  onSeleccionar={({ hoja, dependencia }) => {
-                    setHojaSeleccionada(hoja);
-                    setDependenciaSeleccionada(dependencia);
+  <Box display="flex" flexDirection="column" gap={3}>
+    <FiltroDependencia
+      sheets={Object.keys(dependenciasPorHoja || {})}
+      dependenciasPorHoja={dependenciasPorHoja}
+      onSeleccionar={({ hoja }) => {
+        setHojaSeleccionada(hoja);
 
-                    const datosOriginales = resultadosProcesadosPorHoja?.[hoja] || [];
-                    const datosFiltradosInterno = datosOriginales.flat().filter((row) => {
-                      if (dependencia) {
-                        return row?.Dependencia?.toUpperCase?.() === dependencia.toUpperCase();
-                      }
-                      return true;
-                    });
+        const datosOriginales = resultadosProcesadosPorHoja?.[hoja] || [];
 
-                    setDatosFiltrados(datosFiltradosInterno);
-                    if (datosFiltradosInterno.length > 0) {
-                      setColumnas(Object.keys(datosFiltradosInterno[0]));
-                    } else {
-                      setColumnas([]);
-                    }
-                  }}
-                />
+        const datosTodos = datosOriginales.flat();
 
-                <SelectorDeCuadro cuadros={cuadros} onSelect={seleccionarCuadro} />
+        setDatosFiltrados(datosTodos);
 
-                {cuadroSeleccionado ? (
-                  <>
-                    <Graficos cuadro={cuadroSeleccionado} />
-                    <ResumenGeneral cuadro={cuadroSeleccionado} />
-                  </>
-                ) : (
-                  <Typography variant="body2" color="textSecondary" align="center">
-                    Seleccione un cuadro para comenzar.
-                  </Typography>
-                )}
+        if (datosTodos.length > 0) {
+          setColumnas(Object.keys(datosTodos[0]));
+        } else {
+          setColumnas([]);
+        }
+      }}
+    />
 
-                <Paper elevation={2} sx={{ p: 3 }}>
-                  <Typography variant="h6" gutterBottom>Datos</Typography>
-                  {cargandoDatosHook ? (
-                    <Box display="flex" justifyContent="center"><CircularProgress /></Box>
-                  ) : (
-                    <TablaDatos datosIniciales={datosFiltrados} columnasDefinidas={columnas} />
-                  )}
-                </Paper>
+    <SelectorDeCuadro cuadros={cuadros} onSelect={seleccionarCuadro} />
 
-                <Paper elevation={2} sx={{ p: 3 }}>
-                  <Typography variant="h6" gutterBottom>Análisis</Typography>
-                  <SelectoresAgrupacion
-                    columnas={columnas}
-                    columnaAgrupar={columnaAgrupar}
-                    setColumnaAgrupar={setColumnaAgrupar}
-                    columnaValor={columnaValor}
-                    setColumnaValor={setColumnaValor}
-                    tipoGrafico={tipoGrafico}
-                    setTipoGrafico={setTipoGrafico}
-                    paleta={paleta}
-                    setPaleta={setPaleta}
-                    ordenar={ordenarGrafico}
-                    setOrdenar={setOrdenarGrafico}
-                    topN={topNGrafico}
-                    setTopN={setTopNGrafico}
-                    mostrarPorcentajeBarras={mostrarPorcentajeBarras}
-                    setMostrarPorcentajeBarras={setMostrarPorcentajeBarras}
-                  />
+    {cuadroSeleccionado ? (
+      <>
+        <Graficos cuadro={cuadroSeleccionado} />
+        <ResumenGeneral cuadro={cuadroSeleccionado} />
+      </>
+    ) : (
+      <Typography variant="body2" color="textSecondary" align="center">
+        Seleccione un cuadro para comenzar.
+      </Typography>
+    )}
 
-                  <div className="flex items-center gap-2 mb-4">
-                    <input
-                      type="checkbox"
-                      id="usarDatosFiltrados"
-                      checked={usarDatosFiltrados}
-                      onChange={(e) => setUsarDatosFiltrados(e.target.checked)}
-                    />
-                    <label htmlFor="usarDatosFiltrados" className="text-sm">
-                      Aplicar filtros también al Resumen y Gráficos
-                    </label>
-                  </div>
+    <Paper elevation={2} sx={{ p: 3 }}>
+      <Typography variant="h6" gutterBottom>Datos</Typography>
+      {cargandoDatosHook ? (
+        <Box display="flex" justifyContent="center"><CircularProgress /></Box>
+      ) : (
+        <TablaDatos datosIniciales={datosFiltrados} columnasDefinidas={columnas} />
+      )}
+    </Paper>
 
-                  {usarDatosFiltrados && (
-                    <div className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-xl mb-4">
-                      Mostrando datos filtrados
-                    </div>
-                  )}
+    <Paper elevation={2} sx={{ p: 3 }}>
+      <Typography variant="h6" gutterBottom>Análisis</Typography>
+      <SelectoresAgrupacion
+        columnas={columnas}
+        columnaAgrupar={columnaAgrupar}
+        setColumnaAgrupar={setColumnaAgrupar}
+        columnaValor={columnaValor}
+        setColumnaValor={setColumnaValor}
+        tipoGrafico={tipoGrafico}
+        setTipoGrafico={setTipoGrafico}
+        paleta={paleta}
+        setPaleta={setPaleta}
+        ordenar={ordenarGrafico}
+        setOrdenar={setOrdenarGrafico}
+        topN={topNGrafico}
+        setTopN={setTopNGrafico}
+        mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+        setMostrarPorcentajeBarras={setMostrarPorcentajeBarras}
+      />
 
-                  <ResumenGeneral
-                    datos={datosCombinadosApp}
-                    columnaValor={columnaValor}
-                    resultadosProcesados={resultadosProcesadosPorHoja ? Object.values(resultadosProcesadosPorHoja).flat() : []}
-                  />
+      <div className="flex items-center gap-2 mb-4">
+        <input
+          type="checkbox"
+          id="usarDatosFiltrados"
+          checked={usarDatosFiltrados}
+          onChange={(e) => setUsarDatosFiltrados(e.target.checked)}
+        />
+        <label htmlFor="usarDatosFiltrados" className="text-sm">
+          Aplicar filtros también al Resumen y Gráficos
+        </label>
+      </div>
 
-                  <Graficos
-                    datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
-                    columnaAgrupar={columnaAgrupar}
-                    columnaValor={columnaValor}
-                    tipoGrafico={tipoGrafico}
-                    paleta={paleta}
-                    ordenar={ordenarGrafico}
-                    topN={topNGrafico}
-                    mostrarPorcentajeBarras={mostrarPorcentajeBarras}
-                  />
-                </Paper>
-              </Box>
-            )}
+      {usarDatosFiltrados && (
+        <div className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-xl mb-4">
+          Mostrando datos filtrados
+        </div>
+      )}
+
+      <ResumenGeneral
+        datos={datosCombinadosApp}
+        columnaValor={columnaValor}
+        resultadosProcesados={resultadosProcesadosPorHoja ? Object.values(resultadosProcesadosPorHoja).flat() : []}
+      />
+
+      <Graficos
+        datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+        columnaAgrupar={columnaAgrupar}
+        columnaValor={columnaValor}
+        tipoGrafico={tipoGrafico}
+        paleta={paleta}
+        ordenar={ordenarGrafico}
+        topN={topNGrafico}
+        mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+      />
+    </Paper>
+  </Box>
+)}
+
           </Box>
         </Paper>
       )}
