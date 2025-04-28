@@ -395,19 +395,31 @@ const App = () => {
                     setDependenciaSeleccionada(dependencia);
 
                     const datosOriginales = resultadosProcesadosPorHoja?.[hoja] || [];
-                    const datosFiltradosInterno = datosOriginales
+
+                    if (dependencia) {
+                      const datosFiltradosInterno = datosOriginales
                       .flat()
                       .filter((row) => row?.Dependencia?.toUpperCase?.() === dependencia.toUpperCase());
 
-                    setDatosFiltrados(datosFiltradosInterno);
+                      setDatosFiltrados(datosFiltradosInterno);
 
-                    if (datosFiltradosInterno.length > 0) {
-                      setColumnas(Object.keys(datosFiltradosInterno[0]));
+                      if (datosFiltradosInterno.length > 0) {
+                        setColumnas(Object.keys(datosFiltradosInterno[0]));
+                      } else {
+                        setColumnas([]);
+                      }
                     } else {
-                      setColumnas([]);
+
+                      const datosTodos = datosOriginales.flat();
+                      setDatosFiltrados(datosTodos);
+                      if (datosTodos.length > 0) {
+                        setColumnas(Object.keys(datosTodos[0]));
+                      } else {
+                        setColumnas([]);
+                      }
                     }
                   }}
-                />
+                  />
 
                 <SelectorDeCuadro cuadros={cuadros} onSelect={seleccionarCuadro} />
                 {cuadroSeleccionado ? (
