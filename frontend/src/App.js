@@ -472,13 +472,25 @@ const App = () => {
                 </Paper>
 
                 {datosFiltrados.length > 0 && columnas.length > 0 && (
-                  <Box sx={{ my: 4, display: 'flex', justifyContent: 'center' }}>
+                  <Box
+                  sx={{
+                    position: 'fixed',
+                    bottom: 16,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    bgcolor: 'background.paper',
+                    boxShadow: 3,
+                    borderRadius: 2,
+                    p: 1,
+                    display: 'flex',
+                    gap: 2,
+                    alignItems: 'center',
+                    zIndex: 1300,
+                  }}
+                  >
                   <ExportButtons onExport={(formato) => handleExportar(formato)} />
                   </Box>
                 )}
-
-              </Box>
-            )}
           </Box>
         </Paper>
       )}
