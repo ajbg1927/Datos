@@ -68,7 +68,6 @@ const App = () => {
     const [columnasEstablecidas, setColumnasEstablecidas] = useState(false);
     const [usarDatosFiltrados, setUsarDatosFiltrados] = useState(false);
     const [checkboxResumenGraficos, setCheckboxResumenGraficos] = useState(false);
-    const [columnaGraficosManuales, setColumnaGraficosManuales] = useState('');
 
     const handleArchivoSeleccionadoChange = useCallback((archivo) => {
         setArchivoSeleccionadoFromHook(archivo);
@@ -229,7 +228,7 @@ const App = () => {
         }
     };
 
-return (
+    return (
   <>
     <Toaster position="bottom-right" />
 
@@ -328,9 +327,9 @@ return (
             </Typography>
         )}
         </Box>
-      )}
+    )}
 
-      {columnaAgrupar && (
+    {columnaAgrupar && (
         <Box>
         <ResumenGeneral
         datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
@@ -338,67 +337,18 @@ return (
         columnaValor={columnaValor}
         titulo="Resumen General"
         />
-
-        <Box sx={{ mt: 4, mb: 2 }}>
-        <Typography variant="h6" gutterBottom>
-        Configuración de Gráficos
-        </Typography>
-
-        <FormControl fullWidth margin="normal">
-        <InputLabel>Columna para gráficos manuales</InputLabel>
-        <Select
-        value={columnaGraficosManuales}
-        onChange={(e) => setColumnaGraficosManuales(e.target.value)}
-        label="Columna para gráficos manuales"
-        >
-        {columnas.map((columna) => (
-          <MenuItem key={columna} value={columna}>
-          {columna}
-          </MenuItem>
-        ))}
-        </Select>
-        </FormControl>
-
-        <FormControl fullWidth margin="normal">
-        <InputLabel>Columna de valores a analizar</InputLabel>
-        <Select
-        value={columnaValor}
-        onChange={(e) => setColumnaValor(e.target.value)}
-        label="Columna de valores a analizar"
-        >
-        {columnasNumericas.map((columna) => (
-          <MenuItem key={columna} value={columna}>
-          {columna}
-          </MenuItem>
-        ))}
-        </Select>
-        </FormControl>
+        <Graficos
+        datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+        columnaAgrupacion={columnaAgrupar}
+        columnaValor={columnaValor}
+        tipoGrafico={tipoGrafico}
+        paleta={paleta}
+        ordenar={ordenarGrafico}
+        topN={topNGrafico}
+        mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+        />
         </Box>
-
-        {columnas.length > 0 &&
-          columnaGraficosManuales &&
-          (usarDatosFiltrados ? datosFiltrados : datosCombinadosApp).filter(
-          (item) => item[columnaGraficosManuales] != null && item[columnaValor] != null && !isNaN(item[columnaValor])
-          ).length > 0 ? (
-          <Graficos
-          datos={(usarDatosFiltrados ? datosFiltrados : datosCombinadosApp).filter(
-            (item) => item[columnaGraficosManuales] != null && item[columnaValor] != null && !isNaN(item[columnaValor])
-          )}
-          columnaAgrupar={columnaGraficosManuales}
-          columnaValor={columnaValor}
-          tipoGrafico={tipoGrafico}
-          paleta={paleta}
-          ordenar={ordenarGrafico}
-          topN={topNGrafico}
-          mostrarPorcentajeBarras={mostrarPorcentajeBarras}
-          />
-          ) : (
-          <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
-          No hay datos suficientes para mostrar el gráfico.
-          </Typography>
-        )}
-        </Box>
-      )}
+    )}
 
       {resultadosProcesadosPorHoja && (
         <Paper elevation={2} sx={{ width: '100%' }}>
