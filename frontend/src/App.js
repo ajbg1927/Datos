@@ -292,10 +292,6 @@ const App = () => {
         </Paper>
       )}
 
-      {datosFiltrados.length > 0 && columnas.length > 0 && (
-        <ExportButtons onExport={(formato) => handleExportar(formato)} />
-      )}
-      
       {hojaSeleccionada && (
         <Box>
         {columnaAgrupar ? (
@@ -475,12 +471,13 @@ const App = () => {
                   />
                 </Paper>
 
-                <Paper elevation={2} sx={{ p: 2 }}>
-                  <ExportButtons datos={datosFiltrados} columnas={columnas || []} onExport={handleExportar} />
-                </Paper>
+                {datosFiltrados.length > 0 && columnas.length > 0 && (
+                  <Box sx={{ my: 4, display: 'flex', justifyContent: 'center' }}>
+                  <ExportButtons onExport={(formato) => handleExportar(formato)} />
+                  </Box>
+                )}
+
               </Box>
-            )}
-          </Box>
         </Paper>
       )}
     </Layout>

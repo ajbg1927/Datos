@@ -56,6 +56,19 @@ const ExportButtons = ({ datos = [], columnas = [], filename = 'datos' }) => {
         color="success"
         startIcon={<FileDownloadIcon />}
         onClick={handleClick}
+        sx={{
+          borderRadius: 8,
+          textTransform: 'none',
+          fontWeight: 'bold',
+          paddingX: 2,
+          paddingY: 1,
+          transition: 'all 0.3s ease',
+          boxShadow: 2,
+          '&:hover': {
+            transform: 'translateY(-2px)',
+            boxShadow: 6,
+          },
+        }}
       >
         Exportar Datos
       </Button>
