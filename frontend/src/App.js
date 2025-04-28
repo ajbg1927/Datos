@@ -491,7 +491,6 @@ const App = () => {
                   <ExportButtons onExport={(formato) => handleExportar(formato)} />
                   </Box>
                 )}
-          </Box>
         </Paper>
       )}
     </Layout>
