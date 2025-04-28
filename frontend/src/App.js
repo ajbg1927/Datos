@@ -451,6 +451,12 @@ const App = () => {
                     </div>
                   )}
 
+                  console.log('--- DEBUG DATOS ---');
+                  console.log('datosFiltrados:', datosFiltrados);
+                  console.log('datosCombinadosApp:', datosCombinadosApp);
+                  console.log('usarDatosFiltrados:', usarDatosFiltrados);
+                  console.log('--------------------');
+
                   <ResumenGeneral
                     datos={datosCombinadosApp}
                     columnaValor={columnaValor}
