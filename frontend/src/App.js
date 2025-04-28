@@ -304,20 +304,21 @@ return (
 
       {hojaSeleccionada && (
         <Box>
+
           <div style={{ marginBottom: "2rem" }}>
             <Typography variant="h6" gutterBottom>Configuración Manual de Gráficos</Typography>
             <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
-              <SelectAnálisisPor 
+              <SelectAnálisisPor
                 columnas={columnas}
                 columnaAgrupar={columnaAgrupar}
                 setColumnaAgrupar={setColumnaAgrupar}
               />
-              <SelectTotalDe 
+              <SelectTotalDe
                 columnas={columnas}
                 columnaValor={columnaValor}
                 setColumnaValor={setColumnaValor}
               />
-              <SelectTipoDeGrafico 
+              <SelectTipoDeGrafico
                 tipoGrafico={tipoGrafico}
                 setTipoGrafico={setTipoGrafico}
               />
@@ -348,6 +349,7 @@ return (
               Selecciona una columna para agrupar y ver gráficos y resumen.
             </Typography>
           )}
+
         </Box>
       )}
 
