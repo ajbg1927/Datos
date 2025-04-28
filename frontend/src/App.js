@@ -478,6 +478,8 @@ const App = () => {
                 )}
 
               </Box>
+            )}
+          </Box>
         </Paper>
       )}
     </Layout>
