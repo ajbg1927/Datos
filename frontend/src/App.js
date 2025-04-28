@@ -328,60 +328,56 @@ return (
             </Typography>
         )}
         </Box>
-    )}
+      )}
 
-    {columnaAgrupar && (
-  <Box>
-    {/* Resumen General */}
-    <ResumenGeneral
-      datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
-      columnaAgrupar={columnaAgrupar}
-      columnaValor={columnaValor}
-      titulo="Resumen General"
-    />
+      {columnaAgrupar && (
+        <Box>
+        <ResumenGeneral
+        datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+        columnaAgrupar={columnaAgrupar}
+        columnaValor={columnaValor}
+        titulo="Resumen General"
+        />
 
-    {/* Separador entre Resumen y Select */}
-    <Box sx={{ mt: 4, mb: 2 }}>
-      <Typography variant="h6" gutterBottom>
+        <Box sx={{ mt: 4, mb: 2 }}>
+        <Typography variant="h6" gutterBottom>
         Configuración de Gráficos
-      </Typography>
+        </Typography>
 
-      {/* Select para elegir columna de gráficos manuales */}
-      <FormControl fullWidth sx={{ mb: 2 }}>
+        <FormControl fullWidth sx={{ mb: 2 }}>
         <InputLabel>Columna para gráficos manuales</InputLabel>
         <Select
-          value={columnaGraficosManuales}
-          label="Columna para gráficos manuales"
-          onChange={(e) => setColumnaGraficosManuales(e.target.value)}
+        value={columnaGraficosManuales}
+        label="Columna para gráficos manuales"
+        onChange={(e) => setColumnaGraficosManuales(e.target.value)}
         >
-          {columnas.map((columna) => (
-            <MenuItem key={columna} value={columna}>
-              {columna}
-            </MenuItem>
-          ))}
+        {columnas.map((columna) => (
+          <MenuItem key={columna} value={columna}>
+          {columna}
+          </MenuItem>
+        ))}
         </Select>
-      </FormControl>
-    </Box>
+        </FormControl>
+        </Box>
 
-    {/* Mostrar gráficos SOLO si están columna y valor seleccionados */}
-    {columnaGraficosManuales && columnaValor ? (
-      <Graficos
-        datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
-        columnaAgrupar={columnaGraficosManuales}
-        columnaValor={columnaValor}
-        tipoGrafico={tipoGrafico}
-        paleta={paleta}
-        ordenar={ordenarGrafico}
-        topN={topNGrafico}
-        mostrarPorcentajeBarras={mostrarPorcentajeBarras}
-      />
-    ) : (
-      <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
-        Selecciona tanto "Columna para gráficos manuales" como "Valor a analizar" para mostrar el gráfico.
-      </Typography>
-    )}
-  </Box>
-)}
+        {columnaGraficosManuales && columnaValor ? (
+          <Graficos
+          datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+          columnaAgrupar={columnaGraficosManuales}
+          columnaValor={columnaValor}
+          tipoGrafico={tipoGrafico}
+          paleta={paleta}
+          ordenar={ordenarGrafico}
+          topN={topNGrafico}
+          mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+          />
+          ) : (
+          <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
+          Selecciona tanto "Columna para gráficos manuales" como "Valor a analizar" para mostrar el gráfico.
+          </Typography>
+        )}
+        </Box>
+      )}
 
       {resultadosProcesadosPorHoja && (
         <Paper elevation={2} sx={{ width: '100%' }}>
