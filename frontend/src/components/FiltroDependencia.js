@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function FiltroDependencia({
   sheets,
@@ -10,18 +9,17 @@ export default function FiltroDependencia({
   const [dependenciaSeleccionada, setDependenciaSeleccionada] = useState("");
 
   useEffect(() => {
-    setDependenciaSeleccionada(""); // reset al cambiar hoja
+    setDependenciaSeleccionada(""); 
   }, [hojaSeleccionada]);
 
   useEffect(() => {
-    if (hojaSeleccionada && dependenciaSeleccionada) {
+    if (hojaSeleccionada) { 
       onSeleccionar({ hoja: hojaSeleccionada, dependencia: dependenciaSeleccionada });
     }
   }, [hojaSeleccionada, dependenciaSeleccionada, onSeleccionar]);
 
   return (
     <div className="flex gap-4 items-center p-4 border rounded-lg bg-white shadow">
-      {/* Selector de hoja */}
       <div>
         <label className="block text-sm font-semibold mb-1">Selecciona hoja</label>
         <select
@@ -38,7 +36,6 @@ export default function FiltroDependencia({
         </select>
       </div>
 
-      {/* Selector de dependencia */}
       {hojaSeleccionada && (
         <div>
           <label className="block text-sm font-semibold mb-1">Selecciona dependencia</label>
@@ -47,7 +44,7 @@ export default function FiltroDependencia({
             value={dependenciaSeleccionada}
             onChange={(e) => setDependenciaSeleccionada(e.target.value)}
           >
-            <option value="">-- Dependencia --</option>
+            <option value="">-- Todas las dependencias --</option> {/* <- Esto cambia */}
             {(dependenciasPorHoja[hojaSeleccionada] || []).map((dep) => (
               <option key={dep} value={dep}>
                 {dep}
