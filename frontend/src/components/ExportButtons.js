@@ -1,12 +1,11 @@
 import React from 'react';
 import { Button, Menu, MenuItem } from '@mui/material';
 import { FileDownload as FileDownloadIcon } from '@mui/icons-material';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import * as XLSX from 'xlsx';
+import useExportaciones from './useExportaciones'; 
 
 const ExportButtons = ({ datos = [], columnas = [], filename = 'datos' }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const { exportToExcel, exportToCSV, exportToPDF, exportToTXT } = useExportaciones();
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -21,73 +20,33 @@ const ExportButtons = ({ datos = [], columnas = [], filename = 'datos' }) => {
 
   const exportarDatos = (formato) => {
     if (!datos || datos.length === 0) {
-      console.warn('No hay datos para exportar.', { datos, columnas, formato });
+      console.warn('No hay datos para exportar.');
       return;
     }
 
     if ((formato === 'pdf' || formato === 'txt') && (!columnas || columnas.length === 0)) {
-      console.warn('No hay columnas definidas para exportar en este formato.', { columnas });
+      console.warn('No hay columnas definidas para exportar en este formato.');
       return;
     }
 
+    const columnasHeaders = columnas.map(col => (typeof col === 'object' ? col.accessor || col.Header : col));
+
     switch (formato) {
       case 'excel':
-        exportToExcel();
+        exportToExcel(datos, columnasHeaders, `${filename}.xlsx`);
         break;
       case 'csv':
-        exportToCSV();
+        exportToCSV(datos, columnasHeaders, `${filename}.csv`);
         break;
       case 'pdf':
-        exportToPDF();
+        exportToPDF(datos, columnasHeaders, `${filename}.pdf`);
         break;
       case 'txt':
-        exportToTXT();
+        exportToTXT(datos, columnasHeaders, `${filename}.txt`);
         break;
       default:
         console.warn('Formato no soportado:', formato);
     }
-  };
-
-  const exportToExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(datos);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Datos');
-    XLSX.writeFile(wb, `${filename}.xlsx`);
-  };
-
-  const exportToCSV = () => {
-    const ws = XLSX.utils.json_to_sheet(datos);
-    const csv = XLSX.utils.sheet_to_csv(ws);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `${filename}.csv`;
-    link.click();
-  };
-
-  const exportToPDF = () => {
-    const doc = new jsPDF();
-    autoTable(doc, {
-      startY: 20,
-      head: [columnas.map((col) => col.Header || col)],
-      body: datos.map((row) => columnas.map((col) => row[col.accessor || col] ?? '')),
-    });
-    doc.save(`${filename}.pdf`);
-  };
-
-  const exportToTXT = () => {
-    const headers = columnas.map((col) => col.Header || col).join('\t');
-    const rows = datos
-      .map((row) =>
-        columnas.map((col) => row[col.accessor || col] ?? '').join('\t')
-      )
-      .join('\n');
-    const txtContent = `${headers}\n${rows}`;
-    const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `${filename}.txt`;
-    link.click();
   };
 
   return (

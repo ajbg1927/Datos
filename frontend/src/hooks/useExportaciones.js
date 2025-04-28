@@ -3,9 +3,17 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
 const useExportaciones = () => {
+  const parseColumns = (columns) =>
+    columns.map((col) =>
+      typeof col === 'string'
+        ? { header: col, accessor: col }
+        : { header: col.Header || col.accessor, accessor: col.accessor || col.Header }
+    );
+
   const exportToExcel = (data, columns, fileName = 'datos.xlsx') => {
-    const exportData = data.map(row =>
-      Object.fromEntries(columns.map(col => [col, row[col] ?? '']))
+    const parsedColumns = parseColumns(columns);
+    const exportData = data.map((row) =>
+      Object.fromEntries(parsedColumns.map((col) => [col.header, row[col.accessor] ?? '']))
     );
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
@@ -14,10 +22,12 @@ const useExportaciones = () => {
   };
 
   const exportToCSV = (data, columns, fileName = 'datos.csv') => {
-    const exportData = data.map(row =>
-      columns.map(col => `"${row[col] ?? ''}"`).join(',')
+    const parsedColumns = parseColumns(columns);
+    const headers = parsedColumns.map((col) => col.header);
+    const exportData = data.map((row) =>
+      parsedColumns.map((col) => `"${row[col.accessor] ?? ''}"`).join(',')
     );
-    const csv = [columns.join(','), ...exportData].join('\n');
+    const csv = [headers.join(','), ...exportData].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -27,18 +37,24 @@ const useExportaciones = () => {
   };
 
   const exportToPDF = (data, columns, fileName = 'datos.pdf') => {
+    const parsedColumns = parseColumns(columns);
+    const headers = parsedColumns.map((col) => col.header);
+    const body = data.map((row) => parsedColumns.map((col) => row[col.accessor] ?? ''));
     const doc = new jsPDF();
-    const tableData = data.map(row => columns.map(col => row[col] ?? ''));
-    doc.autoTable({ head: [columns], body: tableData });
+    doc.autoTable({ head: [headers], body });
     doc.save(fileName);
   };
 
   const exportToTXT = (data, columns, fileName = 'datos.txt') => {
-    const exportData = data.map(row =>
-      columns.map(col => `${col}: ${row[col] ?? ''}`).join(', ')
-    );
-    const txt = exportData.join('\n');
-    const blob = new Blob([txt], { type: 'text/plain' });
+    const parsedColumns = parseColumns(columns);
+    const headers = parsedColumns.map((col) => col.header).join('\t');
+    const rows = data
+      .map((row) =>
+        parsedColumns.map((col) => row[col.accessor] ?? '').join('\t')
+      )
+      .join('\n');
+    const txtContent = `${headers}\n${rows}`;
+    const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
