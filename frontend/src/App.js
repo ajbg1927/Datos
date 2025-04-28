@@ -237,8 +237,8 @@ const App = () => {
             </Typography>
           )}
         </Paper>
-      }>
-      
+      >
+
       {isLoadingUpload && (
         <Box display="flex" justifyContent="center" alignItems="center" my={4}>
           <CircularProgress />
