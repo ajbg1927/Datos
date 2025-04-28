@@ -344,20 +344,36 @@ return (
         Configuración de Gráficos
         </Typography>
 
-        <FormControl fullWidth sx={{ mb: 2 }}>
-        <InputLabel>Columna para gráficos manuales</InputLabel>
-        <Select
-        value={columnaGraficosManuales}
-        label="Columna para gráficos manuales"
-        onChange={(e) => setColumnaGraficosManuales(e.target.value)}
-        >
-        {columnas.map((columna) => (
-          <MenuItem key={columna} value={columna}>
-          {columna}
-          </MenuItem>
-        ))}
-        </Select>
-        </FormControl>
+<FormControl fullWidth margin="normal">
+  <InputLabel>Columna para gráficos manuales</InputLabel>
+  <Select
+    value={columnaGraficosManuales}
+    onChange={(e) => setColumnaGraficosManuales(e.target.value)}
+    label="Columna para gráficos manuales"
+  >
+    {columnasDisponibles.map((columna) => (
+      <MenuItem key={columna} value={columna}>
+        {columna}
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
+
+<FormControl fullWidth margin="normal">
+  <InputLabel>Columna de valores a analizar</InputLabel>
+  <Select
+    value={columnaValor}
+    onChange={(e) => setColumnaValor(e.target.value)}
+    label="Columna de valores a analizar"
+  >
+    {columnasNumericas.map((columna) => (
+      <MenuItem key={columna} value={columna}>
+        {columna}
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
+
         </Box>
 
         {columnaGraficosManuales && columnaValor ? (
