@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
-    Box, CircularProgress, Paper, Tab, Tabs, Typography, TextField, Divider, FormControl, InputLabel, Select, MenuItem, InputAdornment
+    Box, CircularProgress, Paper, Tab, Tabs, Typography, TextField, Divider, FormControl, InputLabel, Select, MenuItem, InputAdornment, Select
 } from '@mui/material';
 import { Toaster, toast } from 'react-hot-toast';
 import SearchIcon from '@mui/icons-material/Search';
@@ -68,6 +68,7 @@ const App = () => {
     const [columnasEstablecidas, setColumnasEstablecidas] = useState(false);
     const [usarDatosFiltrados, setUsarDatosFiltrados] = useState(false);
     const [checkboxResumenGraficos, setCheckboxResumenGraficos] = useState(false);
+    const [columnaGraficosManuales, setColumnaGraficosManuales] = useState('');
 
     const handleArchivoSeleccionadoChange = useCallback((archivo) => {
         setArchivoSeleccionadoFromHook(archivo);
@@ -228,7 +229,7 @@ const App = () => {
         }
     };
 
-    return (
+return (
   <>
     <Toaster position="bottom-right" />
 
@@ -337,16 +338,31 @@ const App = () => {
         columnaValor={columnaValor}
         titulo="Resumen General"
         />
+
+         <FormControl fullWidth sx={{ mb: 2 }}>
+  <InputLabel>Columna para gráficos manuales</InputLabel>
+  <Select
+    value={columnaGraficosManuales}
+    label="Columna para gráficos manuales"
+    onChange={(e) => setColumnaGraficosManuales(e.target.value)}
+  >
+    {columnas.map((columna) => (
+      <MenuItem key={columna} value={columna}>
+        {columna}
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
         <Graficos
-        datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
-        columnaAgrupacion={columnaAgrupar}
-        columnaValor={columnaValor}
-        tipoGrafico={tipoGrafico}
-        paleta={paleta}
-        ordenar={ordenarGrafico}
-        topN={topNGrafico}
-        mostrarPorcentajeBarras={mostrarPorcentajeBarras}
-        />
+  datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+  columnaAgrupar={columnaGraficosManuales}
+  columnaValor={columnaValor}
+  tipoGrafico={tipoGrafico}
+  paleta={paleta}
+  ordenar={ordenarGrafico}
+  topN={topNGrafico}
+  mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+/>
         </Box>
     )}
 
