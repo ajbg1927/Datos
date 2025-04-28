@@ -1,3 +1,4 @@
+import React from 'react';
 import { Select, MenuItem, InputLabel, FormControl } from "@mui/material";
 
 const SelectAnálisisPor = ({ columnas, columnaAgrupar, setColumnaAgrupar }) => {
