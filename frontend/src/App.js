@@ -259,7 +259,6 @@ const App = () => {
         </Paper>
       }
     >
-
       {isLoadingUpload && (
         <Box display="flex" justifyContent="center" alignItems="center" my={4}>
           <CircularProgress />
@@ -288,54 +287,54 @@ const App = () => {
 
       {datosFiltrados.length > 0 && columnas.length > 0 && (
         <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-        <TablaDatos key={`tabla-datos-${datosFiltrados.length}`} datosIniciales={datosFiltrados} columnasDefinidas={columnas} />
+          <TablaDatos key={`tabla-datos-${datosFiltrados.length}`} datosIniciales={datosFiltrados} columnasDefinidas={columnas} />
         </Paper>
       )}
 
       {hojaSeleccionada && (
         <Box>
-        {columnaAgrupar ? (
+          {columnaAgrupar ? (
             <>
-            <ResumenGeneral
-            datos={checkboxResumenGraficos ? datosFiltrados : datosCombinadosApp}
+              <ResumenGeneral
+                datos={checkboxResumenGraficos ? datosFiltrados : datosCombinadosApp}
+                columnaAgrupar={columnaAgrupar}
+                columnaValor={columnaValor}
+                titulo="Resumen General"
+              />
+              <Graficos
+                datos={checkboxResumenGraficos ? datosFiltrados : datosCombinadosApp}
+                columnaAgrupar={columnaAgrupar}
+                columnaValor={columnaValor}
+              />
+            </>
+          ) : (
+            <Typography variant="body2" color="textSecondary">
+              Selecciona una columna para agrupar y ver gráficos y resumen.
+            </Typography>
+          )}
+        </Box>
+      )}
+
+      {columnaAgrupar && (
+        <Box>
+          <ResumenGeneral
+            datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
             columnaAgrupar={columnaAgrupar}
             columnaValor={columnaValor}
             titulo="Resumen General"
-            />
-            <Graficos
-            datos={checkboxResumenGraficos ? datosFiltrados : datosCombinadosApp}
-            columnaAgrupar={columnaAgrupar}
+          />
+          <Graficos
+            datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+            columnaAgrupacion={columnaAgrupar}
             columnaValor={columnaValor}
-            />
-            </>
-            ) : (
-            <Typography variant="body2" color="textSecondary">
-            Selecciona una columna para agrupar y ver gráficos y resumen.
-            </Typography>
-        )}
+            tipoGrafico={tipoGrafico}
+            paleta={paleta}
+            ordenar={ordenarGrafico}
+            topN={topNGrafico}
+            mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+          />
         </Box>
-    )}
-
-    {columnaAgrupar && (
-        <Box>
-        <ResumenGeneral
-        datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
-        columnaAgrupar={columnaAgrupar}
-        columnaValor={columnaValor}
-        titulo="Resumen General"
-        />
-        <Graficos
-        datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
-        columnaAgrupacion={columnaAgrupar}
-        columnaValor={columnaValor}
-        tipoGrafico={tipoGrafico}
-        paleta={paleta}
-        ordenar={ordenarGrafico}
-        topN={topNGrafico}
-        mostrarPorcentajeBarras={mostrarPorcentajeBarras}
-        />
-        </Box>
-    )}
+      )}
 
       {resultadosProcesadosPorHoja && (
         <Paper elevation={2} sx={{ width: '100%' }}>
@@ -460,38 +459,41 @@ const App = () => {
                   />
 
                   <Graficos
-                  datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
-                  columnaAgrupar={columnaAgrupar} 
-                  columnaValor={columnaValor}
-                  tipoGrafico={tipoGrafico}
-                  paleta={paleta}
-                  ordenar={ordenarGrafico}
-                  topN={topNGrafico}
-                  mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+                    datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+                    columnaAgrupar={columnaAgrupar}
+                    columnaValor={columnaValor}
+                    tipoGrafico={tipoGrafico}
+                    paleta={paleta}
+                    ordenar={ordenarGrafico}
+                    topN={topNGrafico}
+                    mostrarPorcentajeBarras={mostrarPorcentajeBarras}
                   />
                 </Paper>
-
-                {datosFiltrados.length > 0 && columnas.length > 0 && (
-                  <Box
-                  sx={{
-                    position: 'fixed',
-                    bottom: 16,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    bgcolor: 'background.paper',
-                    boxShadow: 3,
-                    borderRadius: 2,
-                    p: 1,
-                    display: 'flex',
-                    gap: 2,
-                    alignItems: 'center',
-                    zIndex: 1300,
-                  }}
-                  >
-                  <ExportButtons onExport={(formato) => handleExportar(formato)} />
-                  </Box>
-                )}
+              </Box>
+            )}
+          </Box>
         </Paper>
+      )}
+
+      {datosFiltrados.length > 0 && columnas.length > 0 && (
+        <Box
+          sx={{
+            position: 'fixed',
+            bottom: 16,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            bgcolor: 'background.paper',
+            boxShadow: 3,
+            borderRadius: 2,
+            p: 1,
+            display: 'flex',
+            gap: 2,
+            alignItems: 'center',
+            zIndex: 1300,
+          }}
+        >
+          <ExportButtons onExport={(formato) => handleExportar(formato)} />
+        </Box>
       )}
     </Layout>
   </>
