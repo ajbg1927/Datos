@@ -228,13 +228,6 @@ const App = () => {
         }
     };
 
-console.log('----------- DEBUG INFO -----------');
-console.log('hojaSeleccionada:', hojaSeleccionada);
-console.log('columnaAgrupar:', columnaAgrupar);
-console.log('datosCombinadosApp:', datosCombinadosApp?.length);
-console.log('datosFiltrados:', datosFiltrados?.length);
-console.log('-----------------------------------');
-
 return (
   <>
     <Toaster position="bottom-right" />
@@ -309,9 +302,27 @@ return (
         </Paper>
       )}
 
+      {/* Bloque nuevo: gráficos dinámicos */}
+      {selectedColumn && groupedData && Object.keys(groupedData).length > 0 && (
+        <>
+          {!aplicarFiltrosAGraficos && (
+            <ResumenGeneral datosAgrupados={groupedData} columnaAgrupacion={selectedColumn} />
+          )}
+
+          {selectedChartType && (
+            <Card className="p-4 mb-4">
+              <Typography variant="h6" className="mb-2">Visualización de Datos</Typography>
+              {selectedChartType === 'Bar' && <GraficoBarras groupedData={groupedData} selectedColumn={selectedColumn} />}
+              {selectedChartType === 'Pie' && <GraficoTorta groupedData={groupedData} selectedColumn={selectedColumn} />}
+              {selectedChartType === 'Treemap' && <GraficoTreemap groupedData={groupedData} selectedColumn={selectedColumn} />}
+              {selectedChartType === 'Radar' && <GraficoRadar groupedData={groupedData} selectedColumn={selectedColumn} />}
+            </Card>
+          )}
+        </>
+      )}
+
       {hojaSeleccionada && (
         <Box>
-
           <div style={{ marginBottom: "2rem" }}>
             <Typography variant="h6" gutterBottom>Configuración Manual de Gráficos</Typography>
             <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
@@ -356,7 +367,6 @@ return (
               Selecciona una columna para agrupar y ver gráficos y resumen.
             </Typography>
           )}
-
         </Box>
       )}
 
