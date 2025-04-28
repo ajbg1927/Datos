@@ -55,14 +55,19 @@ const Graficos = ({
   const coloresUsar = PALETAS[paleta] || PALETAS['Institucional'];
   const total = useMemo(() => dataAgrupada.reduce((acc, cur) => acc + cur.valor, 0), [dataAgrupada]);
 
-  if (!dataAgrupada.length) {
-    return (
-      <Typography variant="body1" color="text.secondary" align="center" mt={5}>
-        No hay datos suficientes para mostrar el gráfico.
+  if (!dataAgrupada.length || total <= 0) {
+  return (
+    <Box mt={5} textAlign="center">
+      <InsertChartIcon sx={{ fontSize: 50, color: 'text.secondary', mb: 2 }} />
+      <Typography variant="h6" color="text.secondary">
+        No hay datos suficientes para generar un gráfico.
       </Typography>
-    );
-  }
-
+      <Typography variant="body2" color="text.secondary" mt={1}>
+        Puedes exportar los datos filtrados para analizarlos externamente.
+      </Typography>
+    </Box>
+  );
+}
   return (
     <Box mt={4}>
       <Typography
