@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Menu, MenuItem } from '@mui/material';
 import { FileDownload as FileDownloadIcon } from '@mui/icons-material';
-import useExportaciones from './useExportaciones'; 
+import useExportaciones from '../hooks/useExportaciones';
 
 const ExportButtons = ({ datos = [], columnas = [], filename = 'datos' }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
