@@ -228,7 +228,234 @@ const App = () => {
         }
     };
 
-return (
+como se hace para que los graficos se vean en la app, revisa aqui , import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import {
+    Box, CircularProgress, Paper, Tab, Tabs, Typography, TextField, Divider, FormControl, InputLabel, Select, MenuItem, InputAdornment
+} from '@mui/material';
+import { Toaster, toast } from 'react-hot-toast';
+import SearchIcon from '@mui/icons-material/Search';
+
+import Layout from './components/Layout';
+import UploadFile from './components/UploadFile';
+import TablaArchivos from './components/TablaArchivos';
+import SelectorHojas from './components/SelectorHojas';
+import Filtros from './components/Filtros';
+import TablaDatos from './components/TablaDatos';
+import Graficos from './components/Graficos';
+import ExportButtons from './components/ExportButtons';
+import ResumenGeneral from './components/ResumenGeneral';
+import SelectoresAgrupacion from './components/SelectoresAgrupacion';
+import FiltroDependencia from './components/FiltroDependencia';
+
+import useArchivos from './hooks/useArchivos';
+import useFiltrosAvanzado from './hooks/useFiltrosAvanzado';
+import useExportaciones from './hooks/useExportaciones';
+import useGraficos from './hooks/useGraficos';
+import axios from 'axios';
+
+const API_URL = 'https://backend-flask-u76y.onrender.com';
+
+const App = () => {
+    const {
+        archivos,
+        setArchivos,
+        archivoSeleccionado,
+        setArchivoSeleccionado: setArchivoSeleccionadoFromHook,
+        hojasSeleccionadas,
+        setHojasSeleccionadas: setHojasSeleccionadasFromHook,
+        hojasPorArchivo,
+        datosPorArchivo: datosPorArchivoHook,
+        columnasPorArchivo: columnasPorArchivoHook,
+        obtenerDatos, 
+        cargarArchivos,
+        obtenerHojas,
+        cargandoDatos: cargandoDatosHook,
+    } = useArchivos();
+
+    const [filtros, setFiltros] = useState({});
+    const [columnaAgrupar, setColumnaAgrupar] = useState('');
+    const [columnaValor, setColumnaValor] = useState('');
+    const [isLoadingUpload, setIsLoadingUpload] = useState(false);
+    const [tipoGrafico, setTipoGrafico] = useState('Barras');
+    const [paleta, setPaleta] = useState('Institucional');
+    const [ordenarGrafico, setOrdenarGrafico] = useState(true);
+    const [topNGrafico, setTopNGrafico] = useState(10);
+    const [mostrarPorcentajeBarras, setMostrarPorcentajeBarras] = useState(false);
+    const [tabValue, setTabValue] = useState(0);
+    const [resultadosProcesadosPorHoja, setResultadosProcesadosPorHoja] = useState(null);
+    const [ticProcesado, setTicProcesado] = useState(false);
+    const [datosCombinadosApp, setDatosCombinadosApp] = useState([]);
+    const [cargandoProcesamiento, setCargandoProcesamiento] = useState(false);
+
+    const [datosFiltrados, setDatosFiltrados] = useState([]);
+    const [dependenciasPorHoja, setDependenciasPorHoja] = useState({});
+    const [hojaSeleccionada, setHojaSeleccionada] = useState('');
+    const [dependenciaSeleccionada, setDependenciaSeleccionada] = useState('');
+    const [columnas, setColumnas] = useState([]);
+    const [columnasEstablecidas, setColumnasEstablecidas] = useState(false);
+    const [usarDatosFiltrados, setUsarDatosFiltrados] = useState(false);
+    const [checkboxResumenGraficos, setCheckboxResumenGraficos] = useState(false);
+
+    const handleArchivoSeleccionadoChange = useCallback((archivo) => {
+        setArchivoSeleccionadoFromHook(archivo);
+        setHojasSeleccionadasFromHook([]);
+    }, [setArchivoSeleccionadoFromHook, setHojasSeleccionadasFromHook]);
+
+    const handleHojasSeleccionadasChange = useCallback((hojas) => {
+        setHojasSeleccionadasFromHook(hojas);
+    }, [setHojasSeleccionadasFromHook]);
+
+     useEffect(() => {
+    if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
+      obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas)
+        .then((data) => {
+          if (data) {
+            setDatosCombinadosApp(data);
+            toast.success(`Datos cargados: ${data.length} registros`);
+            if (data.length > 0) {
+              setColumnas(Object.keys(data[0]));
+              setColumnasEstablecidas(true);
+
+              setFiltros({}); 
+              setDatosFiltrados(data); 
+            }
+          }
+        })
+        .catch(console.error);
+    } else {
+      setColumnasEstablecidas(false);
+      setDatosCombinadosApp([]);
+      setDatosFiltrados([]); // 
+      setColumnas([]);
+    }
+  }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
+
+    useEffect(() => {
+        if (archivoSeleccionado && !hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
+            obtenerHojas(archivoSeleccionado.nombreBackend);
+        }
+    }, [archivoSeleccionado, obtenerHojas, hojasPorArchivo]);
+
+    const columnasFecha = useMemo(() => columnas.filter(col => col.toLowerCase().includes('fecha')), [columnas]);
+    const columnasNumericas = useMemo(() => columnas.filter(col =>
+        col.toLowerCase().match(/pago|valor|deducci|oblig|monto|total|suma|saldo/)), [columnas]);
+
+    const valoresUnicos = useMemo(() => {
+        const result = {};
+        columnas.forEach(col => {
+            const valores = datosCombinadosApp.map(row => row[col]).filter(v => v !== undefined && v !== null);
+            result[col] = [...new Set(valores)];
+        });
+        return result;
+    }, [columnas, datosCombinadosApp]);
+
+    useEffect(() => {
+        if (!columnaAgrupar && columnas.length > 0) setColumnaAgrupar(columnas[0]);
+        if (!columnaValor && columnasNumericas.length > 0) setColumnaValor(columnasNumericas[0]);
+    }, [columnas, columnasNumericas, columnaAgrupar, columnaValor]);
+
+    const texto = filtros.busqueda || '';
+    const fechaInicio = filtros.Fecha_desde || '';
+    const fechaFin = filtros.Fecha_hasta || '';
+    const filtrosMemoizado = useMemo(() => filtros, [filtros]);
+    const filtrosColumnas = Object.fromEntries(
+        Object.entries(filtrosMemoizado).filter(([key]) => !['busqueda', 'Fecha_desde', 'Fecha_hasta'].includes(key))
+    );
+    const pagosMin = filtros[`${columnaValor}_min`] || '';
+    const pagosMax = filtros[`${columnaValor}_max`] || '';
+
+    const datosFiltradosHook = useFiltrosAvanzado(
+        datosCombinadosApp,
+        texto,
+        fechaInicio,
+        fechaFin,
+        filtrosColumnas,
+        pagosMin,
+        pagosMax,
+        columnaValor
+    );
+
+    useEffect(() => {
+    if (Object.keys(filtros).length > 0) { 
+      setDatosFiltrados(datosFiltradosHook);
+    }
+  }, [datosFiltradosHook, filtros]);
+
+    useEffect(() => setDatosFiltrados(datosFiltradosHook), [datosFiltradosHook]);
+
+    const { exportToExcel, exportToCSV, exportToPDF, exportToTXT } = useExportaciones();
+
+    const handleClearFilters = () => setFiltros({});
+
+    const handleExportar = (formato) => {
+        const exportadores = {
+            excel: exportToExcel,
+            csv: exportToCSV,
+            pdf: exportToPDF,
+            txt: exportToTXT,
+        };
+        (exportadores[formato] || exportToExcel)(datosFiltrados, columnas);
+    };
+
+    const handleArchivosSubidos = useCallback(async (files) => {
+        const formData = new FormData();
+        files.forEach(file => formData.append('archivos', file));
+        try {
+            setIsLoadingUpload(true);
+            await axios.post(`${API_URL}/subir`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            await cargarArchivos(files);
+        } catch (error) {
+            console.error('Error al subir archivos:', error);
+            alert('Error al subir archivos');
+        } finally {
+            setIsLoadingUpload(false);
+        }
+    }, [cargarArchivos]);
+
+    const handleProcesarDatos = useCallback(async () => {
+        if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
+            setCargandoProcesamiento(true);
+            const formData = new FormData();
+            formData.append('nombreBackend', archivoSeleccionado.nombreBackend);
+            formData.append('hojas', JSON.stringify(hojasSeleccionadas));
+            formData.append('dependencia', 'DIRECCION DE LAS TIC');
+
+            try {
+                const response = await axios.post(`${API_URL}/procesar_excel`, formData);
+                setResultadosProcesadosPorHoja(response.data.tablas_por_hoja);
+                setDependenciasPorHoja(response.data.dependencias_por_hoja || {});
+            } catch (error) {
+                console.error('Error al procesar los datos:', error);
+            } finally {
+                setCargandoProcesamiento(false);
+            }
+        } else {
+            alert('Por favor, selecciona un archivo y al menos una hoja.');
+        }
+    }, [archivoSeleccionado, hojasSeleccionadas]);
+
+    const handleChangeTab = (event, newValue) => {
+        setTabValue(newValue);
+        if (newValue === 4 && archivoSeleccionado && hojasSeleccionadas.length > 0 && !ticProcesado) {
+            handleProcesarDatos();
+            setTicProcesado(true);
+        }
+    };
+
+    const onSeleccionar = (dependencia, datosFiltrados) => {
+        setDatosFiltrados(datosFiltrados);
+        setDependenciaSeleccionada(dependencia);
+
+        if (datosFiltrados.length > 0) {
+            setColumnas(Object.keys(datosFiltrados[0]));
+        } else {
+            setColumnas([]);
+        }
+    };
+
+    return (
   <>
     <Toaster position="bottom-right" />
 
@@ -237,7 +464,10 @@ return (
         <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
           {columnas.length > 0 ? (
             <>
-              {[{ esBusquedaGeneral: true, titulo: 'Buscar en todo el archivo' }, { esBusquedaGeneral: false }].map(({ esBusquedaGeneral, titulo }, index) => (
+              {[
+                { esBusquedaGeneral: true, titulo: 'Buscar en todo el archivo' },
+                { esBusquedaGeneral: false }
+              ].map(({ esBusquedaGeneral, titulo }, index) => (
                 <Box key={index} sx={{ mb: 2 }}>
                   {titulo && (
                     <Typography variant="h6" gutterBottom>{titulo}</Typography>
@@ -302,73 +532,50 @@ return (
         </Paper>
       )}
 
-      {/* Bloque nuevo: gráficos dinámicos */}
-      {selectedColumn && groupedData && Object.keys(groupedData).length > 0 && (
-        <>
-          {!aplicarFiltrosAGraficos && (
-            <ResumenGeneral datosAgrupados={groupedData} columnaAgrupacion={selectedColumn} />
-          )}
-
-          {selectedChartType && (
-            <Card className="p-4 mb-4">
-              <Typography variant="h6" className="mb-2">Visualización de Datos</Typography>
-              {selectedChartType === 'Bar' && <GraficoBarras groupedData={groupedData} selectedColumn={selectedColumn} />}
-              {selectedChartType === 'Pie' && <GraficoTorta groupedData={groupedData} selectedColumn={selectedColumn} />}
-              {selectedChartType === 'Treemap' && <GraficoTreemap groupedData={groupedData} selectedColumn={selectedColumn} />}
-              {selectedChartType === 'Radar' && <GraficoRadar groupedData={groupedData} selectedColumn={selectedColumn} />}
-            </Card>
-          )}
-        </>
-      )}
-
       {hojaSeleccionada && (
         <Box>
-          <div style={{ marginBottom: "2rem" }}>
-            <Typography variant="h6" gutterBottom>Configuración Manual de Gráficos</Typography>
-            <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
-              <SelectAnálisisPor
-                columnas={columnas}
-                columnaAgrupar={columnaAgrupar}
-                setColumnaAgrupar={setColumnaAgrupar}
-              />
-              <SelectTotalDe
-                columnas={columnas}
-                columnaValor={columnaValor}
-                setColumnaValor={setColumnaValor}
-              />
-              <SelectTipoDeGrafico
-                tipoGrafico={tipoGrafico}
-                setTipoGrafico={setTipoGrafico}
-              />
-            </div>
-          </div>
-
-          {columnaAgrupar ? (
+        {columnaAgrupar ? (
             <>
-              <ResumenGeneral
-                datos={checkboxResumenGraficos ? datosFiltrados : datosCombinadosApp}
-                columnaAgrupar={columnaAgrupar}
-                columnaValor={columnaValor}
-                titulo="Resumen General"
-              />
-              <Graficos
-                datos={checkboxResumenGraficos ? datosFiltrados : datosCombinadosApp}
-                columnaAgrupacion={columnaAgrupar}
-                columnaValor={columnaValor}
-                tipoGrafico={tipoGrafico}
-                paleta={paleta}
-                ordenar={ordenarGrafico}
-                topN={topNGrafico}
-                mostrarPorcentajeBarras={mostrarPorcentajeBarras}
-              />
+            <ResumenGeneral
+            datos={checkboxResumenGraficos ? datosFiltrados : datosCombinadosApp}
+            columnaAgrupar={columnaAgrupar}
+            columnaValor={columnaValor}
+            titulo="Resumen General"
+            />
+            <Graficos
+            datos={checkboxResumenGraficos ? datosFiltrados : datosCombinadosApp}
+            columnaAgrupar={columnaAgrupar}
+            columnaValor={columnaValor}
+            />
             </>
-          ) : (
+            ) : (
             <Typography variant="body2" color="textSecondary">
-              Selecciona una columna para agrupar y ver gráficos y resumen.
+            Selecciona una columna para agrupar y ver gráficos y resumen.
             </Typography>
-          )}
+        )}
         </Box>
-      )}
+    )}
+
+    {columnaAgrupar && (
+        <Box>
+        <ResumenGeneral
+        datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+        columnaAgrupar={columnaAgrupar}
+        columnaValor={columnaValor}
+        titulo="Resumen General"
+        />
+        <Graficos
+        datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+        columnaAgrupacion={columnaAgrupar}
+        columnaValor={columnaValor}
+        tipoGrafico={tipoGrafico}
+        paleta={paleta}
+        ordenar={ordenarGrafico}
+        topN={topNGrafico}
+        mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+        />
+        </Box>
+    )}
 
       {resultadosProcesadosPorHoja && (
         <Paper elevation={2} sx={{ width: '100%' }}>
