@@ -19,6 +19,7 @@ import FiltroDependencia from './components/FiltroDependencia';
 import SelectAnálisisPor from './components/SelectAnálisisPor';
 import SelectTotalDe from './components/SelectTotalDe';
 import SelectTipoDeGrafico from './components/SelectTipoDeGrafico';
+import ExportFloatingButton from './components/ExportFloatingButton';
 
 import useArchivos from './hooks/useArchivos';
 import useFiltrosAvanzado from './hooks/useFiltrosAvanzado';
@@ -476,24 +477,7 @@ const App = () => {
       )}
 
       {datosFiltrados.length > 0 && columnas.length > 0 && (
-        <Box
-          sx={{
-            position: 'fixed',
-            bottom: 16,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            bgcolor: 'background.paper',
-            boxShadow: 3,
-            borderRadius: 2,
-            p: 1,
-            display: 'flex',
-            gap: 2,
-            alignItems: 'center',
-            zIndex: 1300,
-          }}
-        >
-          <ExportButtons onExport={(formato) => handleExportar(formato)} />
-        </Box>
+        <ExportFloatingButton onExport={(formato) => handleExportar(formato)} />
       )}
     </Layout>
   </>
