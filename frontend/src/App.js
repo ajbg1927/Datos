@@ -381,12 +381,6 @@ const App = () => {
             )}
 
             {tabValue === 5 && (
-                <React.Fragment>
-                {console.log('--- DEBUG DATOS ---')}
-                {console.log('datosFiltrados:', datosFiltrados)}
-                {console.log('datosCombinadosApp:', datosCombinadosApp)}
-                {console.log('usarDatosFiltrados:', usarDatosFiltrados)}    
-
               <Box display="flex" flexDirection="column" gap={3}>
                 <FiltroDependencia
                   sheets={Object.keys(dependenciasPorHoja || {})}
