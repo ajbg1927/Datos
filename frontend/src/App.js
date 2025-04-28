@@ -45,190 +45,159 @@ const App = () => {
         cargandoDatos: cargandoDatosHook,
     } = useArchivos();
 
-    const [filtros, setFiltros] = useState({});
-    const [columnaAgrupar, setColumnaAgrupar] = useState('');
-    const [columnaValor, setColumnaValor] = useState('');
-    const [isLoadingUpload, setIsLoadingUpload] = useState(false);
-    const [tipoGrafico, setTipoGrafico] = useState('Barras');
-    const [paleta, setPaleta] = useState('Institucional');
-    const [ordenarGrafico, setOrdenarGrafico] = useState(true);
-    const [topNGrafico, setTopNGrafico] = useState(10);
-    const [mostrarPorcentajeBarras, setMostrarPorcentajeBarras] = useState(false);
-    const [tabValue, setTabValue] = useState(0);
-    const [resultadosProcesadosPorHoja, setResultadosProcesadosPorHoja] = useState(null);
-    const [ticProcesado, setTicProcesado] = useState(false);
-    const [datosCombinadosApp, setDatosCombinadosApp] = useState([]);
-    const [cargandoProcesamiento, setCargandoProcesamiento] = useState(false);
+  const [datosCombinados, setDatosCombinados] = useState([]);
+  const [isLoadingUpload, setIsLoadingUpload] = useState(false);
+  const [filtros, setFiltros] = useState({});
+  const [columnaAgrupar, setColumnaAgrupar] = useState('');
+  const [columnaValor, setColumnaValor] = useState('');
+  const [usarDatosFiltrados, setUsarDatosFiltrados] = useState(false);
+  const [tabValue, setTabValue] = useState(0);
+  const [tipoGrafico, setTipoGrafico] = useState('Barras');
+  const [paleta, setPaleta] = useState('Institucional');
+  const [ordenarGrafico, setOrdenarGrafico] = useState(true);
+  const [topNGrafico, setTopNGrafico] = useState(10);
+  const [mostrarPorcentajeBarras, setMostrarPorcentajeBarras] = useState(false);
+  const [resultadosProcesadosPorHoja, setResultadosProcesadosPorHoja] = useState(null);
+  const [dependenciasPorHoja, setDependenciasPorHoja] = useState({});
+  const [hojaSeleccionada, setHojaSeleccionada] = useState('');
+  const [dependenciaSeleccionada, setDependenciaSeleccionada] = useState('');
+  const [ticProcesado, setTicProcesado] = useState(false);
+  const [cargandoProcesamiento, setCargandoProcesamiento] = useState(false);
 
-    const [datosFiltrados, setDatosFiltrados] = useState([]);
-    const [dependenciasPorHoja, setDependenciasPorHoja] = useState({});
-    const [hojaSeleccionada, setHojaSeleccionada] = useState('');
-    const [dependenciaSeleccionada, setDependenciaSeleccionada] = useState('');
-    const [columnas, setColumnas] = useState([]);
-    const [columnasEstablecidas, setColumnasEstablecidas] = useState(false);
-    const [usarDatosFiltrados, setUsarDatosFiltrados] = useState(false);
-    const [checkboxResumenGraficos, setCheckboxResumenGraficos] = useState(false);
+  const columnas = useMemo(() => (datosCombinados.length > 0 ? Object.keys(datosCombinados[0]) : []), [datosCombinados]);
 
-    const handleArchivoSeleccionadoChange = useCallback((archivo) => {
-        setArchivoSeleccionadoFromHook(archivo);
-        setHojasSeleccionadasFromHook([]);
-    }, [setArchivoSeleccionadoFromHook, setHojasSeleccionadasFromHook]);
+  const columnasFecha = useMemo(
+    () => columnas.filter(col => col.toLowerCase().includes('fecha')),
+    [columnas]
+  );
 
-    const handleHojasSeleccionadasChange = useCallback((hojas) => {
-        setHojasSeleccionadasFromHook(hojas);
-    }, [setHojasSeleccionadasFromHook]);
+  const columnasNumericas = useMemo(
+    () => columnas.filter(col => col.toLowerCase().match(/pago|valor|deducci|oblig|monto|total|suma|saldo/)),
+    [columnas]
+  );
 
-     useEffect(() => {
+  const valoresUnicos = useMemo(() => {
+    const result = {};
+    columnas.forEach(col => {
+      const valores = datosCombinados.map(row => row[col]).filter(v => v !== undefined && v !== null);
+      result[col] = [...new Set(valores)];
+    });
+    return result;
+  }, [columnas, datosCombinados]);
+
+  const filtrosColumnas = useMemo(
+    () => Object.fromEntries(Object.entries(filtros).filter(([key]) => !['busqueda', 'Fecha_desde', 'Fecha_hasta'].includes(key))),
+    [filtros]
+  );
+
+  const datosFiltrados = useFiltrosAvanzado(
+    datosCombinados,
+    filtros.busqueda || '',
+    filtros.Fecha_desde || '',
+    filtros.Fecha_hasta || '',
+    filtrosColumnas,
+    filtros[`${columnaValor}_min`] || '',
+    filtros[`${columnaValor}_max`] || '',
+    columnaValor
+  );
+
+  useEffect(() => {
     if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
       obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas)
         .then((data) => {
           if (data) {
-            setDatosCombinadosApp(data);
+            setDatosCombinados(data);
             toast.success(`Datos cargados: ${data.length} registros`);
-            if (data.length > 0) {
-              setColumnas(Object.keys(data[0]));
-              setColumnasEstablecidas(true);
-
-              setFiltros({}); 
-              setDatosFiltrados(data); 
-            }
           }
         })
         .catch(console.error);
     } else {
-      setColumnasEstablecidas(false);
-      setDatosCombinadosApp([]);
-      setDatosFiltrados([]); // 
-      setColumnas([]);
+      setDatosCombinados([]);
     }
   }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
 
-    useEffect(() => {
-        if (archivoSeleccionado && !hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
-            obtenerHojas(archivoSeleccionado.nombreBackend);
-        }
-    }, [archivoSeleccionado, obtenerHojas, hojasPorArchivo]);
-
-    const columnasFecha = useMemo(() => columnas.filter(col => col.toLowerCase().includes('fecha')), [columnas]);
-    const columnasNumericas = useMemo(() => columnas.filter(col =>
-        col.toLowerCase().match(/pago|valor|deducci|oblig|monto|total|suma|saldo/)), [columnas]);
-
-    const valoresUnicos = useMemo(() => {
-        const result = {};
-        columnas.forEach(col => {
-            const valores = datosCombinadosApp.map(row => row[col]).filter(v => v !== undefined && v !== null);
-            result[col] = [...new Set(valores)];
-        });
-        return result;
-    }, [columnas, datosCombinadosApp]);
-
-    useEffect(() => {
-        if (!columnaAgrupar && columnas.length > 0) setColumnaAgrupar(columnas[0]);
-        if (!columnaValor && columnasNumericas.length > 0) setColumnaValor(columnasNumericas[0]);
-    }, [columnas, columnasNumericas, columnaAgrupar, columnaValor]);
-
-    const texto = filtros.busqueda || '';
-    const fechaInicio = filtros.Fecha_desde || '';
-    const fechaFin = filtros.Fecha_hasta || '';
-    const filtrosMemoizado = useMemo(() => filtros, [filtros]);
-    const filtrosColumnas = Object.fromEntries(
-        Object.entries(filtrosMemoizado).filter(([key]) => !['busqueda', 'Fecha_desde', 'Fecha_hasta'].includes(key))
-    );
-    const pagosMin = filtros[`${columnaValor}_min`] || '';
-    const pagosMax = filtros[`${columnaValor}_max`] || '';
-
-    const datosFiltradosHook = useFiltrosAvanzado(
-        datosCombinadosApp,
-        texto,
-        fechaInicio,
-        fechaFin,
-        filtrosColumnas,
-        pagosMin,
-        pagosMax,
-        columnaValor
-    );
-
-    useEffect(() => {
-    if (Object.keys(filtros).length > 0) { 
-      setDatosFiltrados(datosFiltradosHook);
+  useEffect(() => {
+    if (archivoSeleccionado && !hojasPorArchivo[archivoSeleccionado.nombreBackend]) {
+      obtenerHojas(archivoSeleccionado.nombreBackend);
     }
-  }, [datosFiltradosHook, filtros]);
+  }, [archivoSeleccionado, obtenerHojas, hojasPorArchivo]);
 
-    useEffect(() => setDatosFiltrados(datosFiltradosHook), [datosFiltradosHook]);
+  useEffect(() => {
+    if (!columnaAgrupar && columnas.length > 0) setColumnaAgrupar(columnas[0]);
+    if (!columnaValor && columnasNumericas.length > 0) setColumnaValor(columnasNumericas[0]);
+  }, [columnas, columnasNumericas, columnaAgrupar, columnaValor]);
 
-    const { exportToExcel, exportToCSV, exportToPDF, exportToTXT } = useExportaciones();
+  const { exportToExcel, exportToCSV, exportToPDF, exportToTXT } = useExportaciones();
 
-    const handleClearFilters = () => setFiltros({});
+  const handleArchivoSeleccionadoChange = useCallback((archivo) => {
+    setArchivoSeleccionadoFromHook(archivo);
+    setHojasSeleccionadasFromHook([]);
+  }, [setArchivoSeleccionadoFromHook, setHojasSeleccionadasFromHook]);
 
-    const handleExportar = (formato) => {
-        const exportadores = {
-            excel: exportToExcel,
-            csv: exportToCSV,
-            pdf: exportToPDF,
-            txt: exportToTXT,
-        };
-        (exportadores[formato] || exportToExcel)(datosFiltrados, columnas);
+  const handleHojasSeleccionadasChange = useCallback((hojas) => {
+    setHojasSeleccionadasFromHook(hojas);
+  }, [setHojasSeleccionadasFromHook]);
+
+  const handleArchivosSubidos = useCallback(async (files) => {
+    const formData = new FormData();
+    files.forEach(file => formData.append('archivos', file));
+    try {
+      setIsLoadingUpload(true);
+      await axios.post(`${API_URL}/subir`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      await cargarArchivos(files);
+    } catch (error) {
+      console.error('Error al subir archivos:', error);
+      alert('Error al subir archivos');
+    } finally {
+      setIsLoadingUpload(false);
+    }
+  }, [cargarArchivos]);
+
+  const handleClearFilters = () => setFiltros({});
+
+  const handleExportar = (formato) => {
+    const exportadores = {
+      excel: exportToExcel,
+      csv: exportToCSV,
+      pdf: exportToPDF,
+      txt: exportToTXT,
     };
+    (exportadores[formato] || exportToExcel)(datosFiltrados, columnas);
+  };
 
-    const handleArchivosSubidos = useCallback(async (files) => {
-        const formData = new FormData();
-        files.forEach(file => formData.append('archivos', file));
-        try {
-            setIsLoadingUpload(true);
-            await axios.post(`${API_URL}/subir`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
-            await cargarArchivos(files);
-        } catch (error) {
-            console.error('Error al subir archivos:', error);
-            alert('Error al subir archivos');
-        } finally {
-            setIsLoadingUpload(false);
-        }
-    }, [cargarArchivos]);
+  const handleProcesarDatos = useCallback(async () => {
+    if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
+      setCargandoProcesamiento(true);
+      const formData = new FormData();
+      formData.append('nombreBackend', archivoSeleccionado.nombreBackend);
+      formData.append('hojas', JSON.stringify(hojasSeleccionadas));
+      formData.append('dependencia', 'DIRECCION DE LAS TIC');
 
-    const handleProcesarDatos = useCallback(async () => {
-        if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
-            setCargandoProcesamiento(true);
-            const formData = new FormData();
-            formData.append('nombreBackend', archivoSeleccionado.nombreBackend);
-            formData.append('hojas', JSON.stringify(hojasSeleccionadas));
-            formData.append('dependencia', 'DIRECCION DE LAS TIC');
+      try {
+        const response = await axios.post(`${API_URL}/procesar_excel`, formData);
+        setResultadosProcesadosPorHoja(response.data.tablas_por_hoja);
+        setDependenciasPorHoja(response.data.dependencias_por_hoja || {});
+      } catch (error) {
+        console.error('Error al procesar los datos:', error);
+      } finally {
+        setCargandoProcesamiento(false);
+      }
+    } else {
+      alert('Por favor, selecciona un archivo y al menos una hoja.');
+    }
+  }, [archivoSeleccionado, hojasSeleccionadas]);
 
-            try {
-                const response = await axios.post(`${API_URL}/procesar_excel`, formData);
-                setResultadosProcesadosPorHoja(response.data.tablas_por_hoja);
-                setDependenciasPorHoja(response.data.dependencias_por_hoja || {});
-            } catch (error) {
-                console.error('Error al procesar los datos:', error);
-            } finally {
-                setCargandoProcesamiento(false);
-            }
-        } else {
-            alert('Por favor, selecciona un archivo y al menos una hoja.');
-        }
-    }, [archivoSeleccionado, hojasSeleccionadas]);
+  const handleChangeTab = (event, newValue) => {
+    setTabValue(newValue);
+    if (newValue === 4 && !ticProcesado && archivoSeleccionado && hojasSeleccionadas.length > 0) {
+      handleProcesarDatos();
+      setTicProcesado(true);
+    }
+  };
 
-    const handleChangeTab = (event, newValue) => {
-        setTabValue(newValue);
-        if (newValue === 4 && archivoSeleccionado && hojasSeleccionadas.length > 0 && !ticProcesado) {
-            handleProcesarDatos();
-            setTicProcesado(true);
-        }
-    };
-
-    const onSeleccionar = (dependencia, datosFiltrados) => {
-        setDatosFiltrados(datosFiltrados);
-        setDependenciaSeleccionada(dependencia);
-
-        if (datosFiltrados.length > 0) {
-            setColumnas(Object.keys(datosFiltrados[0]));
-        } else {
-            setColumnas([]);
-        }
-    };
-
-    return (
+  return (
   <>
     <Toaster position="bottom-right" />
 
@@ -245,34 +214,31 @@ const App = () => {
                   {titulo && (
                     <Typography variant="h6" gutterBottom>{titulo}</Typography>
                   )}
-                  <Filtros
-                    data={datosCombinadosApp}
-                    columnas={columnas}
-                    valoresUnicos={valoresUnicos}
-                    filtros={filtros}
-                    setFiltros={setFiltros}
-                    handleClearFilters={handleClearFilters}
-                    columnasFecha={columnasFecha}
-                    columnasNumericas={columnasNumericas}
-                    valorBusqueda={filtros.busqueda || ''}
-                    setValorBusqueda={(valor) => setFiltros((prev) => ({ ...prev, busqueda: valor }))}
-                    columnaAgrupar={columnaAgrupar}
-                    setColumnaAgrupar={setColumnaAgrupar}
-                    columnaValor={columnaValor}
-                    setColumnaValor={setColumnaValor}
-                    esBusquedaGeneral={esBusquedaGeneral}
-                  />
-                </Box>
-              ))}
-            </>
+                    <Filtros
+              data={datosCombinados}
+              columnas={columnas}
+              valoresUnicos={valoresUnicos}
+              filtros={filtros}
+              setFiltros={setFiltros}
+              handleClearFilters={handleClearFilters}
+              columnasFecha={columnasFecha}
+              columnasNumericas={columnasNumericas}
+              valorBusqueda={filtros.busqueda || ''}
+              setValorBusqueda={(valor) => setFiltros(prev => ({ ...prev, busqueda: valor }))}
+              columnaAgrupar={columnaAgrupar}
+              setColumnaAgrupar={setColumnaAgrupar}
+              columnaValor={columnaValor}
+              setColumnaValor={setColumnaValor}
+              esBusquedaGeneral
+            />
           ) : (
             <Typography variant="body2" color="textSecondary">
               Selecciona un archivo para ver los filtros.
             </Typography>
           )}
         </Paper>
-      }
-    >
+      }>
+      
       {isLoadingUpload && (
         <Box display="flex" justifyContent="center" alignItems="center" my={4}>
           <CircularProgress />

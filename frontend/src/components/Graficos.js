@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -18,8 +18,6 @@ import {
 } from 'recharts';
 import InsertChartIcon from '@mui/icons-material/InsertChart';
 
-const ensureArray = (input) => Array.isArray(input) ? input : [];
-
 const PALETAS = {
   Institucional: ['#4caf50', '#fdd835', '#ff9800', '#2196f3', '#9c27b0', '#ff5722'],
   Pastel: ['#ffd1dc', '#bae1ff', '#caffbf', '#fdffb6', '#a0c4ff', '#ffc6ff'],
@@ -29,7 +27,7 @@ const PALETAS = {
 };
 
 const Graficos = ({
-  datos,
+  datosAgrupados,
   columnaAgrupacion,
   columnaValor,
   tipoGrafico,
@@ -38,52 +36,32 @@ const Graficos = ({
   topN,
   mostrarPorcentajeBarras,
 }) => {
-  const [dataAgrupada, setDataAgrupada] = useState([]);
+  const dataAgrupada = useMemo(() => {
+    if (!Array.isArray(datosAgrupados)) return [];
 
-  useEffect(() => {
-    const datosValidos = ensureArray(datos);
-
-    if (!datosValidos.length || !columnaAgrupacion || !columnaValor) {
-      setDataAgrupada([]);
-      return;
-    }
-
-    const primerDato = datosValidos[0];
-    if (!primerDato || !(columnaAgrupacion in primerDato) || !(columnaValor in primerDato)) {
-      console.error('Las columnas de agrupación o valor no existen en los datos.');
-      setDataAgrupada([]);
-      return;
-    }
-
-    const agrupado = {};
-    datosValidos.forEach((fila) => {
-      const clave = fila[columnaAgrupacion];
-      const valor = isNaN(parseFloat(fila[columnaValor])) ? 0 : parseFloat(fila[columnaValor]);
-      if (clave) agrupado[clave] = (agrupado[clave] || 0) + valor;
-    });
-
-    let nuevoData = Object.entries(agrupado).map(([key, value]) => ({
-      name: key,
-      value,
-    }));
+    let nuevaData = [...datosAgrupados];
 
     if (ordenar) {
-      nuevoData.sort((a, b) => b.value - a.value);
+      nuevaData.sort((a, b) => b.valor - a.valor);
     }
 
-    if (topN > 0 && topN < nuevoData.length) {
-      nuevoData = nuevoData.slice(0, topN);
+    if (topN > 0 && topN < nuevaData.length) {
+      nuevaData = nuevaData.slice(0, topN);
     }
 
-    setDataAgrupada(nuevoData);
-  }, [datos, columnaAgrupacion, columnaValor, ordenar, topN]);
+    return nuevaData;
+  }, [datosAgrupados, ordenar, topN]);
 
   const coloresUsar = PALETAS[paleta] || PALETAS['Institucional'];
+  const total = useMemo(() => dataAgrupada.reduce((acc, cur) => acc + cur.valor, 0), [dataAgrupada]);
 
-  const total = useMemo(
-    () => dataAgrupada.reduce((acc, cur) => acc + cur.value, 0),
-    [dataAgrupada]
-  );
+  if (!dataAgrupada.length) {
+    return (
+      <Typography variant="body1" color="text.secondary" align="center" mt={5}>
+        No hay datos suficientes para mostrar el gráfico.
+      </Typography>
+    );
+  }
 
   return (
     <Box mt={4}>
@@ -101,106 +79,86 @@ const Graficos = ({
         }}
       >
         <InsertChartIcon fontSize="medium" />
-        Análisis por{' '}
-        <Typography component="strong" sx={{ fontWeight: 'bold', display: 'inline' }}>
-          {columnaAgrupacion}
-        </Typography>{' '}
-        — Total de{' '}
-        <Typography component="strong" sx={{ fontWeight: 'bold', display: 'inline' }}>
-          {columnaValor}
-        </Typography>
+        Análisis por <strong>{columnaAgrupacion}</strong> — Total de <strong>{columnaValor}</strong>
       </Typography>
 
-      {dataAgrupada.length === 0 ? (
-        <Typography variant="body1" color="text.secondary" align="center" mt={5}>
-          No hay datos suficientes para mostrar el gráfico.
-        </Typography>
-      ) : (
-        <Box
-          sx={{
-            display: 'grid',
-            gap: 4,
-            gridTemplateColumns: {
-              xs: '1fr',
-              md: tipoGrafico === 'Ambos' ? '1fr 1fr' : '1fr',
-            },
-          }}
-        >
-          {(tipoGrafico === 'Barras' || tipoGrafico === 'Ambos') && (
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={dataAgrupada}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip
-                  formatter={(value = 0, name, props) => [
-                    `${value.toLocaleString()} (${((value / total) * 100).toFixed(1)}%)`,
-                    columnaValor,
-                  ]}
-                  contentStyle={{
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #ccc',
-                    fontSize: '0.85rem',
-                  }}
+      <Box
+        sx={{
+          display: 'grid',
+          gap: 4,
+          gridTemplateColumns: {
+            xs: '1fr',
+            md: tipoGrafico === 'Ambos' ? '1fr 1fr' : '1fr',
+          },
+        }}
+      >
+        {(tipoGrafico === 'Barras' || tipoGrafico === 'Ambos') && (
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart data={dataAgrupada}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="nombre" />
+              <YAxis />
+              <Tooltip
+                formatter={(value = 0) => [`${value.toLocaleString()} (${((value / total) * 100).toFixed(1)}%)`]}
+                contentStyle={{
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #ccc',
+                  fontSize: '0.85rem',
+                }}
+              />
+              <Bar
+                dataKey="valor"
+                fill={coloresUsar[0]}
+                animationDuration={1500}
+                animationEasing="ease-out"
+              >
+                <LabelList
+                  dataKey="valor"
+                  position="top"
+                  formatter={(value) =>
+                    mostrarPorcentajeBarras
+                      ? `${((value / total) * 100).toFixed(1)}%`
+                      : value.toLocaleString()
+                  }
                 />
-                <Bar
-                  dataKey="value"
-                  fill={coloresUsar[0]}
-                  animationDuration={1500}
-                  animationEasing="ease-out"
-                >
-                  <LabelList
-                    dataKey="value"
-                    position="top"
-                    formatter={(value) =>
-                      mostrarPorcentajeBarras
-                        ? `${((value / total) * 100).toFixed(1)}%`
-                        : value.toLocaleString()
-                    }
-                  />
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          )}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        )}
 
-          {(tipoGrafico === 'Pastel' || tipoGrafico === 'Ambos') && (
-            <ResponsiveContainer width="100%" height={400}>
-              <PieChart>
-                <Pie
-                  data={dataAgrupada}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={130}
-                  label={({ name, percent }) =>
-                    `${name} (${(percent * 100).toFixed(1)}%)`
-                  }
-                  animationDuration={1500}
-                  animationEasing="ease-out"
-                >
-                  {dataAgrupada.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={coloresUsar[index % coloresUsar.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip
-                  formatter={(value = 0) =>
-                    `${value.toLocaleString()} (${((value / total) * 100).toFixed(1)}%)`
-                  }
-                  contentStyle={{
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #ccc',
-                    fontSize: '0.85rem',
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          )}
-        </Box>
-      )}
+        {(tipoGrafico === 'Pastel' || tipoGrafico === 'Ambos') && (
+          <ResponsiveContainer width="100%" height={400}>
+            <PieChart>
+              <Pie
+                data={dataAgrupada}
+                dataKey="valor"
+                nameKey="nombre"
+                cx="50%"
+                cy="50%"
+                outerRadius={130}
+                label={({ name, percent }) => `${name} (${(percent * 100).toFixed(1)}%)`}
+                animationDuration={1500}
+                animationEasing="ease-out"
+              >
+                {dataAgrupada.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={coloresUsar[index % coloresUsar.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip
+                formatter={(value = 0) => `${value.toLocaleString()} (${((value / total) * 100).toFixed(1)}%)`}
+                contentStyle={{
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #ccc',
+                  fontSize: '0.85rem',
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        )}
+      </Box>
     </Box>
   );
 };
