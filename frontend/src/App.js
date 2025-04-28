@@ -63,6 +63,10 @@ const App = () => {
   const [dependenciaSeleccionada, setDependenciaSeleccionada] = useState('');
   const [ticProcesado, setTicProcesado] = useState(false);
   const [cargandoProcesamiento, setCargandoProcesamiento] = useState(false);
+  const [checkboxResumenGraficos, setCheckboxResumenGraficos] = useState(false);
+  const [datosCombinadosApp, setDatosCombinadosApp] = useState([]);
+  const [datosFiltrados, setDatosFiltrados] = useState([]);
+  const [columnas, setColumnas] = useState([]);
 
   const columnas = useMemo(() => (datosCombinados.length > 0 ? Object.keys(datosCombinados[0]) : []), [datosCombinados]);
 
