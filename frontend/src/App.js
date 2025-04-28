@@ -67,8 +67,14 @@ const App = () => {
   const [datosCombinadosApp, setDatosCombinadosApp] = useState([]);
   const [datosFiltrados, setDatosFiltrados] = useState([]);
 
-  // --- Memoized columnas ---
-  const columnas = useMemo(() => (datosCombinados.length > 0 ? Object.keys(datosCombinados[0]) : []), [datosCombinados]);
+
+  useEffect(() => {
+    if (datosCombinados.length > 0) {
+      setColumnas(Object.keys(datosCombinados[0]));
+    } else {
+      setColumnas([]);
+    }
+  }, [datosCombinados]);
 
   const columnasFecha = useMemo(
     () => columnas.filter(col => col.toLowerCase().includes('fecha')),
