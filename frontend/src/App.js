@@ -20,11 +20,13 @@ import SelectAnálisisPor from './components/SelectAnálisisPor';
 import SelectTotalDe from './components/SelectTotalDe';
 import SelectTipoDeGrafico from './components/SelectTipoDeGrafico';
 import ExportFloatingButton from './components/ExportFloatingButton';
+import SelectorDeCuadro from './components/SelectorDeCuadro';
 
 import useArchivos from './hooks/useArchivos';
 import useFiltrosAvanzado from './hooks/useFiltrosAvanzado';
 import useExportaciones from './hooks/useExportaciones';
 import useGraficos from './hooks/useGraficos';
+import useCuadrosExcel from './hooks/useCuadrosExcel';
 import axios from 'axios';
 
 const API_URL = 'https://backend-flask-u76y.onrender.com';
@@ -67,6 +69,7 @@ const App = () => {
   const [checkboxResumenGraficos, setCheckboxResumenGraficos] = useState(false);
   const [datosCombinadosApp, setDatosCombinadosApp] = useState([]);
   const [datosFiltrados, setDatosFiltrados] = useState([]);
+  const { cuadros, seleccionarCuadro, cuadroSeleccionado } = useCuadrosExcel();
 
   const [columnas, setColumnas] = useState([]);
 
@@ -405,6 +408,19 @@ const App = () => {
                     }
                   }}
                 />
+
+                <SelectorDeCuadro cuadros={cuadros} onSelect={seleccionarCuadro} />
+                {cuadroSeleccionado ? (
+                  <>
+                  <Graficos cuadro={cuadroSeleccionado} />
+                  <ResumenGeneral cuadro={cuadroSeleccionado} />
+                  </>
+                  ) : (
+                  <Typography variant="body2" color="textSecondary" align="center">
+                  Seleccione un cuadro para comenzar.
+                  </Typography>
+                )}
+                </Box>
 
                 <Paper elevation={2} sx={{ p: 3 }}>
                   <Typography variant="h6" gutterBottom>Datos</Typography>
