@@ -21,11 +21,13 @@ import SelectTotalDe from './components/SelectTotalDe';
 import SelectTipoDeGrafico from './components/SelectTipoDeGrafico';
 import ExportFloatingButton from './components/ExportFloatingButton';
 import SelectorDeCuadro from './components/SelectorDeCuadro';
+import SelectorColumnas from './components/SelectorColumnas';
 
 import useArchivos from './hooks/useArchivos';
 import useFiltrosAvanzado from './hooks/useFiltrosAvanzado';
 import useExportaciones from './hooks/useExportaciones';
 import useGraficos from './hooks/useGraficos';
+import useGraficoConfig from './hooks/useGraficoConfig';
 import useCuadrosExcel from './hooks/useCuadrosExcel';
 import axios from 'axios';
 
@@ -69,7 +71,7 @@ const App = () => {
   const [checkboxResumenGraficos, setCheckboxResumenGraficos] = useState(false);
   const [datosCombinadosApp, setDatosCombinadosApp] = useState([]);
   const [datosFiltrados, setDatosFiltrados] = useState([]);
-  const { cuadros, seleccionarCuadro, cuadroSeleccionado } = useCuadrosExcel();
+  const {cuadros, seleccionarCuadro, cuadroSeleccionado } = useCuadrosExcel();
 
   const [columnas, setColumnas] = useState([]);
 
@@ -239,7 +241,15 @@ const App = () => {
     }
   };
 
-  return (
+  const columnasDisponibles = datosCombinados.length > 0 ? Object.keys(datosCombinados[0]) : [];
+
+  const datosGraficos = useGraficos(
+    usarDatosFiltrados ? datosFiltrados : datosCombinadosApp,
+    columnaAgrupar,
+    columnaValor
+    );
+
+ return (
   <>
     <Toaster position="bottom-right" />
 
@@ -248,33 +258,34 @@ const App = () => {
         <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
           {columnas.length > 0 ? (
             <>
-              {[
-                { esBusquedaGeneral: true, titulo: 'Buscar en todo el archivo' },
-                { esBusquedaGeneral: false }
-              ].map(({ esBusquedaGeneral, titulo }, index) => (
-                <Box key={index} sx={{ mb: 2 }}>
-                  {titulo && (
-                    <Typography variant="h6" gutterBottom>{titulo}</Typography>
-                  )}
-                  <Filtros
-                    data={datosCombinados}
-                    columnas={columnas}
-                    valoresUnicos={valoresUnicos}
-                    filtros={filtros}
-                    setFiltros={setFiltros}
-                    handleClearFilters={handleClearFilters}
-                    columnasFecha={columnasFecha}
-                    columnasNumericas={columnasNumericas}
-                    valorBusqueda={filtros.busqueda || ''}
-                    setValorBusqueda={(valor) => setFiltros(prev => ({ ...prev, busqueda: valor }))}
-                    columnaAgrupar={columnaAgrupar}
-                    setColumnaAgrupar={setColumnaAgrupar}
-                    columnaValor={columnaValor}
-                    setColumnaValor={setColumnaValor}
-                    esBusquedaGeneral={esBusquedaGeneral}
-                  />
-                </Box>
-              ))}
+              {[{ esBusquedaGeneral: true, titulo: 'Buscar en todo el archivo' }, { esBusquedaGeneral: false }].map(
+                ({ esBusquedaGeneral, titulo }, index) => (
+                  <Box key={index} sx={{ mb: 2 }}>
+                    {titulo && (
+                      <Typography variant="h6" gutterBottom>
+                        {titulo}
+                      </Typography>
+                    )}
+                    <Filtros
+                      data={datosCombinados}
+                      columnas={columnas}
+                      valoresUnicos={valoresUnicos}
+                      filtros={filtros}
+                      setFiltros={setFiltros}
+                      handleClearFilters={handleClearFilters}
+                      columnasFecha={columnasFecha}
+                      columnasNumericas={columnasNumericas}
+                      valorBusqueda={filtros.busqueda || ''}
+                      setValorBusqueda={(valor) => setFiltros((prev) => ({ ...prev, busqueda: valor }))}
+                      columnaAgrupar={columnaAgrupar}
+                      setColumnaAgrupar={setColumnaAgrupar}
+                      columnaValor={columnaValor}
+                      setColumnaValor={setColumnaValor}
+                      esBusquedaGeneral={esBusquedaGeneral}
+                    />
+                  </Box>
+                )
+              )}
             </>
           ) : (
             <Typography variant="body2" color="textSecondary">
@@ -284,7 +295,6 @@ const App = () => {
         </Paper>
       }
     >
-
       {isLoadingUpload && (
         <Box display="flex" justifyContent="center" alignItems="center" my={4}>
           <CircularProgress />
@@ -297,7 +307,9 @@ const App = () => {
 
       {archivos?.length > 0 && (
         <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
-          <Typography variant="h6" gutterBottom>Archivos Cargados</Typography>
+          <Typography variant="h6" gutterBottom>
+            Archivos Cargados
+          </Typography>
           <TablaArchivos
             archivos={archivos}
             archivoSeleccionado={archivoSeleccionado}
@@ -318,11 +330,7 @@ const App = () => {
 
       {datosFiltrados.length > 0 && columnas.length > 0 && (
         <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-          <TablaDatos
-            key={`tabla-datos-${datosFiltrados.length}`}
-            datosIniciales={datosFiltrados}
-            columnasDefinidas={columnas}
-          />
+          <TablaDatos key={`tabla-datos-${datosFiltrados.length}`} datosIniciales={datosFiltrados} columnasDefinidas={columnas} />
         </Paper>
       )}
 
@@ -330,36 +338,17 @@ const App = () => {
         <Box sx={{ mt: 3 }}>
           <Typography variant="h6" gutterBottom>Opciones de Gráfico</Typography>
 
-          <Box display="flex" justifyContent="flex-start" mb={2}>
-              <ToggleButtonGroup
-              value={tipoGrafico}
-              exclusive
-              onChange={(e, nuevoTipo) => {
-                setTipoGrafico(nuevoTipo);
-              }}
-              aria-label="Tipo de gráfico"
-              >
-              <ToggleButton value="bar" aria-label="Barras">
-              Barras
-              </ToggleButton>
-              <ToggleButton value="line" aria-label="Líneas">
-              Líneas
-              </ToggleButton>
-              <ToggleButton value="pie" aria-label="Pastel">
-              Pastel
-              </ToggleButton>
-              </ToggleButtonGroup>
-              </Box>
-
-          <ResumenGeneral
-            datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+          <SelectorColumnas
+            columnas={columnasDisponibles}
             columnaAgrupar={columnaAgrupar}
+            setColumnaAgrupar={setColumnaAgrupar}
             columnaValor={columnaValor}
-            titulo="Resumen General"
+            setColumnaValor={setColumnaValor}
           />
+
           <Graficos
-            datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
-            columnaAgrupar={columnaAgrupar}
+            datosAgrupados={datosGraficos}
+            columnaAgrupacion={columnaAgrupar}
             columnaValor={columnaValor}
             tipoGrafico={tipoGrafico}
             paleta={paleta}
@@ -396,7 +385,9 @@ const App = () => {
                       {Array.isArray(tablas) && tablas.length > 0 ? (
                         tablas.map((tabla, index) => (
                           <Paper key={`${nombreHoja}-${index}`} elevation={1} sx={{ mt: 1, p: 2 }}>
-                            <Typography variant="body2" fontWeight="bold">Tabla {index + 1}</Typography>
+                            <Typography variant="body2" fontWeight="bold">
+                              Tabla {index + 1}
+                            </Typography>
                             {tabla.length > 0 ? (
                               <TablaDatos datos={tabla} columnas={Object.keys(tabla[0] || {})} />
                             ) : (
