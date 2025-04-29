@@ -371,6 +371,10 @@ const App = () => {
           </Box>
         </Paper>
       )}
+
+      {datosFiltrados.length > 0 && columnas.length > 0 && (
+        <ExportFloatingButton onExport={(formato) => handleExportar(formato)} />
+      )}
     </Layout>
   </>
 );
