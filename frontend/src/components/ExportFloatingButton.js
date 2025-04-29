@@ -2,7 +2,7 @@ import React from 'react';
 import { Box } from '@mui/material';
 import ExportButtons from './ExportButtons';
 
-const ExportFloatingButton = ({ onExport }) => {
+const ExportFloatingButton = ({ datos, columnas, filename = 'datos' }) => {
   return (
     <Box
       sx={{
@@ -24,7 +24,7 @@ const ExportFloatingButton = ({ onExport }) => {
         },
       }}
     >
-      <ExportButtons onExport={onExport} />
+      <ExportButtons datos={datos} columnas={columnas} filename={filename} />
     </Box>
   );
 };

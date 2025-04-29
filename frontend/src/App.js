@@ -412,7 +412,11 @@ const App = () => {
       )}
 
       {datosFiltrados.length > 0 && columnas.length > 0 && (
-        <ExportFloatingButton onExport={(formato) => handleExportar(formato)} />
+        <ExportFloatingButton
+        datos={datosFiltrados}
+        columnas={columnas}
+        filename="exportacion_mis_datos"
+        />
       )}
     </Layout>
   </>
@@ -421,3 +425,4 @@ const App = () => {
 };
 
 export default App;
+
