@@ -324,16 +324,6 @@ const App = () => {
           <Typography variant="h6" gutterBottom>Opciones de Gráfico</Typography>
 
           <Box display="flex" justifyContent="flex-start" mb={2}>
-            <ToggleButtonGroup
-              value={tipoGrafico}
-              exclusive
-              onChange={(e: React.MouseEvent<HTMLElement>, nuevoTipo: string | null) => {
-                if (nuevoTipo !== null) {
-                  setTipoGrafico(nuevoTipo);
-                }
-              }}
-              aria-label="Tipo de gráfico"
-              >
               <ToggleButtonGroup
               value={tipoGrafico}
               exclusive
