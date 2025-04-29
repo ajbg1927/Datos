@@ -24,22 +24,22 @@ const SelectorHojas = React.memo(({ hojas, hojasSeleccionadas, setHojasSeleccion
     const algunasSeleccionadas = hojasSeleccionadas.length > 0 && !todasSeleccionadas;
 
     const handleToggle = useCallback(
-        (hoja) => {
-            setHojasSeleccionadas((prev) =>
-                prev.includes(hoja)
-                    ? prev.filter((h) => h !== hoja)
-                    : [...prev, hoja]
-            );
-        },
-        [setHojasSeleccionadas]
-    );
+    (hoja) => {
+        const nuevasSeleccionadas = hojasSeleccionadas.includes(hoja)
+            ? hojasSeleccionadas.filter((h) => h !== hoja)
+            : [...hojasSeleccionadas, hoja];
+
+        setHojasSeleccionadas(nuevasSeleccionadas); 
+    },
+    [hojasSeleccionadas, setHojasSeleccionadas]
+);
 
     const handleToggleAll = useCallback(
-        () => {
-            setHojasSeleccionadas(todasSeleccionadas ? [] : hojas);
-        },
-        [hojas, todasSeleccionadas, setHojasSeleccionadas]
-    );
+    () => {
+        setHojasSeleccionadas(todasSeleccionadas ? [] : hojas);
+    },
+    [hojas, todasSeleccionadas, setHojasSeleccionadas]
+);
 
     if (!hojas || hojas.length === 0) return null;
 
