@@ -156,9 +156,16 @@ const App = () => {
   }, [setArchivoSeleccionadoFromHook, setHojasSeleccionadasFromHook]);
 
   const handleHojasSeleccionadasChange = (hojas) => {
+  if (!Array.isArray(hojas)) {
+    console.warn("handleHojasSeleccionadasChange recibió algo que no es un array:", hojas);
+    setHojasSeleccionadasFromHook([]);
+    setDatosCombinados([]);
+    return;
+  }
+
   setHojasSeleccionadasFromHook(hojas);
 
-  if (!archivoSeleccionado || !hojas?.length) {
+  if (!archivoSeleccionado || hojas.length === 0) {
     setDatosCombinados([]);
     return;
   }
