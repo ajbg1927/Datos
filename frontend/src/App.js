@@ -319,8 +319,33 @@ const App = () => {
         </Paper>
       )}
 
-      {columnaAgrupar && (
-        <Box>
+      {columnaAgrupar && columnaValor && (
+        <Box sx={{ mt: 3 }}>
+          <Typography variant="h6" gutterBottom>Opciones de Gráfico</Typography>
+
+          <Box display="flex" justifyContent="flex-start" mb={2}>
+            <ToggleButtonGroup
+              value={tipoGrafico}
+              exclusive
+              onChange={(e, nuevoTipo) => {
+                if (nuevoTipo !== null) {
+                  setTipoGrafico(nuevoTipo);
+                }
+              }}
+              aria-label="Tipo de gráfico"
+            >
+              <ToggleButton value="bar" aria-label="Barras">
+                Barras
+              </ToggleButton>
+              <ToggleButton value="line" aria-label="Líneas">
+                Líneas
+              </ToggleButton>
+              <ToggleButton value="pie" aria-label="Torta">
+                Torta
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
+
           <ResumenGeneral
             datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
             columnaAgrupar={columnaAgrupar}
