@@ -235,26 +235,24 @@ const App = () => {
                   {titulo && (
                     <Typography variant="h6" gutterBottom>{titulo}</Typography>
                   )}
-                  <Filtros
-                    data={datosCombinados}
-                    columnas={columnas}
-                    valoresUnicos={valoresUnicos}
-                    filtros={filtros}
-                    setFiltros={setFiltros}
-                    handleClearFilters={handleClearFilters}
-                    columnasFecha={columnasFecha}
-                    columnasNumericas={columnasNumericas}
-                    valorBusqueda={filtros.busqueda || ''}
-                    setValorBusqueda={(valor) => setFiltros(prev => ({ ...prev, busqueda: valor }))}
-                    columnaAgrupar={columnaAgrupar}
-                    setColumnaAgrupar={setColumnaAgrupar}
-                    columnaValor={columnaValor}
-                    setColumnaValor={setColumnaValor}
-                    esBusquedaGeneral={esBusquedaGeneral}
-                  />
-                </Box>
-              ))}
-            </>
+     
+            <Filtros
+              data={datosCombinados}
+              columnas={columnas}
+              valoresUnicos={valoresUnicos}
+              filtros={filtros}
+              setFiltros={setFiltros}
+              handleClearFilters={handleClearFilters}
+              columnasFecha={columnasFecha}
+              columnasNumericas={columnasNumericas}
+              valorBusqueda={filtros.busqueda || ''}
+              setValorBusqueda={(valor) => setFiltros(prev => ({ ...prev, busqueda: valor }))}
+              columnaAgrupar={columnaAgrupar}
+              setColumnaAgrupar={setColumnaAgrupar}
+              columnaValor={columnaValor}
+              setColumnaValor={setColumnaValor}
+              esBusquedaGeneral={true}
+            />
           ) : (
             <Typography variant="body2" color="textSecondary">
               Selecciona un archivo para ver los filtros.
@@ -296,31 +294,8 @@ const App = () => {
             datosIniciales={datosFiltrados}
             columnasDefinidas={columnas}
           />
+          <ExportButtons onExport={handleExportar} />
         </Paper>
-      )}
-
-      {hojaSeleccionada && (
-        <Box>
-          {columnaAgrupar ? (
-            <>
-              <ResumenGeneral
-                datos={checkboxResumenGraficos ? datosFiltrados : datosCombinadosApp}
-                columnaAgrupar={columnaAgrupar}
-                columnaValor={columnaValor}
-                titulo="Resumen General"
-              />
-              <Graficos
-                datos={checkboxResumenGraficos ? datosFiltrados : datosCombinadosApp}
-                columnaAgrupar={columnaAgrupar}
-                columnaValor={columnaValor}
-              />
-            </>
-          ) : (
-            <Typography variant="body2" color="textSecondary">
-              Selecciona una columna para agrupar y ver gráficos y resumen.
-            </Typography>
-          )}
-        </Box>
       )}
 
       {columnaAgrupar && (
@@ -345,7 +320,7 @@ const App = () => {
       )}
 
       {resultadosProcesadosPorHoja && (
-        <Paper elevation={2} sx={{ width: '100%' }}>
+        <Paper elevation={2} sx={{ width: '100%', mt: 4 }}>
           <Tabs value={tabValue} onChange={handleChangeTab}>
             <Tab label="Resumen TIC" />
             <Tab label="Ejecución Detallada" />
@@ -360,7 +335,9 @@ const App = () => {
               <Box display="flex" flexDirection="column" gap={3}>
                 <Typography variant="h6" gutterBottom>Tablas Procesadas</Typography>
                 {cargandoProcesamiento ? (
-                  <Box display="flex" justifyContent="center"><CircularProgress /></Box>
+                  <Box display="flex" justifyContent="center">
+                    <CircularProgress />
+                  </Box>
                 ) : (
                   Object.entries(resultadosProcesadosPorHoja).map(([nombreHoja, tablas]) => (
                     <Box key={nombreHoja} mb={3}>
@@ -388,116 +365,13 @@ const App = () => {
                 )}
               </Box>
             )}
-
-            {tabValue === 5 && (
-  <Box display="flex" flexDirection="column" gap={3}>
-    <FiltroDependencia
-  sheets={Object.keys(dependenciasPorHoja || {})}
-  onSeleccionarHoja={(hoja) => {
-    setHojaSeleccionada(hoja);
-
-    const datosOriginales = resultadosProcesadosPorHoja?.[hoja] || [];
-    const datosTodos = datosOriginales.flat();
-    setDatosFiltrados(datosTodos);
-
-    if (datosTodos.length > 0) {
-      setColumnas(Object.keys(datosTodos[0]));
-    } else {
-      setColumnas([]);
-    }
-  }}
-/>
-
-    <SelectorDeCuadro cuadros={cuadros} onSelect={seleccionarCuadro} />
-
-    {cuadroSeleccionado ? (
-      <>
-        <Graficos cuadro={cuadroSeleccionado} />
-        <ResumenGeneral cuadro={cuadroSeleccionado} />
-      </>
-    ) : (
-      <Typography variant="body2" color="textSecondary" align="center">
-        Seleccione un cuadro para comenzar.
-      </Typography>
-    )}
-
-    <Paper elevation={2} sx={{ p: 3 }}>
-      <Typography variant="h6" gutterBottom>Datos</Typography>
-      {cargandoDatosHook ? (
-        <Box display="flex" justifyContent="center"><CircularProgress /></Box>
-      ) : (
-        <TablaDatos datosIniciales={datosFiltrados} columnasDefinidas={columnas} />
-      )}
-    </Paper>
-
-    <Paper elevation={2} sx={{ p: 3 }}>
-      <Typography variant="h6" gutterBottom>Análisis</Typography>
-      <SelectoresAgrupacion
-        columnas={columnas}
-        columnaAgrupar={columnaAgrupar}
-        setColumnaAgrupar={setColumnaAgrupar}
-        columnaValor={columnaValor}
-        setColumnaValor={setColumnaValor}
-        tipoGrafico={tipoGrafico}
-        setTipoGrafico={setTipoGrafico}
-        paleta={paleta}
-        setPaleta={setPaleta}
-        ordenar={ordenarGrafico}
-        setOrdenar={setOrdenarGrafico}
-        topN={topNGrafico}
-        setTopN={setTopNGrafico}
-        mostrarPorcentajeBarras={mostrarPorcentajeBarras}
-        setMostrarPorcentajeBarras={setMostrarPorcentajeBarras}
-      />
-
-      <div className="flex items-center gap-2 mb-4">
-        <input
-          type="checkbox"
-          id="usarDatosFiltrados"
-          checked={usarDatosFiltrados}
-          onChange={(e) => setUsarDatosFiltrados(e.target.checked)}
-        />
-        <label htmlFor="usarDatosFiltrados" className="text-sm">
-          Aplicar filtros también al Resumen y Gráficos
-        </label>
-      </div>
-
-      {usarDatosFiltrados && (
-        <div className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-xl mb-4">
-          Mostrando datos filtrados
-        </div>
-      )}
-
-      <ResumenGeneral
-        datos={datosCombinadosApp}
-        columnaValor={columnaValor}
-        resultadosProcesados={resultadosProcesadosPorHoja ? Object.values(resultadosProcesadosPorHoja).flat() : []}
-      />
-
-      <Graficos
-        datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
-        columnaAgrupar={columnaAgrupar}
-        columnaValor={columnaValor}
-        tipoGrafico={tipoGrafico}
-        paleta={paleta}
-        ordenar={ordenarGrafico}
-        topN={topNGrafico}
-        mostrarPorcentajeBarras={mostrarPorcentajeBarras}
-      />
-    </Paper>
-  </Box>
-)}
-
           </Box>
         </Paper>
-      )}
-
-      {datosFiltrados.length > 0 && columnas.length > 0 && (
-        <ExportFloatingButton onExport={(formato) => handleExportar(formato)} />
       )}
     </Layout>
   </>
 );
+
 
 };
 
