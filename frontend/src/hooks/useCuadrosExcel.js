@@ -6,7 +6,7 @@ const esFilaVacia = (fila) => {
 
 const useCuadrosExcel = (datos) => {
   return useMemo(() => {
-    if (!Array.isArray(datos)) return [];
+    if (!Array.isArray(datos) || datos.length === 0) return [];
 
     const cuadros = [];
     let cuadroActual = [];

@@ -303,10 +303,10 @@ const App = () => {
     />
     {/* Aquí insertamos el SelectorDeCuadro */}
     <SelectorDeCuadro
-      cuadros={cuadros}
-      seleccionarCuadro={seleccionarCuadro}
-      cuadroSeleccionado={cuadroSeleccionado}
-    />
+  cuadros={cuadros}
+  seleccionarCuadro={seleccionarCuadro}
+  cuadroSeleccionado={cuadroSeleccionado}
+/>
   </Paper>
 )}
       {datosFiltrados.length > 0 && columnas.length > 0 && (
