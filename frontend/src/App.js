@@ -253,6 +253,8 @@ const App = () => {
               setColumnaValor={setColumnaValor}
               esBusquedaGeneral={true}
             />
+            </Box> 
+          ))}
           ) : (
             <Typography variant="body2" color="textSecondary">
               Selecciona un archivo para ver los filtros.
