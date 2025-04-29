@@ -327,13 +327,13 @@ const App = () => {
             <ToggleButtonGroup
               value={tipoGrafico}
               exclusive
-              onChange={(e, nuevoTipo) => {
+              onChange={(e: React.MouseEvent<HTMLElement>, nuevoTipo: string | null) => {
                 if (nuevoTipo !== null) {
                   setTipoGrafico(nuevoTipo);
                 }
               }}
               aria-label="Tipo de gráfico"
-            >
+              >
               <ToggleButtonGroup
               value={tipoGrafico}
               exclusive
