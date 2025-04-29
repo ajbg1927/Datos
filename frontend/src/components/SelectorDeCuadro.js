@@ -1,30 +1,31 @@
 import React from 'react';
-import { Box, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Box, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
-const SelectorDeCuadro = ({ cuadros, cuadroSeleccionado, setCuadroSeleccionado }) => {
+const SelectorDeCuadro = ({ cuadros = [], seleccionarCuadro, cuadroSeleccionado }) => {
   return (
-    <Box sx={{ mb: 3 }}>
+    <Box>
+      <Typography variant="h6" gutterBottom>Selecciona un Cuadro</Typography>
       <FormControl fullWidth>
-        <InputLabel id="selector-cuadro-label">Selecciona un cuadro</InputLabel>
+        <InputLabel id="selector-cuadro-label">Cuadro</InputLabel>
         <Select
           labelId="selector-cuadro-label"
-          value={cuadroSeleccionado}
-          label="Selecciona un cuadro"
-          onChange={(e) => setCuadroSeleccionado(Number(e.target.value))}
+          value={cuadroSeleccionado || ''}
+          label="Cuadro"
+          onChange={(e) => seleccionarCuadro(e.target.value)}
         >
-          {cuadros.map((_, idx) => (
-            <MenuItem key={idx} value={idx}>
-              Cuadro {idx + 1}
+          {Array.isArray(cuadros) && cuadros.length > 0 ? (
+            cuadros.map((cuadro, index) => (
+              <MenuItem key={index} value={cuadro}>
+                {cuadro}
+              </MenuItem>
+            ))
+          ) : (
+            <MenuItem value="" disabled>
+              No hay cuadros disponibles
             </MenuItem>
-          ))}
+          )}
         </Select>
       </FormControl>
-
-      {cuadros.length === 0 && (
-        <Typography variant="body2" color="text.secondary" mt={2}>
-          No se detectaron cuadros en esta hoja.
-        </Typography>
-      )}
     </Box>
   );
 };
