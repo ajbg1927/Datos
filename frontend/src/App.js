@@ -265,7 +265,7 @@ const App = () => {
                     columnaValor={columnaValor}
                     setColumnaValor={setColumnaValor}
                     esBusquedaGeneral={esBusquedaGeneral}
-                  />
+                    />
                 </Box>
               ))}
             </>
@@ -289,21 +289,26 @@ const App = () => {
       </Paper>
 
       {archivos?.length > 0 && (
-        <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
-          <Typography variant="h6" gutterBottom>Archivos Cargados</Typography>
-          <TablaArchivos
-            archivos={archivos}
-            archivoSeleccionado={archivoSeleccionado}
-            onArchivoChange={handleArchivoSeleccionadoChange}
-          />
-          <SelectorHojas
-            hojas={hojasPorArchivo[archivoSeleccionado?.nombreBackend] || []}
-            hojasSeleccionadas={hojasSeleccionadas}
-            setHojasSeleccionadas={handleHojasSeleccionadasChange}
-          />
-        </Paper>
-      )}
-
+  <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
+    <Typography variant="h6" gutterBottom>Archivos Cargados</Typography>
+    <TablaArchivos
+      archivos={archivos}
+      archivoSeleccionado={archivoSeleccionado}
+      onArchivoChange={handleArchivoSeleccionadoChange}
+    />
+    <SelectorHojas
+      hojas={hojasPorArchivo[archivoSeleccionado?.nombreBackend] || []}
+      hojasSeleccionadas={hojasSeleccionadas}
+      setHojasSeleccionadas={handleHojasSeleccionadasChange}
+    />
+    {/* Aquí insertamos el SelectorDeCuadro */}
+    <SelectorDeCuadro
+      cuadros={cuadros}
+      seleccionarCuadro={seleccionarCuadro}
+      cuadroSeleccionado={cuadroSeleccionado}
+    />
+  </Paper>
+)}
       {datosFiltrados.length > 0 && columnas.length > 0 && (
         <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
           <TablaDatos
