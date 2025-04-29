@@ -337,7 +337,9 @@ const App = () => {
               <ToggleButtonGroup
               value={tipoGrafico}
               exclusive
-              onChange={(e, nuevoTipo) => { ... }}
+              onChange={(e, nuevoTipo) => {
+                setTipoGrafico(nuevoTipo);
+              }}
               aria-label="Tipo de gráfico"
               >
               <ToggleButton value="bar" aria-label="Barras">
@@ -346,8 +348,8 @@ const App = () => {
               <ToggleButton value="line" aria-label="Líneas">
               Líneas
               </ToggleButton>
-              <ToggleButton value="pie" aria-label="Torta">
-              Torta
+              <ToggleButton value="pie" aria-label="Pastel">
+              Pastel
               </ToggleButton>
               </ToggleButtonGroup>
               </Box>
