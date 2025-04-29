@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
-  Box, CircularProgress, Paper, Tab, Tabs, Typography
+    Box, CircularProgress, Paper, Tab, Tabs, Typography, TextField, Divider, FormControl, InputLabel, Select, MenuItem, InputAdornment
 } from '@mui/material';
 import { Toaster, toast } from 'react-hot-toast';
-import axios from 'axios';
+import SearchIcon from '@mui/icons-material/Search';
 
 import Layout from './components/Layout';
 import UploadFile from './components/UploadFile';
@@ -14,12 +14,20 @@ import TablaDatos from './components/TablaDatos';
 import Graficos from './components/Graficos';
 import ExportButtons from './components/ExportButtons';
 import ResumenGeneral from './components/ResumenGeneral';
+import SelectoresAgrupacion from './components/SelectoresAgrupacion';
+import FiltroDependencia from './components/FiltroDependencia';
+import SelectAnálisisPor from './components/SelectAnálisisPor';
+import SelectTotalDe from './components/SelectTotalDe';
+import SelectTipoDeGrafico from './components/SelectTipoDeGrafico';
 import ExportFloatingButton from './components/ExportFloatingButton';
+import SelectorDeCuadro from './components/SelectorDeCuadro';
 
 import useArchivos from './hooks/useArchivos';
 import useFiltrosAvanzado from './hooks/useFiltrosAvanzado';
 import useExportaciones from './hooks/useExportaciones';
+import useGraficos from './hooks/useGraficos';
 import useCuadrosExcel from './hooks/useCuadrosExcel';
+import axios from 'axios';
 
 const API_URL = 'https://backend-flask-u76y.onrender.com';
 
@@ -32,18 +40,15 @@ const App = () => {
     hojasSeleccionadas,
     setHojasSeleccionadas: setHojasSeleccionadasFromHook,
     hojasPorArchivo,
-    datosPorArchivo,
-    columnasPorArchivo,
-    obtenerDatos,
+    datosPorArchivo: datosPorArchivoHook,
+    columnasPorArchivo: columnasPorArchivoHook,
+    obtenerDatos, 
     cargarArchivos,
     obtenerHojas,
+    cargandoDatos: cargandoDatosHook,
   } = useArchivos();
 
-  const { cuadros, seleccionarCuadro, cuadroSeleccionado } = useCuadrosExcel();
-  const { exportToExcel, exportToCSV, exportToPDF, exportToTXT } = useExportaciones();
-
   const [datosCombinados, setDatosCombinados] = useState([]);
-  const [datosFiltrados, setDatosFiltrados] = useState([]);
   const [isLoadingUpload, setIsLoadingUpload] = useState(false);
   const [filtros, setFiltros] = useState({});
   const [columnaAgrupar, setColumnaAgrupar] = useState('');
@@ -55,12 +60,26 @@ const App = () => {
   const [ordenarGrafico, setOrdenarGrafico] = useState(true);
   const [topNGrafico, setTopNGrafico] = useState(10);
   const [mostrarPorcentajeBarras, setMostrarPorcentajeBarras] = useState(false);
-
   const [resultadosProcesadosPorHoja, setResultadosProcesadosPorHoja] = useState(null);
+  const [dependenciasPorHoja, setDependenciasPorHoja] = useState({});
+  const [hojaSeleccionada, setHojaSeleccionada] = useState('');
+  const [dependenciaSeleccionada, setDependenciaSeleccionada] = useState('');
   const [ticProcesado, setTicProcesado] = useState(false);
   const [cargandoProcesamiento, setCargandoProcesamiento] = useState(false);
+  const [checkboxResumenGraficos, setCheckboxResumenGraficos] = useState(false);
+  const [datosCombinadosApp, setDatosCombinadosApp] = useState([]);
+  const [datosFiltrados, setDatosFiltrados] = useState([]);
+  const { cuadros, seleccionarCuadro, cuadroSeleccionado } = useCuadrosExcel();
 
   const [columnas, setColumnas] = useState([]);
+
+  useEffect(() => {
+    if (datosCombinados.length > 0) {
+      setColumnas(Object.keys(datosCombinados[0]));
+    } else {
+      setColumnas([]);
+    }
+  }, [datosCombinados]);
 
   const columnasFecha = useMemo(
     () => columnas.filter(col => col.toLowerCase().includes('fecha')),
@@ -102,28 +121,19 @@ const App = () => {
   }, [datosFiltradosHook]);
 
   useEffect(() => {
-    if (datosCombinados.length > 0) {
-      setColumnas(Object.keys(datosCombinados[0]));
-    } else {
-      setColumnas([]);
-    }
-  }, [datosCombinados]);
-
-  useEffect(() => {
-    if (!columnaAgrupar && columnas.length > 0) setColumnaAgrupar(columnas[0]);
-    if (!columnaValor && columnasNumericas.length > 0) setColumnaValor(columnasNumericas[0]);
-  }, [columnas, columnasNumericas, columnaAgrupar, columnaValor]);
-
-  useEffect(() => {
     if (archivoSeleccionado && hojasSeleccionadas.length > 0) {
       obtenerDatos(archivoSeleccionado.nombreBackend, hojasSeleccionadas)
         .then((data) => {
-          setDatosCombinados(data);
-          toast.success(`Datos cargados: ${data.length} registros`);
+          if (data) {
+            setDatosCombinados(data);
+            setDatosCombinadosApp(data);
+            toast.success(`Datos cargados: ${data.length} registros`);
+          }
         })
         .catch(console.error);
     } else {
       setDatosCombinados([]);
+      setDatosCombinadosApp([]);
     }
   }, [archivoSeleccionado, hojasSeleccionadas, obtenerDatos]);
 
@@ -133,35 +143,44 @@ const App = () => {
     }
   }, [archivoSeleccionado, obtenerHojas, hojasPorArchivo]);
 
+  useEffect(() => {
+    if (!columnaAgrupar && columnas.length > 0) setColumnaAgrupar(columnas[0]);
+    if (!columnaValor && columnasNumericas.length > 0) setColumnaValor(columnasNumericas[0]);
+  }, [columnas, columnasNumericas, columnaAgrupar, columnaValor]);
+
+  const { exportToExcel, exportToCSV, exportToPDF, exportToTXT } = useExportaciones();
+
   const handleArchivoSeleccionadoChange = useCallback((archivo) => {
     setArchivoSeleccionadoFromHook(archivo);
     setHojasSeleccionadasFromHook([]);
   }, [setArchivoSeleccionadoFromHook, setHojasSeleccionadasFromHook]);
 
   const handleHojasSeleccionadasChange = (hojas) => {
-    setHojasSeleccionadasFromHook(hojas);
+  setHojasSeleccionadasFromHook(hojas);
 
-    if (!archivoSeleccionado || !hojas?.length) {
-      setDatosCombinados([]);
-      return;
-    }
+  if (!archivoSeleccionado || !hojas?.length) {
+    setDatosCombinados([]);
+    return;
+  }
 
-    const hojasDelArchivo = hojasPorArchivo[archivoSeleccionado.nombreBackend] || [];
+  const hojasDelArchivo = hojasPorArchivo[archivoSeleccionado.nombreBackend] || [];
 
-    const datosSeleccionados = hojas.flatMap((hoja) => {
-      const datosHoja = hojasDelArchivo.find(h => h.nombreHoja === hoja);
-      return datosHoja?.datos || [];
-    });
+  const datosSeleccionados = hojas.flatMap((hoja) => {
+    const datosHoja = hojasDelArchivo.find(h => h.nombreHoja === hoja);
+    return datosHoja?.datos || [];
+  });
 
-    setDatosCombinados(datosSeleccionados);
-  };
+  setDatosCombinados(datosSeleccionados);
+};
 
   const handleArchivosSubidos = useCallback(async (files) => {
     const formData = new FormData();
     files.forEach(file => formData.append('archivos', file));
     try {
       setIsLoadingUpload(true);
-      await axios.post(`${API_URL}/subir`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      await axios.post(`${API_URL}/subir`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       await cargarArchivos(files);
     } catch (error) {
       console.error('Error al subir archivos:', error);
@@ -174,7 +193,12 @@ const App = () => {
   const handleClearFilters = () => setFiltros({});
 
   const handleExportar = (formato) => {
-    const exportadores = { excel: exportToExcel, csv: exportToCSV, pdf: exportToPDF, txt: exportToTXT };
+    const exportadores = {
+      excel: exportToExcel,
+      csv: exportToCSV,
+      pdf: exportToPDF,
+      txt: exportToTXT,
+    };
     (exportadores[formato] || exportToExcel)(datosFiltrados, columnas);
   };
 
@@ -189,6 +213,7 @@ const App = () => {
       try {
         const response = await axios.post(`${API_URL}/procesar_excel`, formData);
         setResultadosProcesadosPorHoja(response.data.tablas_por_hoja);
+        setDependenciasPorHoja(response.data.dependencias_por_hoja || {});
       } catch (error) {
         console.error('Error al procesar los datos:', error);
       } finally {
@@ -208,16 +233,22 @@ const App = () => {
   };
 
   return (
-    <>
-      <Toaster position="bottom-right" />
+  <>
+    <Toaster position="bottom-right" />
 
-      <Layout sidebar={
+    <Layout
+      sidebar={
         <Paper elevation={1} sx={{ p: 3, borderRadius: 3, backgroundColor: 'white' }}>
           {columnas.length > 0 ? (
             <>
-              {[{ esBusquedaGeneral: true, titulo: 'Buscar en todo el archivo' }, { esBusquedaGeneral: false }].map(({ esBusquedaGeneral, titulo }, idx) => (
-                <Box key={idx} sx={{ mb: 2 }}>
-                  {titulo && <Typography variant="h6">{titulo}</Typography>}
+              {[
+                { esBusquedaGeneral: true, titulo: 'Buscar en todo el archivo' },
+                { esBusquedaGeneral: false }
+              ].map(({ esBusquedaGeneral, titulo }, index) => (
+                <Box key={index} sx={{ mb: 2 }}>
+                  {titulo && (
+                    <Typography variant="h6" gutterBottom>{titulo}</Typography>
+                  )}
                   <Filtros
                     data={datosCombinados}
                     columnas={columnas}
@@ -228,7 +259,7 @@ const App = () => {
                     columnasFecha={columnasFecha}
                     columnasNumericas={columnasNumericas}
                     valorBusqueda={filtros.busqueda || ''}
-                    setValorBusqueda={valor => setFiltros(prev => ({ ...prev, busqueda: valor }))}
+                    setValorBusqueda={(valor) => setFiltros(prev => ({ ...prev, busqueda: valor }))}
                     columnaAgrupar={columnaAgrupar}
                     setColumnaAgrupar={setColumnaAgrupar}
                     columnaValor={columnaValor}
@@ -239,106 +270,129 @@ const App = () => {
               ))}
             </>
           ) : (
-            <Typography variant="body2">Selecciona un archivo para ver los filtros.</Typography>
+            <Typography variant="body2" color="textSecondary">
+              Selecciona un archivo para ver los filtros.
+            </Typography>
           )}
         </Paper>
-      }>
+      }
+    >
 
-        {isLoadingUpload && (
-          <Box display="flex" justifyContent="center" my={4}>
-            <CircularProgress />
-          </Box>
-        )}
+      {isLoadingUpload && (
+        <Box display="flex" justifyContent="center" alignItems="center" my={4}>
+          <CircularProgress />
+        </Box>
+      )}
 
+      <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
+        <UploadFile onFilesUploaded={handleArchivosSubidos} />
+      </Paper>
+
+      {archivos?.length > 0 && (
         <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
-          <UploadFile onFilesUploaded={handleArchivosSubidos} />
+          <Typography variant="h6" gutterBottom>Archivos Cargados</Typography>
+          <TablaArchivos
+            archivos={archivos}
+            archivoSeleccionado={archivoSeleccionado}
+            onArchivoChange={handleArchivoSeleccionadoChange}
+          />
+          <SelectorHojas
+            hojas={hojasPorArchivo[archivoSeleccionado?.nombreBackend] || []}
+            hojasSeleccionadas={hojasSeleccionadas}
+            setHojasSeleccionadas={handleHojasSeleccionadasChange}
+          />
         </Paper>
+      )}
 
-        {archivos?.length > 0 && (
-          <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
-            <Typography variant="h6">Archivos Cargados</Typography>
-            <TablaArchivos
-              archivos={archivos}
-              archivoSeleccionado={archivoSeleccionado}
-              onArchivoChange={handleArchivoSeleccionadoChange}
-            />
-            <SelectorHojas
-              hojas={hojasPorArchivo[archivoSeleccionado?.nombreBackend] || []}
-              hojasSeleccionadas={hojasSeleccionadas}
-              setHojasSeleccionadas={handleHojasSeleccionadasChange}
-            />
-          </Paper>
-        )}
+      {datosFiltrados.length > 0 && columnas.length > 0 && (
+        <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+          <TablaDatos
+            key={`tabla-datos-${datosFiltrados.length}`}
+            datosIniciales={datosFiltrados}
+            columnasDefinidas={columnas}
+          />
+          <ExportButtons onExport={handleExportar} />
+        </Paper>
+      )}
 
-        {datosFiltrados.length > 0 && columnas.length > 0 && (
-          <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-            <TablaDatos datosIniciales={datosFiltrados} columnasDefinidas={columnas} />
-            <ExportButtons onExport={handleExportar} />
-          </Paper>
-        )}
+      {columnaAgrupar && (
+        <Box>
+          <ResumenGeneral
+            datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+            columnaAgrupar={columnaAgrupar}
+            columnaValor={columnaValor}
+            titulo="Resumen General"
+          />
+          <Graficos
+            datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
+            columnaAgrupar={columnaAgrupar}
+            columnaValor={columnaValor}
+            tipoGrafico={tipoGrafico}
+            paleta={paleta}
+            ordenar={ordenarGrafico}
+            topN={topNGrafico}
+            mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+          />
+        </Box>
+      )}
 
-        {columnaAgrupar && (
-          <Box>
-            <ResumenGeneral
-              datos={usarDatosFiltrados ? datosFiltrados : datosCombinados}
-              columnaAgrupar={columnaAgrupar}
-              columnaValor={columnaValor}
-              titulo="Resumen General"
-            />
-            <Graficos
-              datos={usarDatosFiltrados ? datosFiltrados : datosCombinados}
-              columnaAgrupar={columnaAgrupar}
-              columnaValor={columnaValor}
-              tipoGrafico={tipoGrafico}
-              paleta={paleta}
-              ordenar={ordenarGrafico}
-              topN={topNGrafico}
-              mostrarPorcentajeBarras={mostrarPorcentajeBarras}
-            />
-          </Box>
-        )}
+      {resultadosProcesadosPorHoja && (
+        <Paper elevation={2} sx={{ width: '100%', mt: 4 }}>
+          <Tabs value={tabValue} onChange={handleChangeTab}>
+            <Tab label="Resumen TIC" />
+            <Tab label="Ejecución Detallada" />
+            <Tab label="CDP's Abiertos" />
+            <Tab label="PP Abiertos" />
+            <Tab label="Tablas Procesadas" />
+            <Tab label="Análisis General" />
+          </Tabs>
 
-        {resultadosProcesadosPorHoja && (
-          <Paper elevation={2} sx={{ width: '100%', mt: 4 }}>
-            <Tabs value={tabValue} onChange={handleChangeTab}>
-              <Tab label="Resumen TIC" />
-              <Tab label="Ejecución Detallada" />
-              <Tab label="CDP's Abiertos" />
-              <Tab label="PP Abiertos" />
-              <Tab label="Tablas Procesadas" />
-            </Tabs>
-
-            <Box sx={{ p: 3 }}>
-              {tabValue === 4 && (
-                cargandoProcesamiento ? (
-                  <Box display="flex" justifyContent="center"><CircularProgress /></Box>
+          <Box sx={{ p: 3 }}>
+            {tabValue === 4 && (
+              <Box display="flex" flexDirection="column" gap={3}>
+                <Typography variant="h6" gutterBottom>Tablas Procesadas</Typography>
+                {cargandoProcesamiento ? (
+                  <Box display="flex" justifyContent="center">
+                    <CircularProgress />
+                  </Box>
                 ) : (
                   Object.entries(resultadosProcesadosPorHoja).map(([nombreHoja, tablas]) => (
                     <Box key={nombreHoja} mb={3}>
                       <Typography variant="subtitle1">Hoja: {nombreHoja}</Typography>
-                      {Array.isArray(tablas) ? (
-                        tablas.map((tabla, idx) => (
-                          <Paper key={idx} sx={{ mt: 2, p: 2 }}>
-                            <TablaDatos datos={tabla} columnas={Object.keys(tabla[0] || {})} />
+                      {Array.isArray(tablas) && tablas.length > 0 ? (
+                        tablas.map((tabla, index) => (
+                          <Paper key={`${nombreHoja}-${index}`} elevation={1} sx={{ mt: 1, p: 2 }}>
+                            <Typography variant="body2" fontWeight="bold">Tabla {index + 1}</Typography>
+                            {tabla.length > 0 ? (
+                              <TablaDatos datos={tabla} columnas={Object.keys(tabla[0] || {})} />
+                            ) : (
+                              <Typography>No hay datos en esta tabla.</Typography>
+                            )}
                           </Paper>
                         ))
                       ) : (
-                        <Typography color="error">Error en datos de hoja.</Typography>
+                        <Typography color="error">
+                          {typeof tablas === 'object' && tablas?.error
+                            ? tablas.error
+                            : 'No se encontraron tablas en esta hoja.'}
+                        </Typography>
                       )}
                     </Box>
                   ))
-                )
-              )}
-            </Box>
-          </Paper>
-        )}
+                )}
+              </Box>
+            )}
+          </Box>
+        </Paper>
+      )}
 
-        {datosFiltrados.length > 0 && columnas.length > 0 && (
-          <ExportFloatingButton onExport={handleExportar} />
-        )}
-      </Layout>
-    </>
-  );
+      {datosFiltrados.length > 0 && columnas.length > 0 && (
+        <ExportFloatingButton onExport={(formato) => handleExportar(formato)} />
+      )}
+    </Layout>
+  </>
+);
+
 };
 
 export default App;
