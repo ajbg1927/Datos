@@ -156,22 +156,22 @@ const App = () => {
   }, [setArchivoSeleccionadoFromHook, setHojasSeleccionadasFromHook]);
 
   const handleHojasSeleccionadasChange = (hojas) => {
-    setHojasSeleccionadas(hojas);
+  setHojasSeleccionadasFromHook(hojas);
 
-    if (!archivoSeleccionado || !hojas?.length) {
-      setDatosCombinados([]);
-      return;
-    }
+  if (!archivoSeleccionado || !hojas?.length) {
+    setDatosCombinados([]);
+    return;
+  }
 
-    const hojasDelArchivo = hojasPorArchivo[archivoSeleccionado.nombreBackend] || {};
+  const hojasDelArchivo = hojasPorArchivo[archivoSeleccionado.nombreBackend] || [];
 
-    const datosSeleccionados = hojas.flatMap((hoja) => {
-      const datosHoja = hojasDelArchivo.find(h => h.nombreHoja === hoja);
-      return datosHoja?.datos || [];
-    });
+  const datosSeleccionados = hojas.flatMap((hoja) => {
+    const datosHoja = hojasDelArchivo.find(h => h.nombreHoja === hoja);
+    return datosHoja?.datos || [];
+  });
 
-    setDatosCombinados(datosSeleccionados);
-  };
+  setDatosCombinados(datosSeleccionados);
+};
 
   const handleArchivosSubidos = useCallback(async (files) => {
     const formData = new FormData();
