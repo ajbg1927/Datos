@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
-    Box, CircularProgress, Paper, Tab, Tabs, Typography, TextField, Divider, FormControl, InputLabel, Select, MenuItem, InputAdornment
+    Box, CircularProgress, Paper, Tab, Tabs, Typography, TextField, Divider, FormControl, InputLabel, Select, MenuItem, InputAdornment, ToggleButton, ToggleButtonGroup
 } from '@mui/material';
 import { Toaster, toast } from 'react-hot-toast';
 import SearchIcon from '@mui/icons-material/Search';
+import { ToggleButton, ToggleButtonGroup } from '@mui/material';
 
 import Layout from './components/Layout';
 import UploadFile from './components/UploadFile';
@@ -334,17 +335,23 @@ const App = () => {
               }}
               aria-label="Tipo de gráfico"
             >
+              <ToggleButtonGroup
+              value={tipoGrafico}
+              exclusive
+              onChange={(e, nuevoTipo) => { ... }}
+              aria-label="Tipo de gráfico"
+              >
               <ToggleButton value="bar" aria-label="Barras">
-                Barras
+              Barras
               </ToggleButton>
               <ToggleButton value="line" aria-label="Líneas">
-                Líneas
+              Líneas
               </ToggleButton>
               <ToggleButton value="pie" aria-label="Torta">
-                Torta
+              Torta
               </ToggleButton>
-            </ToggleButtonGroup>
-          </Box>
+              </ToggleButtonGroup>
+              </Box>
 
           <ResumenGeneral
             datos={usarDatosFiltrados ? datosFiltrados : datosCombinadosApp}
