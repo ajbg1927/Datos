@@ -72,8 +72,8 @@ const App = () => {
   const [datosCombinadosApp, setDatosCombinadosApp] = useState([]);
   const [datosFiltrados, setDatosFiltrados] = useState([]);
 
-  const cuadros = useCuadrosExcel(datosCombinados);
-  const [cuadroSeleccionado, setCuadroSeleccionado] = useState('');
+  const { cuadros, cuadroSeleccionado, seleccionarCuadro } = useCuadrosExcel(datosCombinados);
+  const datosActivos = cuadroSeleccionado && cuadroSeleccionado.length > 0 ? cuadroSeleccionado : datosFiltrados;
 
   const [columnas, setColumnas] = useState([]);
 
@@ -210,7 +210,7 @@ const App = () => {
       pdf: exportToPDF,
       txt: exportToTXT,
     };
-    (exportadores[formato] || exportToExcel)(datosFiltrados, columnas);
+    (exportadores[formato] || exportToExcel)(datosActivos, columnas);
   };
 
   const handleProcesarDatos = useCallback(async () => {
@@ -330,9 +330,9 @@ const App = () => {
         </Paper>
       )}
 
-      {datosFiltrados.length > 0 && columnas.length > 0 && (
+      {datosActivos.length > 0 && columnas.length > 0 && (
         <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-          <TablaDatos key={`tabla-datos-${datosFiltrados.length}`} datosIniciales={datosFiltrados} columnasDefinidas={columnas} />
+        <TablaDatos key={`tabla-datos-${datosActivos.length}`} datosIniciales={datosActivos} columnasDefinidas={columnas} />
         </Paper>
       )}
 
@@ -413,9 +413,9 @@ const App = () => {
         </Paper>
       )}
 
-      {datosFiltrados.length > 0 && columnas.length > 0 && (
+      {datosActivos.length > 0 && columnas.length > 0 && (
         <ExportFloatingButton
-        datos={datosFiltrados}
+        datos={datosActivos}
         columnas={columnas}
         filename="exportacion_mis_datos"
         />
