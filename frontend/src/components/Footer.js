@@ -112,7 +112,6 @@ const Footer = () => {
             }}
           >
             Ingeniera de Software
-            Dirección de las TIC
           </Typography>
         </Box>
       </Box>
