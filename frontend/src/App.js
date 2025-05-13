@@ -72,9 +72,8 @@ const App = () => {
   const [datosCombinadosApp, setDatosCombinadosApp] = useState([]);
   const [datosFiltrados, setDatosFiltrados] = useState([]);
 
-  const cuadros = useCuadrosExcel(datosCombinados);
-  const [cuadroSeleccionado, setCuadroSeleccionado] = useState('');
-
+  const { cuadros, cuadroSeleccionado, seleccionarCuadro } = useCuadrosExcel(datosCombinados);
+  
   const [columnas, setColumnas] = useState([]);
 
   useEffect(() => {
