@@ -71,7 +71,9 @@ const App = () => {
   const [checkboxResumenGraficos, setCheckboxResumenGraficos] = useState(false);
   const [datosCombinadosApp, setDatosCombinadosApp] = useState([]);
   const [datosFiltrados, setDatosFiltrados] = useState([]);
-  const {cuadros, seleccionarCuadro, cuadroSeleccionado } = useCuadrosExcel();
+
+  const cuadros = useCuadrosExcel(datosCombinados);
+  const [cuadroSeleccionado, setCuadroSeleccionado] = useState('');
 
   const [columnas, setColumnas] = useState([]);
 
@@ -321,9 +323,9 @@ const App = () => {
             setHojasSeleccionadas={handleHojasSeleccionadasChange}
           />
           <SelectorDeCuadro
-            cuadros={cuadros}
-            seleccionarCuadro={seleccionarCuadro}
-            cuadroSeleccionado={cuadroSeleccionado}
+          cuadros={cuadros}
+          seleccionarCuadro={setCuadroSeleccionado}
+          cuadroSeleccionado={cuadroSeleccionado}
           />
         </Paper>
       )}
