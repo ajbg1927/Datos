@@ -50,7 +50,7 @@ const Filtros = ({
         const newCol = event.target.value;
         setColumnaBusquedaGeneral(newCol);
         setValorBusquedaGeneral('');
-        setValorBusqueda('');  // Sincronizamos búsqueda general
+        setValorBusqueda('');  
         handleChange('busqueda', '');
     };
 
