@@ -93,6 +93,16 @@ const Footer = () => {
         </Grid>
 
         <Box sx={{ mt: 5 }}>
+        <Typography
+            variant="body2"
+            sx={{
+              fontFamily: "'Dancing Script', cursive",
+              color: '#777',
+              fontSize: '1rem',
+            }}
+          >
+            Dirección de las TIC
+          </Typography>
           <Typography
             variant="body2"
             sx={{
