@@ -22,26 +22,30 @@ const SelectorDeCuadro = ({
   return (
     <Box sx={{ mb: 3 }}>
       <FormControl fullWidth variant="outlined" sx={{ backgroundColor: '#f5f5f5' }}>
-        <InputLabel id={labelId} sx={{ color: '#000' }}>{label}</InputLabel>
+        <InputLabel id={labelId} shrink sx={{ color: '#000' }}>
+        {label}
+        </InputLabel>
+
         <Select
-          labelId={labelId}
-          id={selectId}
-          value={cuadroSeleccionado || ''}
-          label={label}
-          onChange={(e) => seleccionarCuadro(e.target.value)}
-          displayEmpty
-          renderValue={(selected) => {
-            if (!selected) return `Selecciona un ${label.toLowerCase()}`;
-            const seleccionado = cuadros.find((cuadro) => obtenerValor(cuadro) === selected);
-            return seleccionado ? obtenerEtiqueta(seleccionado) : selected;
-          }}
-          sx={{
-            backgroundColor: '#f5f5f5',
-            '& .MuiOutlinedInput-notchedOutline': { borderColor: '#cfd8dc' },
-            '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#43a047' },
-            '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#43a047' },
-          }}
+        labelId={labelId}
+        id={selectId}
+        value={cuadroSeleccionado || ''}
+        label={label}
+        onChange={(e) => seleccionarCuadro(e.target.value)}
+        displayEmpty
+        renderValue={(selected) => {
+          if (!selected) return <span style={{ color: '#9e9e9e' }}>Selecciona un {label.toLowerCase()}</span>;
+          const seleccionado = cuadros.find((cuadro) => obtenerValor(cuadro) === selected);
+          return obtenerEtiqueta(seleccionado);
+        }}
+        sx={{
+          backgroundColor: '#f5f5f5',
+          '& .MuiOutlinedInput-notchedOutline': { borderColor: '#cfd8dc' },
+          '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#43a047' },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#43a047' },
+        }}
         >
+        
           <MenuItem disabled value="">
             -- Selecciona un {label.toLowerCase()} --
           </MenuItem>
