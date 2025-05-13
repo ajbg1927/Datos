@@ -45,37 +45,38 @@ const SelectorDeCuadro = ({
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#43a047' },
         }}
         >
-        
-          <MenuItem disabled value="">
-            -- Selecciona un {label.toLowerCase()} --
-          </MenuItem>
 
-          {cuadros.length > 0 ? (
-            cuadros.map((cuadro) => {
-              const valor = obtenerValor(cuadro);
-              const etiqueta = obtenerEtiqueta(cuadro);
-              return (
-                <MenuItem
-                  key={valor}
-                  value={valor}
-                  sx={{
-                    color: '#37474f',
-                    '&:hover': { backgroundColor: '#dcedc8' },
-                  }}
-                >
-                  {etiqueta}
-                </MenuItem>
+        <MenuItem disabled value="">
+        -- Selecciona un {label.toLowerCase()} --
+        </MenuItem>
+
+        {cuadros.length > 0 ? (
+          cuadros.map((cuadro) => {
+            const valor = obtenerValor(cuadro);
+            const etiqueta = obtenerEtiqueta(cuadro);
+            return (
+
+            <MenuItem
+            key={valor}
+            value={valor}
+            sx={{
+              color: '#37474f',
+              '&:hover': { backgroundColor: '#dcedc8' },
+              }}
+              >
+              {etiqueta}
+              </MenuItem>
               );
-            })
-          ) : (
-            <MenuItem disabled value="">
+              })
+              ) : (
+              <MenuItem disabled value="">
               No hay cuadros disponibles
-            </MenuItem>
-          )}
-        </Select>
-      </FormControl>
-    </Box>
-  );
+              </MenuItem>
+              )}
+              </Select>
+            </FormControl>
+          </Box>
+        );
 };
 
 export default SelectorDeCuadro;
