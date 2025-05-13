@@ -1,5 +1,12 @@
 import React from 'react';
-import { Box, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import {
+  Box,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from '@mui/material';
 
 const SelectorDeCuadro = ({
   cuadros = [],
@@ -13,22 +20,30 @@ const SelectorDeCuadro = ({
   const selectId = 'selector-cuadro';
 
   return (
-    <Box>
-      <Typography variant="h6" gutterBottom>
-        Selecciona un Cuadro
-      </Typography>
-
-      <FormControl fullWidth>
-        <InputLabel id={labelId}>{label}</InputLabel>
+    <Box sx={{ mb: 3 }}>
+      <FormControl fullWidth variant="outlined" sx={{ backgroundColor: '#f5f5f5' }}>
+        <InputLabel id={labelId} sx={{ color: '#000' }}>{label}</InputLabel>
         <Select
           labelId={labelId}
           id={selectId}
           value={cuadroSeleccionado || ''}
           label={label}
           onChange={(e) => seleccionarCuadro(e.target.value)}
+          displayEmpty
+          renderValue={(selected) => {
+            if (!selected) return `Selecciona un ${label.toLowerCase()}`;
+            const seleccionado = cuadros.find((cuadro) => obtenerValor(cuadro) === selected);
+            return seleccionado ? obtenerEtiqueta(seleccionado) : selected;
+          }}
+          sx={{
+            backgroundColor: '#f5f5f5',
+            '& .MuiOutlinedInput-notchedOutline': { borderColor: '#cfd8dc' },
+            '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#43a047' },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#43a047' },
+          }}
         >
-          <MenuItem value="" disabled>
-            -- Selecciona un cuadro --
+          <MenuItem disabled value="">
+            -- Selecciona un {label.toLowerCase()} --
           </MenuItem>
 
           {cuadros.length > 0 ? (
@@ -36,13 +51,20 @@ const SelectorDeCuadro = ({
               const valor = obtenerValor(cuadro);
               const etiqueta = obtenerEtiqueta(cuadro);
               return (
-                <MenuItem key={valor} value={valor}>
+                <MenuItem
+                  key={valor}
+                  value={valor}
+                  sx={{
+                    color: '#37474f',
+                    '&:hover': { backgroundColor: '#dcedc8' },
+                  }}
+                >
                   {etiqueta}
                 </MenuItem>
               );
             })
           ) : (
-            <MenuItem value="" disabled>
+            <MenuItem disabled value="">
               No hay cuadros disponibles
             </MenuItem>
           )}
