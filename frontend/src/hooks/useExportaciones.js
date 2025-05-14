@@ -13,7 +13,7 @@ const useExportaciones = () => {
       const accessor = col?.accessor ?? col?.Header ?? '';
 
       return { header, accessor };
-    }).filter(col => col.header && col.accessor); // Evita columnas vacías
+    }).filter(col => col.header && col.accessor); 
 
   const exportToExcel = (data, columns, fileName = 'datos.xlsx') => {
     const parsedColumns = parseColumns(columns);

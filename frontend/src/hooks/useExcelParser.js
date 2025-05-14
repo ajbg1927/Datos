@@ -20,7 +20,6 @@ export function useExcelParser() {
 
       datos[nombreHoja] = json;
 
-      // Buscar columna que tenga "dependencia"
       const colDependencia = Object.keys(json[0] || {}).find((col) =>
         col.toLowerCase().includes("dependencia")
       );
