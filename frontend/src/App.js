@@ -22,6 +22,7 @@ import SelectTipoDeGrafico from './components/SelectTipoDeGrafico';
 import ExportFloatingButton from './components/ExportFloatingButton';
 import SelectorDeCuadro from './components/SelectorDeCuadro';
 import SelectorColumnas from './components/SelectorColumnas';
+import InformePresupuestal from './components/InformePresupuestal';
 
 import useArchivos from './hooks/useArchivos';
 import useFiltrosAvanzado from './hooks/useFiltrosAvanzado';
@@ -331,11 +332,15 @@ const App = () => {
       )}
 
       {datosActivos.length > 0 && columnas.length > 0 && (
+        <>
         <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
         <TablaDatos key={`tabla-datos-${datosActivos.length}`} datosIniciales={datosActivos} columnasDefinidas={columnas} />
         </Paper>
-      )}
 
+        <InformePresupuestal datos={datosActivos} />
+        </>
+      )}
+      
       {columnaAgrupar && columnaValor && (
         <Box sx={{ mt: 3 }}>
           <Typography variant="h6" gutterBottom>Opciones de Gráfico</Typography>
