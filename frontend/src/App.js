@@ -253,6 +253,11 @@ const App = () => {
     columnaValor
     );
 
+  const nombreCuadro = cuadroSeleccionado?.cuadro || '';
+  const cuadroEsRP = nombreCuadro.toLowerCase().includes('registro') || nombreCuadro.toLowerCase().includes('rp');
+  const cuadroEsCDP = nombreCuadro.toLowerCase().includes('cdp');
+  const cuadroEsCompromiso = nombreCuadro.toLowerCase().includes('compromiso');
+
  return (
   <>
     <Toaster position="bottom-right" />
@@ -338,8 +343,23 @@ const App = () => {
         <TablaDatos key={`tabla-datos-${datosActivos.length}`} datosIniciales={datosActivos} columnasDefinidas={columnas} />
         </Paper>
 
-        <InformePresupuestal datos={datosActivos} />
-        <InformeRP datos={datosActivos} />
+        {(cuadroEsRP || cuadroEsCompromiso || cuadroEsCDP) && (
+          <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+          <Typography variant="h6" gutterBottom>
+          Informe Presupuestal Automático
+          </Typography>
+          <InformePresupuestal datos={datosActivos} />
+          </Paper>
+        )}
+
+        {cuadroEsRP && (
+          <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+          <Typography variant="h6" gutterBottom>
+          Detalle de Registros Presupuestales (RP)
+          </Typography>
+          <InformeRP datos={datosActivos} />
+          </Paper>
+        )}
         </>
       )}
       
