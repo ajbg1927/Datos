@@ -338,7 +338,7 @@ const App = () => {
         <TablaDatos key={`tabla-datos-${datosActivos.length}`} datosIniciales={datosActivos} columnasDefinidas={columnas} />
         </Paper>
 
-        <InformePresupuestal datos={datosActivos} datosContratistas={datosContratistas} />
+        <InformePresupuestal datos={datosActivos} />
         <InformeRP datos={datosActivos} />
         </>
       )}
