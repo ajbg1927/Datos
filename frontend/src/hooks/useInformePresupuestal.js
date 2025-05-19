@@ -37,12 +37,25 @@ const useInformePresupuestal = (datos, datosContratistas = []) => {
     };
 
     datos.forEach((row) => {
-      resumen.totalCDP += Number(row[claves.cdp] || 0);
-      resumen.totalRP += Number(row[claves.rp] || 0);
-      resumen.totalObligado += Number(row[claves.obligacion] || 0);
-      resumen.totalPagado += Number(row[claves.pago] || 0);
-      resumen.totalValor += Number(row[claves.valor] || 0);
-      resumen.totalSaldo += Number(row[claves.saldo] || 0);
+      if (claves.cdp && row[claves.cdp]) resumen.totalCDP += 1;
+      if (claves.rp && row[claves.rp]) resumen.totalRP += 1;
+
+      if (claves.obligacion) {
+        const val = Number(row[claves.obligacion]);
+        resumen.totalObligado += isNaN(val) ? 0 : val;
+      }
+      if (claves.pago) {
+        const val = Number(row[claves.pago]);
+        resumen.totalPagado += isNaN(val) ? 0 : val;
+      }
+      if (claves.valor) {
+        const val = Number(row[claves.valor]);
+        resumen.totalValor += isNaN(val) ? 0 : val;
+      }
+      if (claves.saldo) {
+        const val = Number(row[claves.saldo]);
+        resumen.totalSaldo += isNaN(val) ? 0 : val;
+      }
     });
 
     const nombreColumnaRP = claves.rp;
