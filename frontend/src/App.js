@@ -251,13 +251,7 @@ const App = () => {
     columnaAgrupar,
     columnaValor
     );
-
-  const datosContratistas = useMemo(() => {
-  return datosCombinados.find((hoja) =>
-    hoja.nombre.toLowerCase().includes('contratista') || hoja.nombre.toLowerCase().includes('contratos')
-  )?.datos || [];
-}, [datosCombinados]);
-
+  
  return (
   <>
     <Toaster position="bottom-right" />
