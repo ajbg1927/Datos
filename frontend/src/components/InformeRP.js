@@ -1,10 +1,16 @@
-import React, { useMemo } from 'react';
-import { Paper, Typography, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
+import React, { useMemo, useState } from 'react';
+import {
+  Paper, Typography, Table, TableHead, TableRow, TableCell, TableBody,
+  IconButton, Collapse, Box
+} from '@mui/material';
+import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 
 const normalizarTexto = (texto) =>
   texto?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
 const InformeRP = ({ datos, mapaContratistas = {} }) => {
+  const [abiertos, setAbiertos] = useState({});
+
   const resumenRP = useMemo(() => {
     if (!Array.isArray(datos) || datos.length === 0) return [];
 
@@ -38,6 +44,10 @@ const InformeRP = ({ datos, mapaContratistas = {} }) => {
     }));
   }, [datos]);
 
+  const toggleRP = (rp) => {
+    setAbiertos((prev) => ({ ...prev, [rp]: !prev[rp] }));
+  };
+
   if (!resumenRP.length) return null;
 
   return (
@@ -48,20 +58,61 @@ const InformeRP = ({ datos, mapaContratistas = {} }) => {
       <Table size="small">
         <TableHead>
           <TableRow>
+            <TableCell />
             <TableCell><strong>RP</strong></TableCell>
-            <TableCell><strong>Contratista</strong></TableCell>
+            <TableCell><strong>Contratista(s)</strong></TableCell>
             <TableCell><strong>Registros</strong></TableCell>
             <TableCell><strong>Total ($)</strong></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {resumenRP.map((rp) => (
-            <TableRow key={rp.RP}>
-              <TableCell>{rp.RP}</TableCell>
-              <TableCell>{mapaContratistas[rp.RP] || 'No encontrado'}</TableCell>
-              <TableCell>{rp.cantidad}</TableCell>
-              <TableCell>${rp.total.toLocaleString()}</TableCell>
-            </TableRow>
+            <React.Fragment key={rp.RP}>
+              <TableRow>
+                <TableCell>
+                  <IconButton size="small" onClick={() => toggleRP(rp.RP)}>
+                    {abiertos[rp.RP] ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+                  </IconButton>
+                </TableCell>
+                <TableCell>{rp.RP}</TableCell>
+                <TableCell>
+                  {mapaContratistas[rp.RP]
+                    ? mapaContratistas[rp.RP].map((c, i) => c.Nombre).join(', ')
+                    : 'No encontrado'}
+                </TableCell>
+                <TableCell>{rp.cantidad}</TableCell>
+                <TableCell>${rp.total.toLocaleString()}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell colSpan={5} sx={{ p: 0 }}>
+                  <Collapse in={abiertos[rp.RP]} timeout="auto" unmountOnExit>
+                    <Box sx={{ margin: 2 }}>
+                      <Typography variant="subtitle2" gutterBottom>
+                        Detalle de contratistas
+                      </Typography>
+                      <Table size="small">
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Nombre</TableCell>
+                            <TableCell>Objeto</TableCell>
+                            <TableCell>Valor ($)</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {(mapaContratistas[rp.RP] || []).map((c, index) => (
+                            <TableRow key={index}>
+                              <TableCell>{c.Nombre}</TableCell>
+                              <TableCell>{c.Objeto}</TableCell>
+                              <TableCell>${(c.Valor || 0).toLocaleString()}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </Box>
+                  </Collapse>
+                </TableCell>
+              </TableRow>
+            </React.Fragment>
           ))}
         </TableBody>
       </Table>

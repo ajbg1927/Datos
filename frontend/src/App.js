@@ -79,6 +79,51 @@ const App = () => {
 
   const [columnas, setColumnas] = useState([]);
 
+  const [datosEnlazados, setDatosEnlazados] = useState([]);
+
+  useEffect(() => {
+    if (!datosActivos || datosActivos.length === 0) {
+      setDatosEnlazados([]);
+      return;
+    }
+
+    const archivoContratistas = archivos.find((a) =>
+      hojasPorArchivo[a.nombreBackend]?.some(h => h.nombreHoja.toLowerCase().includes('contratista'))
+      );
+
+    if (!archivoContratistas) {
+      setDatosEnlazados(datosActivos);
+      return;
+    }
+
+    const hojaContratista = hojasPorArchivo[archivoContratistas.nombreBackend].find(h =>
+      h.nombreHoja.toLowerCase().includes('contratista')
+      );
+
+    if (!hojaContratista || !hojaContratista.datos || hojaContratista.datos.length === 0) {
+      setDatosEnlazados(datosActivos);
+      return;
+    }
+
+    const datosContratistas = hojaContratista.datos;
+
+    const contratistasPorRP = datosContratistas.reduce((acc, fila) => {
+      const clave = fila.RP?.toString().trim();
+      if (clave) {
+        acc[clave] = fila;
+      }
+      return acc;
+    }, {});
+
+    const datosFusionados = datosActivos.map(fila => {
+      const clave = fila.RP?.toString().trim();
+      const infoContratista = contratistasPorRP[clave];
+      return infoContratista ? { ...fila, ...infoContratista } : fila;
+    });
+
+    setDatosEnlazados(datosFusionados);
+   }, [datosActivos, archivos, hojasPorArchivo]);
+
   useEffect(() => {
     if (datosCombinados.length > 0) {
       setColumnas(Object.keys(datosCombinados[0]));
@@ -357,7 +402,7 @@ const App = () => {
           <Typography variant="h6" gutterBottom>
           Detalle de Registros Presupuestales (RP)
           </Typography>
-          <InformeRP datos={datosActivos} />
+          <InformeRP datos={datosEnlazados} />
           </Paper>
         )}
         </>
