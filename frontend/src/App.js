@@ -88,7 +88,9 @@ const App = () => {
     }
 
     const archivoContratistas = archivos.find((a) =>
-      hojasPorArchivo[a.nombreBackend]?.some(h => h.nombreHoja.toLowerCase().includes('contratista'))
+      (hojasPorArchivo[a.nombreBackend] || []).some(h => 
+        h?.nombreHoja?.toLowerCase().includes('contratista')
+        )
       );
 
     if (!archivoContratistas) {
