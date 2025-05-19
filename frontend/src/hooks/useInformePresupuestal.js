@@ -45,7 +45,6 @@ const useInformePresupuestal = (datos, datosContratistas = []) => {
       resumen.totalSaldo += Number(row[claves.saldo] || 0);
     });
 
-    // Vincular contratistas por RP
     const nombreColumnaRP = claves.rp;
     const vinculaciones = {};
 
