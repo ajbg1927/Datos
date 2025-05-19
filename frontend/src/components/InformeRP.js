@@ -4,7 +4,7 @@ import { Paper, Typography, Table, TableHead, TableRow, TableCell, TableBody } f
 const normalizarTexto = (texto) =>
   texto?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-const InformeRP = ({ datos }) => {
+const InformeRP = ({ datos, mapaContratistas = {} }) => {
   const resumenRP = useMemo(() => {
     if (!Array.isArray(datos) || datos.length === 0) return [];
 
@@ -48,21 +48,17 @@ const InformeRP = ({ datos }) => {
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell>
-              <strong>RP</strong>
-            </TableCell>
-            <TableCell>
-              <strong>Registros</strong>
-            </TableCell>
-            <TableCell>
-              <strong>Total ($)</strong>
-            </TableCell>
+            <TableCell><strong>RP</strong></TableCell>
+            <TableCell><strong>Contratista</strong></TableCell>
+            <TableCell><strong>Registros</strong></TableCell>
+            <TableCell><strong>Total ($)</strong></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {resumenRP.map((rp) => (
             <TableRow key={rp.RP}>
               <TableCell>{rp.RP}</TableCell>
+              <TableCell>{mapaContratistas[rp.RP] || 'No encontrado'}</TableCell>
               <TableCell>{rp.cantidad}</TableCell>
               <TableCell>${rp.total.toLocaleString()}</TableCell>
             </TableRow>
