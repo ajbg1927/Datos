@@ -252,6 +252,12 @@ const App = () => {
     columnaValor
     );
 
+  const datosContratistas = useMemo(() => {
+  return datosCombinados.find((hoja) =>
+    hoja.nombre.toLowerCase().includes('contratista') || hoja.nombre.toLowerCase().includes('contratos')
+  )?.datos || [];
+}, [datosCombinados]);
+
  return (
   <>
     <Toaster position="bottom-right" />
@@ -337,7 +343,7 @@ const App = () => {
         <TablaDatos key={`tabla-datos-${datosActivos.length}`} datosIniciales={datosActivos} columnasDefinidas={columnas} />
         </Paper>
 
-        <InformePresupuestal datos={datosActivos} />
+        <InformePresupuestal datos={datosActivos} datosContratistas={datosContratistas} />
         </>
       )}
       
