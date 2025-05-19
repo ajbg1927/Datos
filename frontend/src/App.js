@@ -23,6 +23,7 @@ import ExportFloatingButton from './components/ExportFloatingButton';
 import SelectorDeCuadro from './components/SelectorDeCuadro';
 import SelectorColumnas from './components/SelectorColumnas';
 import InformePresupuestal from './components/InformePresupuestal';
+import InformeRP from './components/InformeRP';
 
 import useArchivos from './hooks/useArchivos';
 import useFiltrosAvanzado from './hooks/useFiltrosAvanzado';
@@ -251,7 +252,7 @@ const App = () => {
     columnaAgrupar,
     columnaValor
     );
-  
+
  return (
   <>
     <Toaster position="bottom-right" />
@@ -338,6 +339,7 @@ const App = () => {
         </Paper>
 
         <InformePresupuestal datos={datosActivos} datosContratistas={datosContratistas} />
+        <InformeRP datos={datosActivos} />
         </>
       )}
       
