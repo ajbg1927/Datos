@@ -76,6 +76,7 @@ const App = () => {
   const [datosFiltrados, setDatosFiltrados] = useState([]);
 
   const { cuadros, cuadroSeleccionado, seleccionarCuadro } = useCuadrosExcel(datosFiltrados);
+  const { resumen: resumenRP, mapaContratistas } = useInformeRP({ cuadros, datos2: datosEnlazados });
   const datosActivos = cuadroSeleccionado?.datos?.length > 0 ? cuadroSeleccionado.datos : datosFiltrados;
 
   const [columnas, setColumnas] = useState([]);
@@ -302,8 +303,6 @@ const App = () => {
     );
 
   const nombreCuadro = cuadroSeleccionado?.cuadro || '';
-  const cuadroEsRP = cuadroSeleccionado?.nombre?.toLowerCase().includes('rp');
-
   const esCuadroRP = (nombre = '') =>
   nombre.toLowerCase().includes('registro') && nombre.toLowerCase().includes('rp');
 
@@ -415,6 +414,15 @@ const App = () => {
           </Typography>
           <InformeRP datos={datosEnlazados} />
           </Paper>
+
+          {cuadroEsRP && resumenRP?.length > 0 && (
+            <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+            <Typography variant="h6" gutterBottom>
+            Resumen por RP
+            </Typography>
+            <InformeRP datos={resumenRP} mapaContratistas={mapaContratistas} />
+            </Paper>
+          )}
           </>
         )}
       
