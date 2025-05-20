@@ -99,7 +99,7 @@ const App = () => {
     }
 
     const hojaContratista = hojasPorArchivo[archivoContratistas.nombreBackend].find(h =>
-      h.nombreHoja.toLowerCase().includes('contratista')
+      typeof h-nombreHoja === 'string' && h.nombreHoja.toLowerCase().includes('contratista')
       );
 
     if (!hojaContratista || !hojaContratista.datos || hojaContratista.datos.length === 0) {
