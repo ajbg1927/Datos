@@ -311,7 +311,7 @@ const App = () => {
   const cuadroEsCDP = nombreCuadro.toLowerCase().includes('cdp');
   const cuadroEsCompromiso = nombreCuadro.toLowerCase().includes('compromiso');
 
-return (
+ return (
   <>
     <Toaster position="bottom-right" />
 
@@ -383,72 +383,76 @@ return (
             setHojasSeleccionadas={handleHojasSeleccionadasChange}
           />
           <SelectorDeCuadro
-            cuadros={cuadros}
-            seleccionarCuadro={seleccionarCuadro}
-            cuadroSeleccionado={cuadroSeleccionado}
+          cuadros={cuadros}
+          seleccionarCuadro={seleccionarCuadro}
+          cuadroSeleccionado={cuadroSeleccionado}
           />
         </Paper>
       )}
 
       {datosActivos.length > 0 && columnas.length > 0 && (
         <>
+        <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+        <TablaDatos key={`tabla-datos-${datosActivos.length}`} datosIniciales={datosActivos} columnasDefinidas={columnas} />
+        </Paper>
+
+        {(cuadroEsRP || cuadroEsCompromiso || cuadroEsCDP) && (
           <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-            <TablaDatos key={`tabla-datos-${datosActivos.length}`} datosIniciales={datosActivos} columnasDefinidas={columnas} />
+          <Typography variant="h6" gutterBottom>
+          Informe Presupuestal Automático
+          </Typography>
+          <InformePresupuestal datos={datosActivos} />
+          </Paper>
+        )}
+
+        {cuadroEsRP && (
+          <>
+          {console.log('Mostrando InformeRP con datosEnlazados:', datosEnlazados)}
+          <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+          <Typography variant="h6" gutterBottom>
+          Detalle de Registros Presupuestales (RP)
+          </Typography>
+          <InformeRP datos={datosEnlazados} />
           </Paper>
 
-          {(cuadroEsRP || cuadroEsCompromiso || cuadroEsCDP) && (
+          {cuadroEsRP && resumenRP?.length > 0 && (
             <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Informe Presupuestal Automático
-              </Typography>
-              <InformePresupuestal datos={datosActivos} />
+            <Typography variant="h6" gutterBottom>
+            Resumen por RP
+            </Typography>
+            <InformeRP datos={resumenRP} mapaContratistas={mapaContratistas} />
             </Paper>
           )}
+          </>
+        )}
+      
+      {columnaAgrupar && columnaValor && (
+        <Box sx={{ mt: 3 }}>
+          <Typography variant="h6" gutterBottom>Opciones de Gráfico</Typography>
 
-          {cuadroEsRP && (
-            <>
-              <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-                <Typography variant="h6" gutterBottom>
-                  Detalle de Registros Presupuestales (RP)
-                </Typography>
-                <InformeRP datos={datosEnlazados} />
-              </Paper>
+          <SelectorColumnas
+            columnas={columnasDisponibles}
+            columnaAgrupar={columnaAgrupar}
+            setColumnaAgrupar={setColumnaAgrupar}
+            columnaValor={columnaValor}
+            setColumnaValor={setColumnaValor}
+          />
 
-              {cuadroEsRP && resumenRP?.length > 0 && (
-                <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-                  <Typography variant="h6" gutterBottom>
-                    Resumen por RP
-                  </Typography>
-                  <InformeRP datos={resumenRP} mapaContratistas={mapaContratistas} />
-                </Paper>
-              )}
-            </>
-          )}
-
-          {columnaAgrupar && columnaValor && (
-            <Box sx={{ mt: 3 }}>
-              <Typography variant="h6" gutterBottom>Opciones de Gráfico</Typography>
-              <SelectorColumnas
-                columnas={columnasDisponibles}
-                columnaAgrupar={columnaAgrupar}
-                setColumnaAgrupar={setColumnaAgrupar}
-                columnaValor={columnaValor}
-                setColumnaValor={setColumnaValor}
-              />
-              <Graficos
-                datosAgrupados={datosGraficos}
-                columnaAgrupacion={columnaAgrupar}
-                columnaValor={columnaValor}
-                tipoGrafico={tipoGrafico}
-                paleta={paleta}
-                ordenar={ordenarGrafico}
-                topN={topNGrafico}
-                mostrarPorcentajeBarras={mostrarPorcentajeBarras}
-              />
-            </Box>
-          )}
-        </>
+          <Graficos
+            datosAgrupados={datosGraficos}
+            columnaAgrupacion={columnaAgrupar}
+            columnaValor={columnaValor}
+            tipoGrafico={tipoGrafico}
+            paleta={paleta}
+            ordenar={ordenarGrafico}
+            topN={topNGrafico}
+            mostrarPorcentajeBarras={mostrarPorcentajeBarras}
+          />
+        </Box>
       )}
+      </>
+      )}
+
 
       {resultadosProcesadosPorHoja && (
         <Paper elevation={2} sx={{ width: '100%', mt: 4 }}>
@@ -460,6 +464,7 @@ return (
             <Tab label="Tablas Procesadas" />
             <Tab label="Análisis General" />
           </Tabs>
+
           <Box sx={{ p: 3 }}>
             {tabValue === 4 && (
               <Box display="flex" flexDirection="column" gap={3}>
@@ -503,9 +508,9 @@ return (
 
       {datosActivos.length > 0 && columnas.length > 0 && (
         <ExportFloatingButton
-          datos={datosActivos}
-          columnas={columnas}
-          filename="exportacion_mis_datos"
+        datos={datosActivos}
+        columnas={columnas}
+        filename="exportacion_mis_datos"
         />
       )}
     </Layout>
