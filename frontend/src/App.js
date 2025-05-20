@@ -31,6 +31,7 @@ import useExportaciones from './hooks/useExportaciones';
 import useGraficos from './hooks/useGraficos';
 import useGraficoConfig from './hooks/useGraficoConfig';
 import useCuadrosExcel from './hooks/useCuadrosExcel';
+import useInformeRP from './hooks/useInformeRP';
 import axios from 'axios';
 
 const API_URL = 'https://backend-flask-u76y.onrender.com';
@@ -302,6 +303,12 @@ const App = () => {
 
   const nombreCuadro = cuadroSeleccionado?.cuadro || '';
   const cuadroEsRP = cuadroSeleccionado?.nombre?.toLowerCase().includes('rp');
+
+  const esCuadroRP = (nombre = '') =>
+  nombre.toLowerCase().includes('registro') && nombre.toLowerCase().includes('rp');
+
+  const cuadroEsRP = esCuadroRP(cuadroSeleccionado?.nombre);
+
   const cuadroEsCDP = nombreCuadro.toLowerCase().includes('cdp');
   const cuadroEsCompromiso = nombreCuadro.toLowerCase().includes('compromiso');
 
