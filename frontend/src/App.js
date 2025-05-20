@@ -76,12 +76,11 @@ const App = () => {
   const [datosFiltrados, setDatosFiltrados] = useState([]);
 
   const { cuadros, cuadroSeleccionado, seleccionarCuadro } = useCuadrosExcel(datosFiltrados);
-  const { resumen: resumenRP, mapaContratistas } = useInformeRP({ cuadros, datos2: datosEnlazados });
   const datosActivos = cuadroSeleccionado?.datos?.length > 0 ? cuadroSeleccionado.datos : datosFiltrados;
 
   const [columnas, setColumnas] = useState([]);
-
   const [datosEnlazados, setDatosEnlazados] = useState([]);
+  const { resumen: resumenRP, mapaContratistas } = useInformeRP({ cuadros, datos2: datosEnlazados });
 
   useEffect(() => {
     if (!datosActivos || datosActivos.length === 0) {
@@ -452,7 +451,6 @@ const App = () => {
       )}
       </>
       )}
-
 
       {resultadosProcesadosPorHoja && (
         <Paper elevation={2} sx={{ width: '100%', mt: 4 }}>
