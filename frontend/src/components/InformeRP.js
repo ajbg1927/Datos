@@ -25,13 +25,16 @@ const InformeRP = ({ datos, mapaContratistas = {} }) => {
 
     const claveDias = columnas.find((col) => normalizarTexto(col).includes('dias')) || null;
     const claveGasto = columnas.find((col) => normalizarTexto(col).includes('gasto')) || null;
-
-    console.log('Columnas detectadas:', { claveRP, claveValor, claveDias, claveGasto });
+    const claveTercero = columnas.find((col) =>
+      normalizarTexto(col).includes('tercero') || normalizarTexto(col).includes('nombre')
+    ) || null;
 
     const resumen = {};
 
     datos.forEach((row) => {
       const rp = row[claveRP] || 'Sin RP';
+      const tercero = claveTercero ? row[claveTercero] || 'Sin tercero' : 'Sin tercero';
+      const claveAgrupacion = `${rp} - ${tercero}`;
 
       const valorStr = row[claveValor] || '0';
       const valor = parseFloat(String(valorStr).replace(/[$.\s]/g, '').replace(',', '.')) || 0;
@@ -41,44 +44,47 @@ const InformeRP = ({ datos, mapaContratistas = {} }) => {
         ? parseFloat(String(row[claveGasto]).replace('%', '').replace(',', '.')) || 0
         : null;
 
-      console.log('Fila procesada:', {
-        rp, valor, dias, porcentajeGasto
-      });
-
-      if (!resumen[rp]) {
-        resumen[rp] = { cantidad: 0, total: 0, sumaDias: 0, sumaGasto: 0, cuentaDias: 0, cuentaGasto: 0 };
+      if (!resumen[claveAgrupacion]) {
+        resumen[claveAgrupacion] = {
+          RP: rp,
+          Tercero: tercero,
+          cantidad: 0,
+          total: 0,
+          sumaDias: 0,
+          sumaGasto: 0,
+          cuentaDias: 0,
+          cuentaGasto: 0
+        };
       }
 
-      resumen[rp].cantidad += 1;
-      resumen[rp].total += valor;
+      const item = resumen[claveAgrupacion];
+      item.cantidad += 1;
+      item.total += valor;
 
       if (dias !== null) {
-        resumen[rp].sumaDias += dias;
-        resumen[rp].cuentaDias += 1;
+        item.sumaDias += dias;
+        item.cuentaDias += 1;
       }
 
       if (porcentajeGasto !== null) {
-        resumen[rp].sumaGasto += porcentajeGasto;
-        resumen[rp].cuentaGasto += 1;
+        item.sumaGasto += porcentajeGasto;
+        item.cuentaGasto += 1;
       }
     });
 
-    const resultado = Object.entries(resumen).map(([rp, info]) => ({
-      RP: rp,
+    return Object.entries(resumen).map(([clave, info]) => ({
+      clave,
+      RP: info.RP,
+      Tercero: info.Tercero,
       cantidad: info.cantidad,
       total: info.total,
-      promedioDias:
-        info.cuentaDias > 0 ? Math.round(info.sumaDias / info.cuentaDias) : null,
-      promedioGasto:
-        info.cuentaGasto > 0 ? (info.sumaGasto / info.cuentaGasto).toFixed(2) : null,
+      promedioDias: info.cuentaDias > 0 ? Math.round(info.sumaDias / info.cuentaDias) : null,
+      promedioGasto: info.cuentaGasto > 0 ? (info.sumaGasto / info.cuentaGasto).toFixed(2) : null,
     }));
-
-    console.log('Resumen final por RP:', resultado);
-    return resultado;
   }, [datos]);
 
-  const toggleRP = (rp) => {
-    setAbiertos((prev) => ({ ...prev, [rp]: !prev[rp] }));
+  const toggleRP = (clave) => {
+    setAbiertos((prev) => ({ ...prev, [clave]: !prev[clave] }));
   };
 
   if (!resumenRP.length) return null;
@@ -86,13 +92,14 @@ const InformeRP = ({ datos, mapaContratistas = {} }) => {
   return (
     <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
       <Typography variant="h6" gutterBottom>
-        Resumen por RP
+        Resumen por RP y Tercero
       </Typography>
       <Table size="small">
         <TableHead>
           <TableRow>
             <TableCell />
             <TableCell><strong>RP</strong></TableCell>
+            <TableCell><strong>Tercero</strong></TableCell>
             <TableCell><strong>Contratista(s)</strong></TableCell>
             <TableCell><strong>Registros</strong></TableCell>
             <TableCell><strong>Total ($)</strong></TableCell>
@@ -102,14 +109,15 @@ const InformeRP = ({ datos, mapaContratistas = {} }) => {
         </TableHead>
         <TableBody>
           {resumenRP.map((rp) => (
-            <React.Fragment key={rp.RP}>
+            <React.Fragment key={rp.clave}>
               <TableRow>
                 <TableCell>
-                  <IconButton size="small" onClick={() => toggleRP(rp.RP)}>
-                    {abiertos[rp.RP] ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+                  <IconButton size="small" onClick={() => toggleRP(rp.clave)}>
+                    {abiertos[rp.clave] ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
                   </IconButton>
                 </TableCell>
                 <TableCell>{rp.RP}</TableCell>
+                <TableCell>{rp.Tercero}</TableCell>
                 <TableCell>
                   {mapaContratistas[rp.RP]
                     ? mapaContratistas[rp.RP].map((c) => c.Nombre).join(', ')
@@ -121,8 +129,8 @@ const InformeRP = ({ datos, mapaContratistas = {} }) => {
                 <TableCell>{rp.promedioGasto !== null ? `${rp.promedioGasto}%` : '—'}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell colSpan={5} sx={{ p: 0 }}>
-                  <Collapse in={abiertos[rp.RP]} timeout="auto" unmountOnExit>
+                <TableCell colSpan={8} sx={{ p: 0 }}>
+                  <Collapse in={abiertos[rp.clave]} timeout="auto" unmountOnExit>
                     <Box sx={{ margin: 2 }}>
                       <Typography variant="subtitle2" gutterBottom>
                         Detalle de contratistas
