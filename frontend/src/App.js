@@ -75,7 +75,7 @@ const App = () => {
   const [datosFiltrados, setDatosFiltrados] = useState([]);
 
   const { cuadros, cuadroSeleccionado, seleccionarCuadro } = useCuadrosExcel(datosFiltrados);
-  const datosActivos = cuadroSeleccionado && cuadroSeleccionado.length > 0 ? cuadroSeleccionado : datosFiltrados;
+  const datosActivos = cuadroSeleccionado?.datos?.length > 0 ? cuadroSeleccionado.datos : datosFiltrados;
 
   const [columnas, setColumnas] = useState([]);
 
@@ -301,7 +301,7 @@ const App = () => {
     );
 
   const nombreCuadro = cuadroSeleccionado?.cuadro || '';
-  const cuadroEsRP = nombreCuadro.toLowerCase().includes('registro') || nombreCuadro.toLowerCase().includes('rp');
+  const cuadroEsRP = cuadroSeleccionado?.nombre?.toLowerCase().includes('rp');
   const cuadroEsCDP = nombreCuadro.toLowerCase().includes('cdp');
   const cuadroEsCompromiso = nombreCuadro.toLowerCase().includes('compromiso');
 
@@ -400,15 +400,16 @@ const App = () => {
         )}
 
         {cuadroEsRP && (
+          <>
+          {console.log('Mostrando InformeRP con datosEnlazados:', datosEnlazados)}
           <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
           <Typography variant="h6" gutterBottom>
           Detalle de Registros Presupuestales (RP)
           </Typography>
           <InformeRP datos={datosEnlazados} />
           </Paper>
+          </>
         )}
-        </>
-      )}
       
       {columnaAgrupar && columnaValor && (
         <Box sx={{ mt: 3 }}>

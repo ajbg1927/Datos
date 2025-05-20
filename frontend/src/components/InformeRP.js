@@ -15,7 +15,6 @@ const InformeRP = ({ datos, mapaContratistas = {} }) => {
     if (!Array.isArray(datos) || datos.length === 0) return [];
 
     const columnas = Object.keys(datos[0]);
-
     const claveRP = columnas.find((col) => normalizarTexto(col).includes('rp')) || 'RP';
 
     const posiblesValores = ['valor', 'valor total', 'monto', 'total', 'valor inicial'];

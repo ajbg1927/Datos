@@ -2,13 +2,13 @@ import { useMemo } from 'react';
 
 export default function useInformeRP({ cuadros, datos2 }) {
   return useMemo(() => {
-    if (!cuadros || cuadros.length === 0) return [];
+    if (!cuadros || cuadros.length === 0) return { resumen: [], mapaContratistas: {} };
 
     const cuadroRP = cuadros.find(
       (c) => c.nombre.toLowerCase().includes('registro') && c.nombre.toLowerCase().includes('rp')
     );
 
-    if (!cuadroRP || !cuadroRP.datos) return [];
+    if (!cuadroRP || !cuadroRP.datos) return { resumen: [], mapaContratistas: {} };
 
     const datosRP = cuadroRP.datos;
 
@@ -47,6 +47,9 @@ export default function useInformeRP({ cuadros, datos2 }) {
       resumenPorRP[rp].total += valor;
     }
 
-    return Object.values(resumenPorRP);
+    return {
+      resumen: Object.values(resumenPorRP),
+      mapaContratistas: contratistasPorRP,
+    };
   }, [cuadros, datos2]);
 }
