@@ -367,49 +367,49 @@ const App = () => {
       </Paper>
 
       {archivos?.length > 0 && (
-  <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
-    <Typography variant="h6" gutterBottom>
-      Archivos Cargados
-    </Typography>
-
-    <TablaArchivos
-      archivos={archivos}
-      archivoSeleccionado={archivoSeleccionado}
-      onArchivoChange={handleArchivoSeleccionadoChange}
-    />
-
-    <SelectorHojas
-      hojas={hojasPorArchivo[archivoSeleccionado?.nombreBackend] || []}
-      hojasSeleccionadas={hojasSeleccionadas}
-      setHojasSeleccionadas={handleHojasSeleccionadasChange}
-    />
-
-    <SelectorDeCuadro
-      cuadros={cuadros}
-      seleccionarCuadro={seleccionarCuadro}
-      cuadroSeleccionado={cuadroSeleccionado}
-    />
-
-    {cuadroSeleccionado && (
-      <>
+        <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
         <Typography variant="h6" gutterBottom>
-          Cuadro seleccionado: {cuadroSeleccionado.cuadro}
+        Archivos Cargados
         </Typography>
 
-        {esCuadroRP(cuadroSeleccionado.cuadro) && resumenRP?.length > 0 && (
-          <Paper elevation={2} sx={{ p: 3, mt: 2 }}>
+        <TablaArchivos
+        archivos={archivos}
+        archivoSeleccionado={archivoSeleccionado}
+        onArchivoChange={handleArchivoSeleccionadoChange}
+        />
+
+        <SelectorHojas
+        hojas={hojasPorArchivo[archivoSeleccionado?.nombreBackend] || []}
+        hojasSeleccionadas={hojasSeleccionadas}
+        setHojasSeleccionadas={handleHojasSeleccionadasChange}
+        />
+
+        <SelectorDeCuadro
+        cuadros={cuadros}
+        seleccionarCuadro={seleccionarCuadro}
+        cuadroSeleccionado={cuadroSeleccionado}
+        />
+
+        {cuadroSeleccionado && (
+          <>
+          <Typography variant="h6" gutterBottom>
+          Cuadro seleccionado: {cuadroSeleccionado.cuadro}
+          </Typography>
+
+          {esCuadroRP(cuadroSeleccionado.cuadro) && resumenRP?.length > 0 && (
+            <Paper elevation={2} sx={{ p: 3, mt: 2 }}>
             <Typography variant="h6" gutterBottom>
-              Resumen por RP
+            Resumen por RP
             </Typography>
             <InformeRP resumen={resumenRP} mapaContratistas={mapaContratistas} />
-          </Paper>
-        )}
+            </Paper>
+          )}
 
-        <TablaDatos datos={cuadroSeleccionado.datos} />
-      </>
-    )}
-  </Paper> // <--- CIERRA ESTE BLOQUE ANTES DE EMPEZAR OTRO IF
-)}
+          <TablaDatos datos={cuadroSeleccionado.datos} />
+          </>
+        )}
+        </Paper> 
+      )}
           
       {datosActivos.length > 0 && columnas.length > 0 && (
         <>
