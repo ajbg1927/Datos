@@ -386,8 +386,21 @@ const App = () => {
           seleccionarCuadro={seleccionarCuadro}
           cuadroSeleccionado={cuadroSeleccionado}
           />
-        </Paper>
-      )}
+          </Paper>
+
+          {cuadroSeleccionado && (
+            <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+            <Typography variant="h6" gutterBottom>
+            Cuadro seleccionado: {cuadroSeleccionado.cuadro}
+            </Typography>
+
+            {esCuadroRP(cuadroSeleccionado.cuadro) && (
+              <InformeRP resumen={resumenRP} mapaContratistas={mapaContratistas} />
+            )}
+
+            <TablaDatos datos={cuadroSeleccionado.datos} />
+            </Paper>
+          )}
 
       {datosActivos.length > 0 && columnas.length > 0 && (
         <>
