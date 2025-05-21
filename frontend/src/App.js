@@ -382,27 +382,25 @@ const App = () => {
             setHojasSeleccionadas={handleHojasSeleccionadasChange}
           />
           <SelectorDeCuadro
-          cuadros={cuadros}
-          seleccionarCuadro={seleccionarCuadro}
-          cuadroSeleccionado={cuadroSeleccionado}
-          />
-          </Paper>
+  cuadros={cuadros}
+  seleccionarCuadro={seleccionarCuadro}
+  cuadroSeleccionado={cuadroSeleccionado}
+/>
 
-          <>
-          {cuadroSeleccionado && (
-            <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
-            Cuadro seleccionado: {cuadroSeleccionado.cuadro}
-            </Typography>
+{cuadroSeleccionado && (
+  <>
+    <Typography variant="h6" gutterBottom>
+      Cuadro seleccionado: {cuadroSeleccionado.cuadro}
+    </Typography>
 
-            {esCuadroRP(cuadroSeleccionado.cuadro) && (
-              <InformeRP resumen={resumenRP} mapaContratistas={mapaContratistas} />
-            )}
+    {esCuadroRP(cuadroSeleccionado.cuadro) && (
+      <InformeRP resumen={resumenRP} mapaContratistas={mapaContratistas} />
+    )}
 
-            <TablaDatos datos={cuadroSeleccionado.datos} />
-            </Paper>
-          )}
-          </>
+    <TablaDatos datos={cuadroSeleccionado.datos} />
+  </>
+)}
+</Paper> // Este Paper cierra correctamente todo el bloque ahora
 
       {datosActivos.length > 0 && columnas.length > 0 && (
         <>
