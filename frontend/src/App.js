@@ -388,6 +388,7 @@ const App = () => {
           />
           </Paper>
 
+          <>
           {cuadroSeleccionado && (
             <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
             <Typography variant="h6" gutterBottom>
@@ -401,6 +402,7 @@ const App = () => {
             <TablaDatos datos={cuadroSeleccionado.datos} />
             </Paper>
           )}
+          </>
 
       {datosActivos.length > 0 && columnas.length > 0 && (
         <>
