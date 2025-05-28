@@ -302,8 +302,10 @@ const App = () => {
     );
 
   const nombreCuadro = cuadroSeleccionado?.cuadro || '';
-  const esCuadroRP = (nombre = '') =>
-  nombre.toLowerCase().includes('registro') && nombre.toLowerCase().includes('rp');
+  const esCuadroRP = (nombre = '') => {
+    const lower = nombre.toLowerCase();
+    return (lower.includes('rp') || lower.includes('registro')) && lower.includes('presup');
+  }
 
   const cuadroEsRP = esCuadroRP(cuadroSeleccionado?.nombre);
 
