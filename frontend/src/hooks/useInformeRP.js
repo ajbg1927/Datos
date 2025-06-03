@@ -8,31 +8,38 @@ export default function useInformeRP({ cuadros, datos2 }) {
       (c) => c.nombre.toLowerCase().includes('registro') && c.nombre.toLowerCase().includes('rp')
     );
 
-    if (!cuadroRP || !cuadroRP.datos) return { resumen: [], mapaContratistas: {} };
-
+    if (!cuadroRP?.datos) return { resumen: [], mapaContratistas: {} };
     const datosRP = cuadroRP.datos;
 
     const hojaContratistas = datos2?.find(
-      (hoja) => hoja.nombre.toLowerCase().includes('contratistas')
+      (hoja) =>
+        hoja.nombre.toLowerCase().includes('contratista') ||
+        hoja.nombre.toLowerCase().includes('proveedor')
     );
     const datosContratistas = hojaContratistas?.datos || [];
 
+    const normalizarRP = (rp) => String(rp).trim();
+
     const contratistasPorRP = {};
     for (const fila of datosContratistas) {
-      const rp = fila['RP'];
-      if (rp) {
-        if (!contratistasPorRP[rp]) contratistasPorRP[rp] = [];
-        contratistasPorRP[rp].push(fila);
-      }
+      const rp = normalizarRP(fila['RP']);
+      if (!rp) continue;
+      if (!contratistasPorRP[rp]) contratistasPorRP[rp] = [];
+      contratistasPorRP[rp].push(fila);
     }
 
     const resumenPorRP = {};
 
-    for (const fila of datosRP) {
-      const rp = fila['RP'];
-      const valor = parseFloat(fila['Valor']) || 0;
+    const obtenerValor = (fila) => {
+      const clave = Object.keys(fila).find((k) => k.toLowerCase().includes('valor'));
+      return parseFloat(fila[clave]) || 0;
+    };
 
+    for (const fila of datosRP) {
+      const rp = normalizarRP(fila['RP']);
       if (!rp) continue;
+
+      const valor = obtenerValor(fila);
 
       if (!resumenPorRP[rp]) {
         resumenPorRP[rp] = {
